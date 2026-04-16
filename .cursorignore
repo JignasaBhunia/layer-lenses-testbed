@@ -1,0 +1,32 @@
+# Generated outputs and junk Cursor does not need
+results/
+__pycache__/
+.ipynb_checkpoints/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+build/
+dist/
+*.pyc
+*.pyo
+*.pyd
+*.so
+.DS_Store
+.env
+.env.*
+
+# Optional: ignore future checkpoints / artifacts
+*.pt
+*.pth
+*.ckpt
+*.pkl
+*.joblib
+
+# IMPORTANT:
+# Do NOT ignore notebooks/old_notebooks/
+# Do NOT ignore *.ipynb
+# Do NOT ignore *.tex
+# Do NOT ignore paper PDFs
+# These are source/reference materials for this repo.
