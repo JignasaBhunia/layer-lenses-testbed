@@ -1,7 +1,7 @@
 [project]
 name = "first-experiment"
 version = "0.1.0"
-description = "Add your description here"
+description = "Clean reimplementation of DLGN / COB-ODT research (Paper 1: Discontinuities; Paper 2: Layers as Lenses)."
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
@@ -11,11 +11,17 @@ dependencies = [
     "numpy>=2.4.4",
     "torch>=2.11.0",
     "torchvision",
+    "pyyaml>=6.0",
+    "pytest>=8.0",
 ]
 
 [project.scripts]
-first-experiment = "first_experiment:main"
+first-experiment = "first_experiment.cli:main"
 
 [build-system]
 requires = ["uv_build>=0.11.6,<0.12.0"]
 build-backend = "uv_build"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
