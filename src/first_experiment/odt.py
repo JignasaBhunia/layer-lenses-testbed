@@ -39,6 +39,19 @@ class COBODTTree:
     b_list: np.ndarray
     leaf_labels: np.ndarray
 
+    @property
+    def depth(self) -> int:
+        """Depth inferred from internal-node count for complete trees."""
+        num_internal = self.w_list.shape[0]
+        depth_float = np.log2(num_internal + 1)
+        depth = int(depth_float)
+        if (2**depth) - 1 != num_internal:
+            raise ValueError(
+                "w_list does not correspond to a complete binary tree. "
+                f"Got {num_internal} internal nodes."
+            )
+        return depth
+
 
 def _sample_unit_sphere(rng: np.random.Generator, num_data: int, dim: int) -> np.ndarray:
     x = rng.standard_normal((num_data, dim))
@@ -111,11 +124,15 @@ def _path_directions_from_root(node_id: int) -> list[int]:
     return directions
 
 
+def _infer_depth_from_tree(tree: COBODTTree) -> int:
+    """Infer tree depth from number of internal nodes."""
+    return tree.depth
+
+
 def samples_reaching_node(
     *,
     x: np.ndarray,
     tree: COBODTTree,
-    depth: int,
     node_id: int,
     return_mask: bool = False,
 ) -> np.ndarray | tuple[np.ndarray, np.ndarray]:
@@ -124,10 +141,10 @@ def samples_reaching_node(
     Args:
         x: Input samples of shape (n, d).
         tree: COB-ODT parameters.
-        depth: Tree depth.
         node_id: Node index in heap order (root=0).
         return_mask: If True, also return a boolean mask over `x`.
     """
+    depth = _infer_depth_from_tree(tree)
     num_internal = (2**depth) - 1
     num_total_nodes = (2 ** (depth + 1)) - 1
     if node_id < 0 or node_id >= num_total_nodes:

@@ -58,7 +58,7 @@ def test_samples_reaching_root_returns_all_points() -> None:
     x, _, tree, meta = generate_cob_odt_data(
         num_data=600, dim=12, depth=3, seed=8, threshold=0.0
     )
-    subset = samples_reaching_node(x=x, tree=tree, depth=meta["depth"], node_id=0)
+    subset = samples_reaching_node(x=x, tree=tree, node_id=0)
     assert subset.shape[0] == x.shape[0]
 
 
@@ -75,7 +75,6 @@ def test_samples_reaching_leaf_partition_covers_all_points() -> None:
         _, mask = samples_reaching_node(
             x=x,
             tree=tree,
-            depth=depth,
             node_id=num_internal + leaf_offset,
             return_mask=True,
         )
@@ -91,7 +90,7 @@ def test_samples_reaching_node_invalid_node_id_raises() -> None:
     depth = int(meta["depth"])
     num_total_nodes = 2 ** (depth + 1) - 1
     try:
-        samples_reaching_node(x=x, tree=tree, depth=depth, node_id=num_total_nodes)
+        samples_reaching_node(x=x, tree=tree, node_id=num_total_nodes)
         assert False, "Expected ValueError for out-of-range node_id."
     except ValueError:
         pass
