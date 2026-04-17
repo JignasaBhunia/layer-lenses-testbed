@@ -7,32 +7,285 @@
 
 \usepackage{hyperref}
 \usepackage{url}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%-----------------------------
+%----------PACKAGES START----------------------
+%--------- Packages -----------
+\usepackage{times}
+\usepackage{helvet}
+\usepackage{courier}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\let\proof\relax
+\let\endproof\relax
+\usepackage{amsthm}
+\usepackage{latexsym}
+\usepackage{graphicx}
+\usepackage{wrapfig}
+\usepackage{color,colortbl}
+% \usepackage{algorithm,algorithmic}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+\usepackage{url}
+\usepackage{subcaption}
+\usepackage{multirow}
+\usepackage{adjustbox}
+
+%--------Environments----------
+\newtheorem{thm}{Theorem}%[section]
+\newtheorem{lem}[thm]{Lemma}
+\newtheorem{prop}[thm]{Proposition}
+\newtheorem{cor}[thm]{Corollary}
+\newtheorem{defn}[thm]{Definition}
+\newtheorem{assump}{Assumption}
+\newtheorem{exmp}{Example}
+\newtheorem*{prob}{Problem}
+\newtheorem*{exer}{Exercise}
+\newtheorem*{rem}{Remark}
+% \newtheorem*{note}{Note}
+\newenvironment{pf}{{\noindent\sc Proof. }}{\qed}
+\newenvironment{map}{\[\begin{array}{cccc}} {\end{array}\]}
+
+\newtheorem*{thm*}{Theorem}
+\newtheorem*{prop*}{Proposition}
+\newtheorem*{lem*}{Lemma}
+\newtheorem*{exmp*}{Example}
 
 
-\title{Formatting Instructions for ICLR 2025 \\ Conference Submissions}
+%---------Definitions----------
+\newcommand{\Fig}[1]{Figure~\ref{#1}}
+\newcommand{\Sec}[1]{Section~\ref{#1}}
+\newcommand{\Tab}[1]{Table~\ref{#1}}
+\newcommand{\Tabs}[2]{Tables~\ref{#1}--\ref{#2}}
+\newcommand{\Eqn}[1]{Eq.~(\ref{#1})}
+\newcommand{\Eqs}[2]{Eqs.~(\ref{#1}-\ref{#2})}
+\newcommand{\Lem}[1]{Lemma~\ref{#1}}
+\newcommand{\Thm}[1]{Theorem~\ref{#1}}
+\newcommand{\Prop}[1]{Proposition~\ref{#1}}
+\newcommand{\Cor}[1]{Corollary~\ref{#1}}
+\newcommand{\App}[1]{Appendix~\ref{#1}}
+\newcommand{\Def}[1]{Definition~\ref{#1}}
+\newcommand{\Algo}[1]{Algorithm~\ref{#1}}
+\newcommand{\Exmp}[1]{Example~\ref{#1}}
+%
+\definecolor{Gray}{gray}{0.8}
+%
+\renewcommand{\hat}{\widehat}
+\renewcommand{\tilde}{\widetilde}
+\renewcommand{\>}{{\rightarrow}}
+\renewcommand{\=}{\stackrel{\triangle}{=}}
+\newcommand{\half}{\textstyle{\frac{1}{2}}}
+\newcommand{\grad}{\nabla}
+%\newcommand{\argmax}{\operatorname{argmax}}
+%\newcommand{\argmin}{\operatorname{argmin}}
+\newcommand{\conv}{\operatorname{conv}}
+\newcommand{\poly}{\operatorname{poly}}
+\newcommand{\rank}{\operatorname{rank}}
+%\newcommand{\sign}{\operatorname{sign}}
+%
+
+\newcommand{\Z}{{\mathbb Z}}
+\newcommand{\N}{{\mathbb N}}
+
+\renewcommand{\P}{{\mathbf P}}
+%\newcommand{\E}{{\mathbf E}}
+%\newcommand{\Var}{{\mathbf{Var}}}
+\newcommand{\I}{{\mathbf I}}
+%\newcommand{\1}{{\mathbf 1}}
+\newcommand{\0}{{\mathbf 0}}
+%
+
+\newcommand{\cA}{{\mathcal A}}
+\newcommand{\B}{{\mathcal B}}
+\newcommand{\cC}{{\mathcal C}}
+\newcommand{\cF}{{\mathcal F}}
+\newcommand{\cE}{{\mathcal E}}
+\newcommand{\G}{{\mathcal G}}
+\renewcommand{\H}{{\mathcal H}}
+\newcommand{\cI}{{\mathcal I}}
+\newcommand{\K}{{\mathcal K}}
+\newcommand{\cM}{{\mathcal M}}
+\newcommand{\cN}{{\mathcal N}}
+\newcommand{\cO}{{\mathcal O}}
+\newcommand{\cP}{{\mathcal P}}
+\newcommand{\cR}{{\mathcal R}}
+\renewcommand{\S}{{\mathcal S}}
+\newcommand{\cT}{{\mathcal T}}
+\newcommand{\W}{{\mathcal W}}
+\newcommand{\X}{{\mathcal X}}
+\newcommand{\Y}{{\mathcal Y}}
+\newcommand{\cZ}{{\mathcal Z}}
+
+
+\newcommand{\A}{{\mathbf A}}
+\newcommand{\C}{{\mathbf C}}
+\newcommand{\F}{{\mathbf F}}
+\renewcommand{\L}{{\mathbf L}}
+\newcommand{\bR}{{\mathbf R}}
+\newcommand{\Q}{{\mathbf Q}}
+\renewcommand{\B}{{\mathbf B}}
+%
+\renewcommand{\b}{{\mathbf b}}
+\renewcommand{\c}{{\mathbf c}}
+\newcommand{\f}{{\mathbf f}}
+\newcommand{\h}{{h}}%\mathbf 
+\newcommand{\m}{{\mathbf m}}
+\newcommand{\p}{{\mathbf p}}
+\newcommand{\q}{{\mathbf q}}
+\renewcommand{\r}{{\mathbf r}}
+\newcommand{\s}{{\mathbf s}}
+\renewcommand{\u}{{\mathbf u}}
+\renewcommand{\v}{{\mathbf v}}
+\newcommand{\w}{{\mathbf w}}
+\newcommand{\x}{{\mathbf x}}
+\newcommand{\z}{{\mathbf z}}
+\newcommand{\bu}{{\mathbf u}}
+\newcommand{\bv}{{\mathbf v}}
+%
+\newcommand{\zo}{\textup{\textrm{0-1}}}
+\newcommand{\bal}{\textup{\textrm{bal}}}
+\newcommand{\ord}{\textup{\textrm{ord}}}
+\newcommand{\FN}{\textup{\textrm{FN}}}
+\newcommand{\FP}{\textup{\textrm{FP}}}
+\newcommand{\TN}{\textup{\textrm{TN}}}
+\newcommand{\TP}{\textup{\textrm{TP}}}
+\newcommand{\TPR}{\textup{\textrm{TPR}}}
+\newcommand{\TNR}{\textup{\textrm{TNR}}}
+\newcommand{\AM}{\textup{\textrm{AM}}}
+\newcommand{\GM}{\textup{\textrm{GM}}}
+\newcommand{\HM}{\textup{\textrm{HM}}}
+\newcommand{\micro}{\textup{\textrm{micro}}}
+%
+\newcommand{\bloss}{{\boldsymbol \ell}}
+\newcommand{\balpha}{{\boldsymbol \alpha}}
+\newcommand{\bxi}{{\boldsymbol \xi}}
+\newcommand{\bpsi}{{\boldsymbol \psi}}
+\newcommand{\btau}{{\boldsymbol \tau}}
+\newcommand{\bg}{\mathbf{g}}
+%
+\newcommand{\bell}{{\boldsymbol \ell}}
+%\newcommand{\balpha}{{\boldsymbol \alpha}}
+\newcommand{\bpi}{{\boldsymbol \pi}}
+\newcommand{\bphi}{{\boldsymbol \phi}}
+%\newcommand{\bpsi}{{\boldsymbol \psi}}
+\newcommand{\bsigma}{{\boldsymbol \sigma}}
+\newcommand{\btheta}{{\boldsymbol \theta}}
+\newcommand{\bbeta}{{\boldsymbol \beta}}
+\newcommand{\seta}{{\boldsymbol \eta}}
+\newcommand{\bGamma}{{\boldsymbol \Gamma}}
+%
+%\renewcommand{\int}{\operatorname{int}}
+\newcommand{\argsort}{\textup{\textrm{argsort}}}
+\newcommand{\er}{\textup{\textrm{er}}}
+
+%%%% Added by Hari %%%
+\newcommand{\boldeta}{{\boldsymbol \eta}}
+%%\newcommand{\rl}{\textup{\textrm{ratioLin}}}
+%\newcommand{\rl}{}
+%\newcommand{\mn}{{\uparrow}}
+%\newcommand{\rl}{{}}
+\newcommand{\mn}{{}}
+\newcommand{\LMO}{\text{\tt{LMO}}}
+\newcommand{\wLMO}{\widehat{\text{\tt{LMO}}}}
+\newcommand{\optsolver}{\text{\tt{OptSolver}}}
+%\newcommand{\CPE}{\text{\tt{CPE}}}
+\newcommand{\CPE}{\textup{\textrm{CPE}}}
+\newcommand{\lwr}{\textup{\textrm{lower}}}
+\newcommand{\upr}{\textup{\textrm{upper}}}
+\newcommand{\FW}{\textup{\textrm{FW}}}
+\newcommand{\BS}{\textup{\textrm{BS}}}
+\newcommand{\bmu}{{\boldsymbol \mu}}
+\newcommand{\T}{{\mathbf T}}
+\newcommand{\svmp}{$\text{SVM}^\text{perf~}$}
+
+%%%%% Added by Shiv %%%%
+\newcommand{\Zeta}{Z}
+
+\newcommand{\vol}{\textup{\textrm{vol}}}
+\newcommand{\V}{{\mathcal V}}
+\newcommand{\g}{{\mathbf g}}
+%\newcommand{\G}{{\mathbf G}}
+\newcommand{\e}{{\mathbf e}}
+\newcommand{\cB}{{\mathcal B}}
+
+
+% Journal paper macros
+% \newcommand{\ncrossn}{n^2}
+% \newcommand{\C}{c}
+% \newcommand{\bC}{\mathbf{c}}
+% \renewcommand{\L}{\ell}
+% \newcommand{\bL}{\boldsymbol{\ell}}
+\newcommand{\performance}{\Psi}
+\newcommand{\constraint}{\Phi}
+
+\newcommand{\BER}{\textup{\textrm{BER}}}
+\renewcommand{\prec}{\textup{\textrm{prec}}}
+\newcommand{\cov}{\textup{\textrm{cov}}}
+\newcommand{\eff}{\textup{\textrm{eff}}}
+\newcommand{\KLD}{\textup{\textrm{KLD}}}
+\newcommand{\DP}{\textup{\textrm{DP}}}
+\newcommand{\EOpp}{\textup{\textrm{EOpp}}}
+\newcommand{\EO}{\textup{\textrm{EO}}}
+
+
+\newcommand{\lmo}{\textup{\textrm{LMO}}}
+\newcommand{\optutag}{OP1}
+\newcommand{\optctag}{OP2}
+\newcommand{\usubscript}{\textup{U}}
+\newcommand{\csubscript}{\textup{\textrm{C}}}
+
+\newcommand{\blambda}{\boldsymbol{\lambda}}
+\newcommand{\cL}{\mathcal{L}}
+\newcommand{\aug}{\textup{\textrm{aug}}}
+\newcommand{\con}{\textup{\textrm{con}}}
+\newcommand{\ba}{\mathbf{a}}
+\newcommand{\bb}{\mathbf{b}}
+\newcommand{\bW}{\mathbf{W}}
+\renewcommand{\vec}{\textup{\textrm{vec}}}
+\newcommand{\gen}{\textup{\textrm{gen}}}
+\newcommand{\ocC}{\cC}
+
+%Added for variables in algo
+\newcommand{\myVar}{\texttt}
+%-------------------PACKAGE END------------------
+
+
+\title{Deep Networks Learn Features From Local Discontinuities in the Label Function}
 
 % Authors must not appear in the submitted version. They should be hidden
 % as long as the \iclrfinalcopy macro remains commented out below.
 % Non-anonymous submissions will be rejected without review.
 
-\author{Antiquus S.~Hippocampus, Natalia Cerebro \& Amelie P. Amygdale \thanks{ Use footnote for providing further information
-about author (webpage, alternative address)---\emph{not} for acknowledging
-funding agencies.  Funding acknowledgements go at the end of the paper.} \\
-Department of Computer Science\\
-Cranberry-Lemon University\\
-Pittsburgh, PA 15213, USA \\
-\texttt{\{hippo,brain,jen\}@cs.cranberry-lemon.edu} \\
-\And
-Ji Q. Ren \& Yevgeny LeNet \\
-Department of Computational Neuroscience \\
-University of the Witwatersrand \\
-Joburg, South Africa \\
-\texttt{\{robot,net\}@wits.ac.za} \\
-\AND
-Coauthor \\
-Affiliation \\
-Address \\
-\texttt{email}
+% \author{Antiquus S.~Hippocampus, Natalia Cerebro \& Amelie P. Amygdale \thanks{ Use footnote for providing further information
+% about author (webpage, alternative address)---\emph{not} for acknowledging
+% funding agencies.  Funding acknowledgements go at the end of the paper.} \\
+% Department of Computer Science\\
+% Cranberry-Lemon University\\
+% Pittsburgh, PA 15213, USA \\
+% \texttt{\{hippo,brain,jen\}@cs.cranberry-lemon.edu} \\
+% \And
+% Ji Q. Ren \& Yevgeny LeNet \\
+% Department of Computational Neuroscience \\
+% University of the Witwatersrand \\
+% Joburg, South Africa \\
+% \texttt{\{robot,net\}@wits.ac.za} \\
+% \AND
+% Coauthor \\
+% Affiliation \\
+% Address \\
+% \texttt{email}
+% }
+% \author{Prithaj Banerjee, Harish G. Ramaswamy, Mahesh Yadav, Chandrashekar Lakshminarayanan \\
+% Department of Computer Science and Engineering\\
+% Indian Institute of Technology Madras, India \\
+% \texttt{\{prithaj,hariguru,mahesh,chandrashekar\}@cse.iitm.ac.in} \\
+% }
+
+\author{Prithaj Banerjee, Harish G. Ramaswamy, Yadav Mahesh Lorik, Chandrashekar Lakshminarayanan \\
+Indian Institute of Technology Madras, India \\[2pt]
+\texttt{\{\{prithaj,maheshyadav\}@cse, \{hariguru,chandarashekar\}@dsai\}.iitm.ac.in}
 }
 
 % The \author macro works with any number of authors. There are two commands
@@ -46,369 +299,1496 @@ Address \\
 \newcommand{\fix}{\marginpar{FIX}}
 \newcommand{\new}{\marginpar{NEW}}
 
-%\iclrfinalcopy % Uncomment for camera-ready version, but NOT for submission.
+\iclrfinalcopy % Uncomment for camera-ready version, but NOT for submission.
 \begin{document}
 
 
 \maketitle
 
 \begin{abstract}
-The abstract paragraph should be indented 1/2~inch (3~picas) on both left and
-right-hand margins. Use 10~point type, with a vertical spacing of 11~points.
-The word \textsc{Abstract} must be centered, in small caps, and in point size 12. Two
-line spaces precede the abstract. The abstract must be limited to one
-paragraph.
+Deep neural networks outperform kernel machines on several datasets due to feature learning that happens during gradient descent training. In this paper, we analyze the mechanism through which feature learning happens and use a notion of features that corresponds to discontinuities in the true label function. We hypothesize that the core feature learning mechanism is label function discontinuities attracting model function discontinuities during training. To test this hypothesis, we perform experiments on classification data where the true label function is given by an oblique decision tree. This setup allows easy enumeration of label function discontinuities, while still remaining intractable for static kernel/linear methods. We then design/construct a novel deep architecture called a Deep Linearly Gated Network (DLGN), whose discontinuities in the input space can be easily enumerated.  In this setup, we provide supporting evidence demonstrating the movement of model function discontinuities towards the label function discontinuities during training. The easy enumerability of discontinuities in the DLGN also enables greater mechanistic interpretability. We demonstrate this by extracting the parameters of a high-accuracy decision tree from the parameters of a DLGN. We also show that the DLGN is competitive with ReLU networks and other tree-learning algorithms on several real-world tabular datasets.
 \end{abstract}
 
-\section{Submission of conference papers to ICLR 2025}
+\section{Introduction}\label{sec:intro}
 
-ICLR requires electronic submissions, processed by
-\url{https://openreview.net/}. See ICLR's website for more instructions.
+Neural networks and deep learning have demonstrated exceptional performance across diverse domains, but their learning mechanism and exact reason for outperforming linear/kernel models still remain largely a mystery. Another issue with neural networks is the black box nature of the models, by which any parameters (other than the first layer parameters) are difficult to interpret directly. 
 
-If your paper is ultimately accepted, the statement {\tt
-  {\textbackslash}iclrfinalcopy} should be inserted to adjust the
-format to the camera ready requirements.
+There have been several tools built to study the learning dynamics of gradient descent and perform post-hoc interpretation of learned models. The most common characteristics of these are as follows:
 
-The format for the submissions is a variant of the NeurIPS format.
-Please read carefully the instructions below, and follow them
-faithfully.
+\begin{itemize}
+\item Approximate the learning dynamics of neural networks with much simpler setups -- like kernel methods \citep{Arora+19} or deep linear models \citep{Saxe+14}.
+\item Study dynamics of single (or two) hidden layer models under special data and settings to go beyond the settings of kernel methods or deep linear models \citep{Damian22,ba2022high, Nichani+23}.
+\item Approximate the learned non-linear neural model with linear approximations around a given query input \citep{ribeiro2016should,selvaraju2017grad}.
+\end{itemize}
 
-\subsection{Style}
+These approaches serve a valuable purpose, but have their share of cons, namely
 
-Papers to be submitted to ICLR 2025 must be prepared according to the
-instructions presented here.
+\begin{itemize}
+\item Deep linear models are incapable of learning non-linear models, and fixed kernel methods are incapable of learning ``data-dependent-features''. 
+\item Analyses of single hidden layer models for specific data settings like the parity function fail to capture the need/behaviour of multiple layers.
+\item All post-hoc interpretability approaches based on local approximations suffer from a lack of faithfulness guarantees-- i.e. how useful/valuable is the `interpreted' feature to the learned model?
+\end{itemize}
 
-%% Please note that we have introduced automatic line number generation
-%% into the style file for \LaTeXe. This is to help reviewers
-%% refer to specific lines of the paper when they make their comments. Please do
-%% NOT refer to these line numbers in your paper as they will be removed from the
-%% style file for the final version of accepted papers.
-
-Authors are required to use the ICLR \LaTeX{} style files obtainable at the
-ICLR website. Please make sure you use the current files and
-not previous versions. Tweaking the style files may be grounds for rejection.
-
-\subsection{Retrieval of style files}
-
-The style files for ICLR and other conference information are available online at:
-\begin{center}
-   \url{http://www.iclr.cc/}
-\end{center}
-The file \verb+iclr2025_conference.pdf+ contains these
-instructions and illustrates the
-various formatting requirements your ICLR paper must satisfy.
-Submissions must be made using \LaTeX{} and the style files
-\verb+iclr2025_conference.sty+ and \verb+iclr2025_conference.bst+ (to be used with \LaTeX{}2e). The file
-\verb+iclr2025_conference.tex+ may be used as a ``shell'' for writing your paper. All you
-have to do is replace the author, title, abstract, and text of the paper with
-your own.
-
-The formatting instructions contained in these style files are summarized in
-sections \ref{gen_inst}, \ref{headings}, and \ref{others} below.
-
-\section{General formatting instructions}
-\label{gen_inst}
-
-The text must be confined within a rectangle 5.5~inches (33~picas) wide and
-9~inches (54~picas) long. The left margin is 1.5~inch (9~picas).
-Use 10~point type with a vertical spacing of 11~points. Times New Roman is the
-preferred typeface throughout. Paragraphs are separated by 1/2~line space,
-with no indentation.
-
-Paper title is 17~point, in small caps and left-aligned.
-All pages should start at 1~inch (6~picas) from the top of the page.
-
-Authors' names are
-set in boldface, and each name is placed above its corresponding
-address. The lead author's name is to be listed first, and
-the co-authors' names are set to follow. Authors sharing the
-same address can be on the same line.
-
-Please pay special attention to the instructions in section \ref{others}
-regarding figures, tables, acknowledgments, and references.
+To this end, we introduce and study a novel architecture which is more powerful than kernel machines and deep linear networks (i.e. it is capable of learning non-linear data-dependent features) while being `mechanistically interpretable' (i.e. the model output breaks down exactly into a sum of components, each of which has a simple structure). Using this architecture, we gather and provide supporting evidence for claims below that would not be possible without it.
+\begin{itemize}
+    \item The advantage of feature learning methods (like ReLU networks) over kernel machines lies in their ability to align the model discontinuities to the label function discontinuities.
+    \item The existence of multiple layers enables the `local' nature of the discontinuity finding -- each layer operates in the context set by other layers, and hence, discontinuities that might be minor (or not even exist) in a global context can become significant and drive the learning process.
+\end{itemize}
 
 
-There will be a strict upper limit of 10 pages for the main text of the initial submission, with unlimited additional pages for citations. 
+\subsection{Overview/Contributions}\label{sec:contri}
 
-\section{Headings: first level}
-\label{headings}
+In Section \ref{sec:reltwork}, we review recent literature on feature learning in deep networks. In Section \ref{sec:discont} we define the concept of label function discontinuities and give an interesting setting where these form natural features and can be easily enumerated. In Section \ref{sec:dlgn} we propose a novel architecture called the deep linearly gated network (DLGN). In Section \ref{sec:Model-feats-label-feats} we provide supporting evidence for our claim of label function discontinuities attracting model features during training. In Section \ref{sec:dlgndt} we demonstrate that the DLGN architecture enables better control and is more amenable to being mechanistically interpreted by constructing a decision tree directly from the parameters of learned DLGNs.  In Section \ref{sec:exp} we give empirical results on some binary classification datasets and show that feature learning methods (like the DLGN) outperform fixed kernel methods and are comparable to ensemble methods like random forests.
 
-First level headings are in small caps,
-flush left and in point size 12. One line space before the first level
-heading and 1/2~line space after the first level heading.
 
-\subsection{Headings: second level}
+\subsection{Notation/Setup} 
 
-Second level headings are in small caps,
-flush left and in point size 10. One line space before the second level
-heading and 1/2~line space after the second level heading.
+We consider a binary classification task, with training set $S=\{(\x_1, y_1) , \ldots, (\x_n, y_n) \}$ where $\x_i \in \mathbb{R}^d$ is drawn from some distribution $D$, and $ y_i = f^*(\x_i) \in \{+1, -1\} $.  The ultimate goal is to generalize well by finding a classifier $f:\mathbb{R}^d \> \{+1, -1\}$ such that $f(\x) = f^*(\x)$ with high probability over $\x$ drawn from $D$. For any positive integer $a$ we denote the set $\{1,2,\ldots,a\}$ as $[a]$. We denote by $\mathbf{1}(\text{condition})$ as a $\{0,1\}$ valued variable that takes $1$ if the condition is true and $0$ otherwise. 
 
-\subsubsection{Headings: third level}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Third level headings are in small caps,
-flush left and in point size 10. One line space before the third level
-heading and 1/2~line space after the third level heading.
+\section{Related Work}\label{sec:reltwork}
 
-\section{Citations, figures, tables, references}
-\label{others}
+A brief overview of some related work in the topic of neural network feature learning is given below.
 
-These instructions apply to everyone, regardless of the formatter being used.
+\textbf{Neural Nets as Kernel Machines}: An infinite-width neural net at initialisation is equivalent to a Gaussian processes with a particular kernel, and learning can be viewed as computing the posterior of the label function, based on the training data likelihood \citep{lee2017deep}.  \citet{Jacot+18} introduced the Neural Tangent Kernel (NTK), which approximates an infinite-width neural network trained with gradient descent to a kernel machine. \citet{Arora+19} analysed the width at which neural networks act approximately similar to kernel machine, this number while being finite is much larger than typical widths seen in practical networks. \citet{Daniely20} showed that neural nets are not just equivalent to kernel-methods, and are capable of succeeding in situations where kernel methods provably fail.  The constant NTK setting simply asserts no feature learning takes place, in contrast to empirical results. Tools to study the change of the NTK features during training are an interesting and active area of research. \citep{Atanasov+22,Damian22,hu2020surprising,ba2022high,Chizat+19,liu2020linearity}.\\
+% \citep{Atanasov+22,baratin2021implicit,bordelon2020spectrum,Damian22,chen2022feature,shi2022theoretical,woodworth2020kernel,fort2020deep,hu2020surprising,ba2022high,chizat2018global,Chizat+19,liu2020linearity}.
 
-\subsection{Citations within the text}
+\textbf{Feature Learning in Neural Nets}: ReLU networks \citep{fukushima1969visual} have been a workhorse of deep learning and are the current focus of several theoretical results that aim to explain the success of deep learning over kernel methods \citep{ghorbani2020neural}. ReLU networks can learn important data characteristics known as ``features'', though the term can be ambiguous. Neural networks undergo feature learning, developing data representations during the process \citep{Damian22}. Some research proposes that neural nets learn low-frequency functions \citep{rahaman2019spectral,cao2019towards} and simple features \citep{shah2020pitfalls} first while training, and as the iteration progresses, it gradually learns more complex features \citep{kalimeris2019sgd,hu2020surprising}. Other schools of thought on this being the last layer neurons \citep{daniely2017sgd,lee2019wide} are a natural feature choice as the prediction function can simply be viewed as a linear function of the last layer. 
+% Again, directions in activation space \citep{olah2020zoom} are an intriguing new possibility and have had practical success in some scenarios like Word2Vec \citep{church2017word2vec}. 
+% Various works have been on the piece-wise linear structure \citep{laurent2018multilinear} of a ReLU network and its surprisingly few activation patterns \citep{Hanin+19a}. Research has been conducted to understand the success of over-fitted deep neural network models instead of traditional notions \citep{belkin2019reconciling}.\\
+% \citet{ji2018gradient} talks about the asymptotic weight matrix alignment via gradient descent, which is in line with our research on the alignment of hyperplanes.
 
-Citations within the text should be based on the \texttt{natbib} package
-and include the authors' last names and year (with the ``et~al.'' construct
-for more than two authors). When the authors or the publication are
-included in the sentence, the citation should not be in parenthesis using \verb|\citet{}| (as
-in ``See \citet{Hinton06} for more information.''). Otherwise, the citation
-should be in parenthesis using \verb|\citep{}| (as in ``Deep learning shows promise to make progress
-towards AI~\citep{Bengio+chapter2007}.'').
+\textbf{Modifying neural nets to understand feature learning}: A ReLU network can be viewed as a deep linear network with an input-dependent sub-network selection. \citet{lakshminarayanan2020neural} make this explicit by constructing an alternate architecture which builds two separate models -- one for input-dependent sub-network selection and another for the deep linear network that the input goes through -- and showed that feature learning happens via learning of active sub-networks . Disjunctive normal networks \citep{sajjadi2016disjunctive} that utilize the disjunctive normal form, Gated Linear Networks (GLN) \citep{veness2021gated, budden2020gaussian, saxe2022neural} a backpropagation-free architecture where each unit (neuron) learns locally using data-dependent gating (context) are some other recent papers that enable a better study of feature learning in deep networks by constructing a different and (arguably) simpler architecture than standard ReLU nets.
 
-The corresponding references are to be listed in alphabetical order of
-authors, in the \textsc{References} section. As to the format of the
-references themselves, any style is acceptable as long as it is used
-consistently.
+% Another active line of research is finding sparse networks \citep{frankle2018lottery}.
 
-\subsection{Footnotes}
 
-Indicate footnotes with a number\footnote{Sample of the first footnote} in the
-text. Place the footnotes at the bottom of the page on which they appear.
-Precede the footnote with a horizontal rule of 2~inches
-(12~picas).\footnote{Sample of the second footnote}
+% \textbf{Basic NTK} -- On Lazy Training in Differentiable Programming \citep{chizat2019lazy}, On the linearity of large non-linear models: when and why the tangent kernel is constant \citep{liu2020linearity}, The Convergence Rate of Neural Networks for Learned Functions of Different Frequencies \citep{ronen2019convergence}, Polylogarithmic width suffices for gradient descent to achieve arbitrarily small test error with shallow relu networks \citep{ji2019polylogarithmic} \\
+% \textbf{Beyond NTK} -- Learning parities with neural networks \citep{daniely2020learning},  \\
+% % \textbf{Deep Linear Nets} -- Exact solutions to the nonlinear dynamics of learning in deep linear neural networks \citep{saxe2013exact}, Deep linear networks with arbitrary loss: All local minima are global \citep{laurent2018deep}, Gradient descent aligns the layers of deep linear networks \citep{ji2018gradient} \\
+% \textbf{Implicit Bias} -- Implicit regularization in deep learning \citep{neyshabur2017implicit}, The implicit bias of gradient descent on separable data \citep{soudry2018implicit} \\
+% \textbf{Generalization} -- Stronger generalization bounds for deep nets via a compression approach \citep{arora2018stronger}, Predicting the generalization gap in deep networks with margin distributions \citep{jiang2018predicting}, Spectrally-normalized margin bounds for neural networks \citep{bartlett2017spectrally},\\
+% \textbf{Kernel Mysteries/Interpolation} -- To understand deep learning we need to understand kernel learning \citep{belkin2018understand}, Does data interpolation contradict statistical optimality? \citep{belkin2019does}, \\
+% \textbf{Layer Magics} -- Implicit bias of gradient descent on linear convolutional networks \citep{gunasekar2018implicit}, Understanding batch normalization \citep{bjorck2018understanding}, Attention is not all you need: Pure attention loses rank doubly exponentially with depth \citep{dong2021attention}\\
+% \textbf{Linear Region Counting} -- On the number of linear regions of deep neural networks \citep{montufar2014number}, Complexity of linear regions in deep networks \citep{hanin2019complexity}, Deep relu networks have surprisingly few activation patterns \citep{hanin2019deep},  \\
+% \textbf{Other topics} -- Breaking the curse of dimensionality with convex neural networks \citep{bach2017breaking}, Neural path features and neural path kernel: Understanding the role of gates in deep learning \citep{lakshminarayanan2020neural}, Which neural net architectures give rise to exploding and vanishing gradients? \citep{hanin2018neural} \\
 
-\subsection{Figures}
+% Decision trees and neural networks are some of the oldest paradigms of machine learning, and there have been muliple works using one to aid the other.  \citep{guo1992classification} propose employing small multilayer nets at decision nodes to extract nonlinear features. \citep{boz2002extracting} introduce DecText, a method effective in deriving high-fidelity trees from trained networks.\citep{krishnan1999extracting} employ a genetic algorithm to extract prototypes from trained networks, offering an alternative approach to traditional decision tree extraction.  \citep{schmitz1999ann}  explore ANN-DT, a method for extracting rules from neural networks without assuming internal structures or data features, utilizing a novel attribute selection criterion.\citep{sato2001rule} introduced a method for extracting rules from neural networks using decision tree induction, providing a means of interpreting the network's behavior. \citep{zhang2019interpreting} proposed a technique that employs decision trees to elucidate the specific reasons behind CNN predictions, breaking down feature representations into elementary object concepts for enhanced interpretability.
 
-All artwork must be neat, clean, and legible. Lines should be dark
-enough for purposes of reproduction; art work should not be
-hand-drawn. The figure number and caption always appear after the
-figure. Place one line space before the figure caption, and one line
-space after the figure. The figure caption is lower case (except for
-first word and proper nouns); figures are numbered consecutively.
+\section{Local Discontinuities in the Label Function}
 
-Make sure the figure caption does not get separated from the figure.
-Leave sufficient space to avoid splitting the figure and figure caption.
+\label{sec:discont}
 
-You may use color figures.
-However, it is best for the
-figure captions and the paper body to make sense if the paper is printed
-either in black/white or in color.
-\begin{figure}[h]
-\begin{center}
-%\framebox[4.0in]{$\;$}
-\fbox{\rule[-.5cm]{0cm}{4cm} \rule[-.5cm]{4cm}{0cm}}
-\end{center}
-\caption{Sample figure caption.}
+From the perspective of a learning algorithm trying to fit a classification model on the training data, the only visible aspect is a $d$-dimensional scatter plot with labels coloured by their label. From this viewpoint, the most interesting aspects are regions of the input space that see a colour change. This has been well studied for linearly separable data using the language of geometry and maximum-margins. Extending this idea to linearly-non-separable data is tricky. We try to capture this behaviour using a notion of `discontinuities' in the label function. Intuitively, the number of such discontinuities has to be small for the problem to be learnable with a reasonable number of data points \citep{klivans2008learning}. 
+
+We define the local discontinuity coefficient (LDC) of a contiguous region $\cR \subseteq \R^d$ and a manifold $\cM = \{\x \in \R^d : f(\x)=0\}$ cutting through the region $\cR$ for a function $f:\R^d \> \R$ as follows:
+
+% \[
+% \gamma(\cR, f) = \frac{1}{2} \bigg\vert \E \Big[Y|X \in \cR, f(X)>0\Big] - \E\Big[Y|X \in \cR, f(X)<0 \Big] \bigg \vert
+% \]
+
+\[
+\resizebox{0.7\textwidth}{!}{$
+\gamma(\cR, f) = \frac{1}{2} \bigg\vert \E \Big[Y \mid X \in \cR, f(X)>0\Big] - \E\Big[Y \mid X \in \cR, f(X)<0 \Big] \bigg \vert
+$}
+\]
+
+
+
+where the expectation is w.r.t $(X,Y)$ with $X \sim D$ and $Y=f^*(X)$. We will call $\gamma(\R^d, f)$ as the global discontinuity coefficient (GDC) of $f$. Note that the LDC is a property of the data distribution $D$ and labelling function $f^*$. We will say that the scope of discontinuity at $f$ is $\cR$ if $\gamma(\cR, f)$ is large.
+
+For example, if the data can be separated by a hyperplane $\{x: \w^\top \x + b = 0 \}$, then $\gamma(\R^d, \w^\top \x+b) = 1$, and the scope of discontinuity of $\w^\top \x +b $ is the entire space $\R^d$. The region $\cR$ corresponds to the scope of the discontinuity, and $\gamma(\cR, f)$ captures the accuracy of the classifier $\text{sign}(f(x))$ within this scope. We argue that such local discontinuities in the label function are what drive feature learning in deep networks. 
+
+As an illustrative running example, we consider a labelling function $f^*$ given by an Oblique Decision Tree (ODT) \citep{bertsimas2017optimal, murthy1993oc1, murthy1994system, wickramarachchi2016hhcart, carreira2018alternating}. ODTs are decision trees with linear internal node functions $\bu^\top \x + b$, and a data point branches left/right depending on the sign of this value. These generalise standard decision trees. ODT labelling functions are particularly hard to learn for fixed-feature learning methods such as kernel machines, but allows for easy enumeration of all its discontinuities 
+
+In particular, we consider complete ODTs with node hyperplanes orthogonal to each other and each leaf node having an equal number of data points (we call these COB-ODTs short for complete orthogonal balanced ODTs).  COB-ODTs are particularly hard for classic greedy tree learning methods such as CART \citep{breiman1984classification} to learn. This is because the hyperplanes corresponding to internal nodes (and the root node in particular) are all balanced (they have an equal number of positive and negative data points on both sides of the hyperplane). Hence they do not get picked by greedy methods under metrics such as information gain or Gini-Index. Other ODT learning methods that are purportedly global \citep{Zantedeschi2020LearningBD,bertsimas2017optimal,lee2019} also fail to identify internal node hyperplanes for unknown reasons. Finite decision trees that do not contain the internal node hyperplanes in a COB-ODT label function are guaranteed to have poor test error. On several such COB-ODT settings, where all fixed-feature learning methods and tree algorithms fail, deep ReLU nets and another deep architecture introduced in the next section succeed. Experimental results supporting these observations are given in Table~\ref{acc-cob-odts}. 
+
+
+% A toy example illustrating an ODT of depth 3, with 7 internal nodes and 8 leaf nodes, for 2-dimensional data is given in Figure \ref{fig:ODT}. Note that this is not a COB-ODT, as it requires the input dimension to be at least as large as the number of internal nodes. 
+
+% The main reason we pick an ODT labelling function $f^*$ is that (or local label imbalances). All the internal node hyperplanes correspond to label function discontinuities and local label imbalances. 
+\begin{figure}[t]
+    \centering
+    \begin{subfigure}{0.32 \textwidth}
+    \includegraphics[width=\textwidth]{figs/Oblique_DT/depth3_DT_level2.pdf}    
+    \subcaption{ODT h-planes of root, children}
+    \end{subfigure}
+    \begin{subfigure}{0.32 \textwidth}
+    \includegraphics[width=\textwidth]{figs/Oblique_DT/depth3_DT_level3.pdf}    
+    \subcaption{ODT h-planes of grandchildren}
+    \end{subfigure}
+    \begin{subfigure}{0.32 \textwidth}
+    \includegraphics[width=\textwidth]{figs/Oblique_DT/depth3_DT full.pdf}
+    \subcaption{Shaded leaf node regions.}
+    \end{subfigure}
+    \caption{Hyperplanes and labelling function for a complete ODT of depth 3 over a 2d input space. The children of an internal node $i$ are $2i+1$ and $2i+2$. Green and red shades indicate positive and negative labels respectively. Note that the hyperplanes are not orthogonal here -- the input dimension must be greater than the number of internal nodes for a COB ODT to exist.}
+    \label{fig:ODT}
 \end{figure}
 
-\subsection{Tables}
+It is important to note that the entire hyperplane corresponding to an internal node is not a discontinuity. For example, in the ODT in Figure \ref{fig:ODT}(c), only parts of the line corresponding to root node 0 (or internal nodes 1 to 6) is a discontinuity. Also note that, despite the importance of the hyperplane corresponding to node 0, it would not be picked first by any greedy tree learner -- the ratio between a number of positive and negatively labelled points is approximately the same on both sides of the hyperplane. This is exactly true for any data labelled by a COB-ODT.
 
-All tables must be centered, neat, clean and legible. Do not use hand-drawn
-tables. The table number and title always appear before the table. See
-Table~\ref{sample-table}.
+Clearly, all the internal node hyperplanes all correspond to label function discontinuities -- i.e. a randomly chosen point close to the hyperplane boundary has a chance of flipping labels if it moves to the other side of the hyperplane. No other hyperplane has this property. All internal node linear functions $f$ have an appropriate region $\cR$ such that $\gamma(\cR,f)=1$, but the total mass of the region $\cR$, given by $P(X\in \cR)$ is of the order of $2^{-\text{depth(internal node)}}$. An illustration of the computation of $\gamma$ is given in the Appendix.
 
-Place one line space before the table title, one line space after the table
-title, and one line space after the table. The table title must be lower case
-(except for first word and proper nouns); tables are numbered consecutively.
+% Also, there clearly exist regions $\cR$ where each of node functions of the ODT has an LLI coefficient $\gamma(\cR,f)=1$.
 
-\begin{table}[t]
-\caption{Sample table title}
-\label{sample-table}
+% If the labelling function $f^*$ is a COB-ODT, then all internal node hyperplanes $h$ (except the last level) have a GLI coefficient of zero, internal nodes corresponding to the last level do have a small GLI coefficient of the order of $2^{-\text{depth(ODT)}}$. 
+
+% While hyperplanes are the main objects of interest in this paper, one can easily extend this idea to general surfaces/manifolds. We conjecture that such surfaces of high discontinuity in the data labelling function are the main drivers of feature learning in deep networks. 
+
+To test our hypothesis of `model features align with data features' we need a deep network architecture whose features (which are also simply discontinuities in the model function) can be easily enumerated. To this end we propose the deep linearly gated network architecture.
+
+\section{Deep Linearly Gated Networks(DLGN)}\label{sec:dlgn}
+
+The DLGN architecture serves as a more transparent stand-in for ReLU networks and can be viewed as ``a midway point between deep linear networks and ReLU networks''. DLGNs (like ReLU nets) learn useful non-linear features and outperform kernel methods while having structural simplicity (like deep linear networks).
+
+
+\subsection{Architecture Details}\label{sec:dlgnarch}
+The deep linearly gated network has an architecture similar to a ReLU network and is defined by neurons residing in multiple layers.  For simplicity, we assume the architecture consists of $L$ hidden layers with $m$ neurons in each layer. The architecture is parameterized by matrices $W^1, W^2, \ldots, W^L$ and $U^2, \ldots, U^{L}$ and vectors $\bu^1, \bu^{L+1}$. The matrices $W^2, \ldots, W^L$ and $U^2, \ldots U^L$ are all of shape $m \times m$. $W^1$ has shape $m \times d$. $\bu^1$ and $\bu^{L+1}$ are vectors of size  $m$.
+
+The architecture is most naturally described using the notion of paths, which we denote by $\pi = (i_1, \ldots, i_L) \in [m]^L$, giving the sequence of hidden nodes that the path consists of. Let $\Pi = [m]^L$ denote the set of all paths in the network. The output of the model is given as follows:
+\begin{equation}
+\widehat y(\x) = \sum_{\pi \in \Pi} g_\pi f_\pi(\x)     \label{eqn:DLGN_MoE}
+\end{equation}
+where $f_\pi$ is called the path gating function for path $\pi$ and $g_\pi \in \R$ is the value of path $\pi$. The path gating function $f_\pi$ is defined by (what we call) the gating network -- a deep linear network with weights $W^1, \ldots, W^L$. The path gating function $f_\pi$ is decomposed as a product of individual neuron gating functions that make up the path $\pi$. The path gating function for path $\pi = (i_1, \ldots, i_L)$ is 
+\begin{align}
+    f_\pi(\x) &= \prod_{\ell = 1}^{L} \mathbf{1}\left(\boldeta^\ell_{i_\ell}(\x) \geq 0 \right) \\
+    \forall \ell \in [L],  \qquad \boldeta^\ell (\x) &= W^\ell \boldeta^{\ell-1}(\x)   = V^\ell \x        \label{eqn:boldeta}
+ \end{align}
+ 
+where $\boldeta^0(\x) =  \x$ and $\forall \ell \in [L]$ the matrices $V^\ell \in \mathbf{R}^{m \times d}$ form the `effective' weights of the neurons in layer $\ell$ and are given as $V^\ell = W^\ell W^{\ell-1} \ldots W^1$. We call the hyperplane $\{\x:\boldeta^\ell_{i_\ell}(\x)=0\}$ as the gating hyperplane corresponding to neuron $i_\ell$ in layer $\ell$.
+
+The value $g_\pi$ of a path $\pi = (i_1, \ldots, i_L)$ is also defined by a network called the value network -- a deep linear network with weights $U^2, \ldots, U^L, \bu^{L+1}$, no biases, and input given by $\bu^1$. It is simply the product of weights along the path $\pi$, i.e. 
+\begin{equation}
+g_\pi = \bu^1_{i_1} \left[ \prod_{\ell=2}^L U^\ell_{i_{\ell}, i_{\ell-1}} \right] \bu^{L+1}_{i_L}
+\label{eqn:g_pi}
+\end{equation}
+
+The model as defined in Equation (\ref{eqn:DLGN_MoE}) seems computationally hard to implement in a forward pass, but due to standard matrix multiplication properties, can be easily implemented at a cost that is less than twice the cost of a ReLU net with the same $mL$ hidden nodes. i.e.
+\begin{equation}
+\widehat y(\x) = \langle \bu^{L+1} , \h^L(\x) \rangle    \label{eqn:DLGN_computation}
+\end{equation}
+where $\h^1(\x) = \mathbf{1}(\boldeta^1(\x) \geq 0) \circ \bu^1$ and $\h^\ell(\x) = \mathbf{1}(\boldeta^\ell(\x) \geq 0) \circ \left( U^\ell \h^{\ell-1}(\x) \right)$ for $\ell>1$. The gates $\boldeta$ are as defined in Equation  \ref{eqn:boldeta}. The symbol $\circ$ represents elementwise multiplication. A proof for this equality is given in the Appendix along with a short note on how the DLGN is related to the ReLU network. 
+
+In order to learn the gating function parameters and back-propagate the gradient to $W$, we replace the indicator function by a sigmoid. i.e. $\mathbf{1}(a\geq 0)$ with $\sigma(\beta a)$ where $\sigma$ is the standard sigmoid function and $\beta>0$ is a hyperparameter. A figure illustrating the DLGN architecture with an example is given in the Appendix.  
+
+\subsection{Variants}
+We also consider two natural variants of the DLGN architecture. The first is a simple re-parameterisation, where the gating network $f_\pi$ is parameterised directly by the matrices $V^1, V^2, \ldots, V^L$, each of shape $m \times d$, instead of using the parameters $W^1, \ldots, W^L$. Clearly, this reparameterisation does not lose any representation power. We call this variant as DLGN-SF (for shallow features). 
+
+In another variant, we use an explicit parameterisation of the coefficients $g_\pi$ instead of using a value network. This parameterisation is  clearly more powerful than the standard DLGN parameterisation in the previous section. However, this requires a parameter tensor of size $m^L$ and is not practical for large $L$ and $m$. We call this variant as DLGN-VT (for value tensor). 
+
+% All of these models can be extended to allow a bias parameter for the gating network so that the functions $\boldeta^\ell$ can also be affine functions instead of strict linear functions, but we do not discuss this version here for the purpose of simplicity.
+
+\subsection{Discontinuity Enumeration}
+
+The model $\widehat y$ in Equation \eqref{eqn:DLGN_MoE} is a linear combination of path gating functions. The discontinuities in $\widehat y$ are simply the union of discontinuities of $f_\pi$ over all paths $\pi$. While there are exponentially many gating functions $f_\pi$, they decompose further into a product of neuron gating functions, which are indicator functions over half-spaces. Thus, the set of all discontinuities can very simply be enumerated by considering the $m L$ hyperplanes corresponding to the neuron gating functions.
+
+% The DLGN model is more easily amenable to be broken down into easily understood components than the ReLU network. It also outperforms fixed feature methods like kernel methods and is only marginally inferior to ReLU networks in real data tasks. See Table \ref{tab:CIFAR10results} for a test accuracy comparison between DLGN and ReLU networks on the CIFAR10 dataset.
+
+% \begin{table}[t]
+% \caption{ReLU network(R) and DLGN(D) test accuracy on CIFAR10 with a simple 5 layer convolutional architecture and also ResNet34 / ResNet110 architectures.}
+% \label{tab:CIFAR10results}
+% \begin{center}
+% \begin{tabular}{|c|c|c|c|c|c|}
+% \hline
+%  Conv5(R) & Conv5(D) & Res34(R) & Res34(D)
+% &Res110(R) & Res110(D)  \\ \hline 
+%  72.17 &72.2 & 91 &86 &94 &89 \\ \hline
+% \end{tabular}
+% \end{center}
+% \end{table}
+
+\section{Training attracts Model Features towards Label Features}
+\label{sec:Model-feats-label-feats}
+We now have a labelling function $f^*$ based on a COB-ODT and a model function $\widehat y$ based on a DLGN. The discontinuities of both $f^*$ and $\widehat y$ can be easily enumerated, and the discontinuities of both functions are in the form of hyperplanes. We can now evaluate the main claim of the paper.
+
+A DLGN trained on data labelled by a COB-ODT shows several interesting properties. The most important of these properties is a tendency of the effective hyperplane of the gating neurons given by $V^\ell_i$ to cluster around the ODT node hyperplanes.
+
+\begin{figure*}[t]
+    \centering
+    \begin{subfigure}{0.30\textwidth}
+    % \includegraphics[width=\textwidth]{figs/Trained_DLGN/DLGN_init_L1_heavier.pdf}
+    % \caption{Layer1 initial h-planes}
+    % \end{subfigure}
+    % \begin{subfigure}{0.30\textwidth}
+    % \includegraphics[width= \textwidth]{figs/Trained_DLGN/DLGN_init_L2_heavier.pdf}
+    % \caption{Layer2 initial h-planes}
+    % \end{subfigure}
+    % \begin{subfigure}{0.30\textwidth}
+    % \includegraphics[width= \textwidth]{figs/Trained_DLGN/DLGN_init_L3_heavier.pdf}
+    % \caption{Layer3 initial h-planes}
+    % \end{subfigure}
+    % \\
+    
+    % \begin{subfigure}{0.27\textwidth}
+    \includegraphics[width=\textwidth]{figs/Trained_DLGN/DLGN_final_L1_heavier.pdf}
+    \caption{Layer1 trained hyperplanes}
+    \end{subfigure}
+    \begin{subfigure}{0.3\textwidth}
+    \includegraphics[width= \textwidth]{figs/Trained_DLGN/DLGN_final_L2_heavier.pdf}
+    \caption{Layer2 trained hyperplanes}
+    \end{subfigure}
+    \begin{subfigure}{0.3\textwidth}
+    \includegraphics[width= \textwidth]{figs/Trained_DLGN/DLGN_final_L3_heavier.pdf}
+    \caption{Layer3 trained hyperplanes}
+    \end{subfigure}
+    \caption{An illustration of DLGN hyperplanes after training on data in Fig 1c.}
+    \label{fig:DLGN-hyperplanes-seek-discontinuities-in-label-func}
+\end{figure*}
+Figure \ref{fig:DLGN-hyperplanes-seek-discontinuities-in-label-func} illustrates an example scenario when a 3-hidden layer DLGN is trained on data given in Figure \ref{fig:ODT}(c). The initial hyperplanes (lines in this case) $\boldeta^\ell(\x) = \0$ as shown in Appendix Figure \ref{fig:DLGN-hyperplanes-seek-discontinuities-in-label-func-app}(a-c) are essentially random. However, after training, the hyperplanes in the later layers show a remarkable tendency to move towards the hyperplanes corresponding to the decision tree -- particularly that of nodes close to the root (See Figures \ref{fig:DLGN-hyperplanes-seek-discontinuities-in-label-func}(a-c)). The relative idleness of the first layer hyperplanes seems to be an artefact of parameterising the gating network by a deep linear network. This does not happen for DLGN-SF where the gating network effective weights $V^\ell$ are parameterised directly.
+
+\begin{table*}[h]
+\caption{Number of DLGN hyperplanes (after training) within a given distance of the label function ODT hyperplanes. The 15 ODT internal nodes are numbered 0 to 14, with 0 as the root. The distance of the closest (initial and trained) DLGN hyperplane to all the ODT hyperplanes is given in the last 2 rows. The DLGN has 4 hidden layers with 20 neurons in each layer, i.e. $L=4, m=20$.}
+\label{tab:Distance table SD2 for DLGN}
 \begin{center}
-\begin{tabular}{ll}
-\multicolumn{1}{c}{\bf PART}  &\multicolumn{1}{c}{\bf DESCRIPTION}
-\\ \hline \\
-Dendrite         &Input terminal \\
-Axon             &Output terminal \\
-Soma             &Cell body (contains cell nucleus) \\
+\begin{adjustbox}{width=1 \textwidth}
+\begin{tabular}{|c||c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|} 
+\hline
+Distance & 0 & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 \\ \hline
+ 0.1        &4 &2 &2 &1 &1 &1 &1 &1 &1 &1 &1 &1 &1 &1 &1\\
+ 0.2        &12 &3 &5 &2 &1 &1 &1 &1 &1 &1 &1 &1 &1 &1 &1\\
+ 0.3       &13 &3 &5 &2 &1 &1 &1 &2 &1 &1 &1 &1 &1 &2 &1\\ 
+ \hline
+ \hline
+ Closest Dist.(init) &1.26 &1.22 &1.21 &1.25 &1.23 &1.24 &1.23 &1.17 &1.27 &1.28 &1.17 &1.23 &1.27 &1.22 &1.26\\
+ Closest Dist.(final) &0.05 &0.07 &0.06 &0.07 &0.1 &0.06 &0.05 &0.06 &0.09 &0.08 &0.07 &0.07 &0.06 &0.09 &0.06\\
+ \hline
+\end{tabular}
+\end{adjustbox}
+\end{center}
+\end{table*}
+
+Note that Figure \ref{fig:DLGN-hyperplanes-seek-discontinuities-in-label-func} is a schematic illustration, and the decision tree hyperplane-seeking behaviour of the DLGN hyperplanes is exaggerated to illustrate the idea properly. Table \ref{tab:Distance table SD2 for DLGN} gives the results of a typical experiment on a synthetic dataset in which the data is a $100$-dimensional vector uniformly distributed on the surface of the unit sphere and labelled by a depth-4 COB-ODT with 15 internal nodes. A 4-hidden layer DLGN with 20 neurons in each layer was trained on this dataset containing  30000 data points. Table \ref{tab:Distance table SD2 for DLGN 100} gives the same for a DLGN architecture with 100 neurons in each hidden layer. For each node in the ODT, we count the number of DLGN hyperplanes within a distance of $0.1, 0.2$, and $0.3$ from it. The distance between two hyperplanes $H(\v)= \{\x:\v^\top\x=0\}$ and $H(\z) = \{\x:\z^\top \x = 0\}$ is $
+\min\left( \left\| \frac{\z}{\|\z\|} - \frac{\v}{\|\v\|} \right\| , 
+\left\| \frac{\z}{\|\z\|} + \frac{\v}{\|\v\|} \right\| \right).
+$
+
+For large $d$, most pairs of vectors are orthogonal to each other, and hence, a typical value of $\text{dist}(\v,\z)$ is about $\sqrt{2}$. At initialisation, there are almost no DLGN hyperplanes close (say distance less than $0.3$) to any of the ODT hyperplanes. But it can be clearly seen from Table \ref{tab:Distance table SD2 for DLGN} that the training process attracts the DLGN hyperplanes towards the ODT hyperplanes. This happens most notably for the root node, (13 out of the 80 DLGN gating hyperplanes end up close to the root node hyperplane),  despite the root node having almost zero information gain or accuracy increase in the greedy decision tree construction setting. We conjecture that discontinuities in the label function serve as attractors for the DLGN gating hyperplanes under SGD. The strength of this attraction towards a hyperplane $f(\x)=0$ is proportional to the scope of the label function discontinuity around this hyperplane (or the largest region $\cR$ for which $\gamma(\cR,f)=1$).
+
+We believe that there is a fundamental principle of feature learning in deep networks at play here, and studying the reason for this behaviour and proving it theoretically is a promising future direction that is beyond the scope of this paper. 
+
+\section{Mechanistic Interpretability of DLGNs}
+\label{sec:dlgndt}
+
+The exact decomposition of the DLGN as a sum of the product of half-space indicator functions allows for a degree of control and reusability of the learned parameters that are not possible with a black box architecture like the ReLU network. We demonstrate this aspect of DLGNs by constructing a completely different type of model, namely an ODT, directly by copying parameters from learned DLGNs. 
+
+
+
+\begin{figure*}[t]
+\centering
+\hspace{2em}
+\begin{subfigure}{0.2\textwidth}
+\includegraphics[width=\textwidth]{figs/DT_Construction/DT_const_type2_without_tree1.pdf}
+\caption{Level 0}
+\end{subfigure}
+\hspace{5em} 
+\begin{subfigure}{0.42\textwidth}
+\includegraphics[width=\textwidth]{figs/DT_Construction/DT_const_type2_without_tree2.pdf}
+\caption{Level 1}
+\end{subfigure}
+\\
+\begin{subfigure}{0.85\textwidth}
+\includegraphics[width=\textwidth]{figs/DT_Construction/DT_const_type2_without_tree3.pdf}
+\caption{Level 2}
+\end{subfigure}
+\caption{DLGN based ODT Learning. Illustration of the recursive procedure where for each level starting at 0, we have $2^\text{level}$ DLGNs trained on different splits of the data given by previous levels. The main result of each training run is the largest cluster of the learned DLGN hyperplanes, which is shown in the figures by red dashed lines.}
+\label{fig:DLGN_ODT}
+\end{figure*}
+
+
+The decision tree extraction procedure is based on the principle conjectured in the previous section. Figure \ref{fig:DLGN_ODT} gives a schematic illustration of the procedure. In the first stage, a DLGN is trained on the entire data. Our conjectured principle would then imply that the hyperplane with the largest scope of discontinuity (which would be the hyperplane of the root node of the ODT corresponding to $f^*$) would attract more DLGN hyperplanes than others, resulting in a detectable cluster around it. A clustering is performed over the learned DLGN hyperplanes, and the largest cluster is chosen (See Figure \ref{fig:DLGN_ODT}(a)). The cluster centre corresponding to it is chosen as the root node in the final decision tree. Based on the root node hyperplane, the training data can be split into two halves, and the procedure can be repeated on both halves recursively (See Figure \ref{fig:DLGN_ODT}(b,c)) until the data for training becomes too small or contains only one class. An oblique decision tree can thus be constructed by incorporating the largest cluster centres of the trained DLGN hyperplanes in the appropriate nodes of a tree.
+
+The details of the above procedure are given in Algorithm \ref{alg:build_tree}. It returns a decision tree consisting of internal nodes and leaf nodes. Internal nodes are represented by a hyperplane and pointers to two child nodes. Leaf nodes are represented by a value that is either $+1$ or $-1$.  The key subroutine in Algorithm \ref{alg:build_tree} is the \textsc{DiscontHyperplane} function detailed in Algorithm \ref{alg:hyperplane}. It trains a DLGN on a classification dataset, clusters the DLGN hyperplanes, and splits the data based on this hyperplane. In our experiments, we used the DBScan \citep{ester1996density} algorithm for clustering the DLGN hyperplanes as it is robust to outliers. 
+
+We call this end-to-end procedure of constructing an ODT from learned DLGNs as DLGN-DT. The total complexity of the DLGN-DT procedure is about depth times the cost of learning a single DLGN -- even though $2^{\text{depth}}$ DLGNs are learned, most of them are learned on significantly smaller subsets of the data, and the complexity of clustering simply depends 
+on the architecture size which is typically a small constant. 
+
+We emphasise that we are not proposing DLGN-DT as an alternate decision tree procedure. The main purpose of the DLGN-DT procedure is to show that we have better control and understanding of parameters in the DLGN.  This is analogous to a mechanic demonstrating an understanding of a car, by dismantling it and building two motorcycles and a diesel electricity generator from it.  This is fundamentally different from reusing the first few layers of a pre-trained convolutional net for feature extraction for the following reasons. Firstly, the atomic element that is copied is at the level of parameters and not sub-networks. Secondly, the new model is a decision tree which is a completely different type of model from neural networks trained via gradient descent. Thirdly, the new architecture (ODT) is not fine-tuned or retrained based on the data.
+
+% than the standard neural networks and to show how an understanding of feature learning can potentially reduce redundancy in the learned model -- multiple model features corresponding to the same data feature can be replaced by a single feature.
+
+% We devised a novel decision tree construction method based on clustering half-spaces along the target function discontinuity. As evident from Figure \ref{fig:DLGN_ODT}, the mean(black line) of all half-spaces(red dashed lines) corresponding to the largest cluster is our feature of that particular node that divides the data recursively into two halves. Training DLGN on the corresponding halves, in turn, results in a similar half-space feature becoming the left child node and right child node in our tree construction process. The detailed algorithm is described in Algorithm \ref {alg:build_tree}, which uses Algorithm \ref{alg:hyperplane} for splitting the data along the suitable half-space features. It uses \ref{alg:return_gates} as helper functions for extracting out effective weights ($V^\ell_i$) and effective biases ($\c^\ell_i$) from the trained model that, in turn, helps in creating the desired half-space features.
+
+% \subsection{DLGN Training Algorithm}\label{sec:dlgn_train}
+% It takes in input a binary classification training set containing pairs $(\x_i,y_i)$ as current data(\myVar{currdata}). The DLGN object \myVar{DLGN\_obj} is initialized and the parameters(weights and biases) of both the gating and value network are passed to Adam Optimizers as in line 2 of the algorithm. The model is then trained using backpropagation for the number of epochs. Finally the best validated model is considered for further use and is returned.
+
+% \subsection{Return Gates of Trained DLGN}\label{sec:return_gates}
+% This function takes in the DLGN model after training. It iteratively calculates the effective weights and biases of of the layer using the formula Section \ref{sec:dlgnarch} as in lines 3 and 4 of the algorithm. It finaly returns each layer's effective weight and biases in the form of a vector.
+
+% \subsection{Building a Decision Tree}\label{sec:build_tree}
+
+% This function is our primary function for building a decision tree from a trained DLGN model. Until the data is pure or small for splitting, this function calls the function \textsc{FindDiscontHyperplane} as in line 3 of the algorithm for getting the best split of the data into data left and data right. These data are used to recursively call itself (\textsc{BuildTree} function) to generate the tree's left and right child nodes. The function  ultimately returns a tree data structure pointing to the root node when splitting criteria are not met and calculates the value of that node, which is considered a leaf node.
+
+% \subsection{Finding Hyperplane aligned to Target Function Discontinuity}\label{sec:hyperplane}
+
+% This function helps to split the data based on hyperplanes. It calls function \textsc{TrainDLGN} to get a trained model (line 2), which is used by \textsc{ReturnGates} function (line 3) to return the effective weights and biases vector. These vectors are flattened to form collection of effective weights which is passed to the \textsc{LargestCluster} function (line 4) which return the half space corresponding to the average of the largest cluster of effective weights and biases. This value is used as our features for splitting the data into two parts. Ultimately the features and these data halves are returned which is used by \textsc{BuildTree} function in constructing the desired decision tree.
+
+
+
+
+
+% This study proposes a novel approach for constructing decision trees utilizing DLGN. The procedure begins by training the DLGN model on the provided training data. Subsequently, we validate the model against a separate validation dataset and select the model weights at the epoch exhibiting the highest validation accuracy. These weights are then passed through a return gating function to extract the feature layer weights and biases. The obtained parameters are further processed to derive effective weights and biases for each node of the model. We employ clustering algorithms, specifically DBScan, on these effective weights, revealing distinct clusters. Among these, we identify the largest cluster, which serves as the hyperplane corresponding to the root node of the underlying decision tree data. The training data is then partitioned into two subsets based on this hyperplane, and the process is recursively applied to construct the decision tree's left and right child nodes. This recursive partitioning continues until either the number of data points falls below a specified threshold or all points belong to a single class. In either of these cases, the algorithm proceeds to calculate the leaf node value, with the maximum occurring class in the data assigned as the leaf value. The final decision tree, constructed through this innovative DLGN-based approach, is subsequently utilized for testing on the test data. This methodology combines the power of DLGN model's node clustering to enhance decision tree construction.
+ 
+
+
+
+% %DLGN Training Function   
+% \begin{algorithm}
+%   \caption{DLGN Training}\label{alg:dlgn_train}
+%   \textbf{Arguments:} Binary classification training set  containing pairs $(\x_i,y_i)$.\\
+%     \textbf{Outputs:} A DLGN model fit to the data.
+%   \begin{algorithmic}[1]
+%     \Function{\textsc{TrainDLGN}}{\myVar{currdata}}
+%         \State \myVar{optimizer} $\gets$ \textsc{AdamOptimizer}(\myVar{DLGN\_obj.parameters()}, \myVar{lr=lr})
+%         \For{$i \gets 0$ \textbf{to} $num\_epoch$}
+%             \State \myVar{values},\myVar{gate\_scores} \gets \myVar{DLGN\_obj}($\x_i$)
+%             \State \myVar{loss} \gets \textsc{CrossEntropyLoss}(\myVar{values[-1]}, $y_i$)
+%             \State \myVar{loss}.\textsc{backward()}
+%             \State\myVar{optimizer}.\textsc{step()}  \Comment{Parameters of \myVar{DLGN\_obj} gets updated.}
+%         \EndFor
+%       \State \Return{  \myVar{DLGN\_obj}}
+%     \EndFunction
+%   \end{algorithmic}
+% \end{algorithm}
+
+
+%Build Tree function
+\begin{algorithm}[t]
+  \caption{Building a decision tree from trained DLGN}
+  \label{alg:build_tree}
+  \textbf{Arguments:} Binary classification training set containing pairs $(\x_i,y_i)$\\
+    \textbf{Outputs:} Root of an ODT
+  \begin{algorithmic}[1]
+    \Function{\textsc{BuildTree}}{\myVar{data}}
+        \If{\textsc{Impure}(\myVar{data}) \textbf{and} \textsc{Large}(\myVar{data})}
+           \State \myVar{left},\myVar{right},$\v^*$ $\gets$ \textsc{DiscontHyperplane}(\myVar{data})
+           \State \myVar{leftST} $\gets$ \textsc{BuildTree}(\myVar{left})
+           \State \myVar{rightST} $\gets$ \textsc{BuildTree}(\myVar{right})
+            \State \Return{ \textsc{Node}($\v^*$, \myVar{leftST}, \myVar{rightST})}
+        \EndIf
+        \State $\mathbf{lv}$ $\gets$ \textsc{MajorityLabel}(\myVar{data})
+      \State \Return{ \textsc{Node}(\textit{value}=$\mathbf{lv}$)}
+    \EndFunction
+  \end{algorithmic}
+\end{algorithm}
+
+%Find the best split (discontinuous hyperplane)
+\begin{algorithm}[t]
+  \caption{Finding Discontinuous Hyperplane}\label{alg:hyperplane}
+  \textbf{Arguments:} Binary classification training set containing pairs $(\x_i,y_i)$\\
+    \textbf{Outputs:} Data split into 2 halves along a hyperplane, and the hyperplane parameters $\w$
+  \begin{algorithmic}[1] 
+    \Function{\textsc{DiscontHyperplane}}{\myVar{data}}
+        \State \myVar{model} $\gets$ \textsc{TrainDLGN}(\myVar{data})
+        \State $V$ $\gets$ \textsc{GateHyperplanes}(\myVar{model})
+        \State $\bv^*$ $\gets$ \textsc{LargestClusterCenter}($V$)
+        \State \myVar{left}, \myVar{right} $\gets$ \textsc{SplitData}(\myVar{data},$\v^*$)
+      \State \Return{\myVar{left}, \myVar{right},$\bv^*$}
+    \EndFunction
+  \end{algorithmic}
+\end{algorithm}
+
+% \begin{algorithm}
+% \caption{Constructing decision tree using trained DLGN}\label{alg:cap}
+% \begin{algorithmic}
+% \STATE curr\_data $\gets$ train\_data
+% \REPEAT
+% \STATE trained\_DLGN\_model$\gets$ Train\_DLGN(curr\_data)
+% \STATE weight,biases$\gets$ Return\_gating\_function(trained\_DLGN\_model)
+% \STATE Effective\_weight,Effective\_biases$\gets$ Return\_Effective\_weight\_biases(weight,biases)
+% \STATE cluster\_labels$\gets$ Clustering\_algo(Effective\_weight)
+% \STATE num\_clusters,cluster\_centers,num\_points$\gets$ Find\_clusters(cluster\_labels,Effective\_weight)
+% \IF {num\_clusters $\geq$ 1} 
+%   \STATE max\_cluster$\gets$ argmax(num\_points)
+%   \STATE feature\_val$\gets$ cluster\_centers[max\_cluster]
+%   \STATE feature\_bias$\gets$ Pick\_bias(curr\_data,feature\_val)
+% \ELSE
+%   \STATE feature\_val,feature\_bias$\gets$ Logistic\_Regression(curr\_data)
+% \ENDIF 
+% \STATE data\_left $\gets curr\_data \cdot feature\_val^T+feature\_bias < 0$
+% \STATE data\_right $\gets curr\_data \cdot feature\_val^T+feature\_bias \geq 0$
+% \STATE curr\_data $\gets$ data\_left
+% \STATE curr\_data $\gets$ data\_right
+% \UNTIL{stopping criteria is met.}\\
+% leaf\_val $\gets$ Calculate\_leaf\_value(curr\_data\_label)
+% \end{algorithmic}
+% \end{algorithm}
+
+
+
+% \begin{algorithm}
+% \caption{Constructing decision tree using trained DLG}\label{alg:cap}
+% \begin{algorithmic}
+% % \begin{algorithmic}[1]
+% %     \Repeat
+% %     \Comment{forever}
+% %     \State this\Until{you die.}
+% % \end{algorithmic}
+% \Require $n \geq 0$
+% \Ensure $y = x^n$
+% \State $y \gets 1$
+% \State $X \gets x$
+% \State $N \gets n$
+% \While{$N \neq 0$}
+% \If{$N$ is even}
+%     \State $X \gets X \times X$
+%     \State $N \gets \frac{N}{2}$  \Comment{This is a comment}
+% \ElsIf{$N$ is odd}
+%     \State $y \gets y \times X$
+%     \State $N \gets N - 1$
+% \EndIf
+% \EndWhile
+% \end{algorithmic}
+% \end{algorithm}
+
+\section{Experiments}\label{sec:exp}
+
+DLGN and its variants are more interpretable than a ReLU architecture, while still having powerful feature learning capabilities. Thus, they form an important tool in understanding the learning process of deep neural network. DLGNs in the special setting of a COB-ODT label function can also be used to illustrate the core feature learning hypothesis in the paper. In this section, we experimentally show that DLGNs, apart from being more interpretable, outperform static kernel methods, tree and non-tree algorithms and ReLU methods on COB-ODT synthetic datasets and are comparable in performance to ensemble tree methods on real tabular datasets. \\
+
+We evaluate the DLGN(dlgn), DLGN-SF(dlgns), DLGN-VT(dlgnv), and DLGN-DT(dlgnd) algorithms, with width and depth hyperparameters chosen on a validation set. They are compared against the following standard algorithms. 
+
+% TODO: Mention hyperparameter details in the appendix
+\begin{table*}[t]
+\caption{Test accuracy on synthetic datasets}
+\label{acc-cob-odts}
+\begin{center}
+\small
+\begin{adjustbox}{width=0.99 \textwidth}
+% \resizebox{\textwidth}{!}{  % Adjust the width to fit the text
+\begin{tabular}{|p{0.52cm}|p{0.6cm}|p{0.3cm}|p{0.4cm}|p{0.55cm}|p{0.55cm}|p{0.4cm}|p{0.5cm}|p{0.4cm}|p{0.4cm}|p{0.4cm}|p{0.4cm}|p{0.4cm}|p{0.4cm}|p{0.4cm}|p{0.4cm}|p{0.6cm}|}
+\hline
+\multicolumn{3}{|c|}{Dataset char.} &\multicolumn{3}{|c|}{DLGN} &\multicolumn{6}{|c|}{Non tree algo} &\multicolumn{5}{|c|}{Tree algo} \\
+ \hline
+ Data &n &d &\textbf{dlgn} &\textbf{dlgns} &\textbf{dlgnv} &relu &disnn &gln &svl &svm &sdt &cart &rf &zan &tao &\textbf{dlgnd}
+\\ \hline
+SDI    &20000 &20 &96.1 &\textcolor{blue}{97.4} &\textbf{98.4} &90.6 &89.8 &66.8 &63.4 &76.5 &68.9  &57.3 &65.9 &84.9 &60.3 &93.1\\
+SDII   &30000 &100 &\textcolor{blue}{94.3} &90.3 &\textbf{95.8} &82.3 &74.8 &61.3 &61.9 &66.8  &62.2 &54.5  &58.8 &64.7 &56.1 &88.2\\
+SDIII   &50000 &500 &\textbf{65.1} &\textcolor{blue}{63.6} &62.2 &62.1 &61.6 &59.6 &60.7 &62.3 &61.9 &51.5 &54.6 &61.3 &52.7 &62.5\\
+\hline
+% SD - III       &99.9 &99.3 &87.2 &65.5 &99.8  & 99.9\\
+% SD - IV       &99.5 &93.6 &70.7 &52.6 &00.0  & 98.8\\
+
+\end{tabular}
+\end{adjustbox}
+\end{center}
+\end{table*}
+
+% \begin{table*}[h]
+% \caption{Test accuracy on tabular datasets}
+% \label{acc-tabular}
+% \begin{center}
+% \begin{tabular}{|p{0.77cm}|p{0.90cm}|p{0.70cm}||p{0.75cm}|p{0.75cm}||p{0.75cm}|p{0.75cm}|p{0.75cm}|p{0.75cm}|p{0.75cm}|p{0.75cm}||p{0.75cm}|p{0.75cm}|p{0.75cm}|p{0.70cm}|}
+% \hline
+% \multicolumn{3}{|c||}{Dataset char.} &\multicolumn{2}{|c||}{DLGN} &\multicolumn{6}{|c||}{Non tree algo} &\multicolumn{4}{|c|}{Tree algo} \\
+%  \hline
+%  Data &n &d &\textbf{dlgn} &\textbf{dlgnv} &relu &disnn &gln &svl &svm &sdt &cart &rf &zan &tao
+% \\ \hline 
+% Adult   &29000 &14 &\textcolor{blue}{85.3} &85.0 &83.2 &84.7 &83.5 &81.3 &84.4 &84.8 &83.2 &\textbf{86.4} &84.6 &85.2\\
+% Bank     &27000 &16 &\textbf{91.7} &91.3 &89.0 &91.3 &90.6 &89.9 &90.6 &\textcolor{blue}{91.5} &90.0 &91.3 &91.2  &90.9\\
+% Card     &18000 &23 &\textbf{81.6} &\textcolor{blue}{81.4} &78.0 &81.0 &80.4 &80.6 &81.2 &\textcolor{blue}{81.4} &77.8 &81.2 &81.1 &80.7\\
+% Telesc      &11000 &10 &\textbf{88.1} &87.3 &\textcolor{blue}{87.7} &\textcolor{blue}{87.7} &85.8 &79.4 &87.0 &86.4 &82.9 &\textbf{88.1} &87.1 &84.8\\
+% Rice        &2000 &7 &\textbf{92.8} &\textbf{92.8} &92.4 &\textcolor{blue}{92.5} &92.1 &91.2 &91.7 &\textcolor{blue}{92.5} &91.9 &91.9 &92.2 &90.1\\
+% Stat     &100 &20   &\textbf{77.5} &72.0 &72.0 &\textcolor{blue}{76.5} &74.0 &71.0 &71.5 &75.0 &65.5 &\textbf{77.5} &75.5 &68\\
+% Spam   &3000 &57   &\textcolor{blue}{94.1} &\textcolor{blue}{94.1} &94.0 &94.0 &92.1 &91.2 &93.1 &93.4 &89.1 &\textbf{95.0} &93.3 &91.2\\
+% Gyro       &19000 &8 &\textcolor{blue}{98.8} &98.5 &98.6 &98.4 &98.3 &98.0 &98.3 &98.0 &98.7 &\textbf{99.3} &98.6 &98.7\\
+% Swar        &14000 &2400  &\textbf{100} &\textbf{100} &\textbf{100} &87.6 &99.7 &\textbf{100} &\textbf{100} &\textbf{100} &99.8 &\textbf{100} &\textbf{100}  &\textcolor{blue}{99.9}\\
+% Credit       &12000 &10    &\textcolor{blue}{76.1} &75.3 &75.7 &75.9 &70.2 &70.4 &74.5 &74.7 &\textcolor{blue}{76.1} &\textbf{78.2} &75.7 &\textcolor{blue}{76.1}\\
+% Elec   &27000 &7  &82.6 &80.4 &82.5 &79.5 &77.6 &73.6 &78.3 &75.8 &\textcolor{blue}{86.4} &\textbf{87.7} &76.7 &76.2\\
+% Cover   &396000 &10  &\textbf{94.5} &93.2 &92.8 &81.1 &77.9 &78.1 &80.4 &77.1 &91.6 &\textcolor{blue}{94.3} &78.1 &84.6\\
+% Pol    &7000 &26   &\textbf{98.8} &98.0 &\textcolor{blue}{98.1} &97.8 &93.7 &87.7 &97.5 &\textcolor{blue}{98.1} &96.8 &97.6 &97.4 &95.5\\
+% House     &9000 &16   &\textcolor{blue}{87.3} &86.5 &\textcolor{blue}{87.3} &86.5 &85.7 &83.0 &87.0 &86.3  &84.0 &\textbf{88.3} &85.1 &85.3\\
+% Mini    &51000 &50   &\textbf{93.5} &\textbf{93.5} &93.1 &90.9 &88.6 &89.2 &89.2 &88.9  &89.8 &\textcolor{blue}{93.1} &91.8 &88.8\\
+% % Eyemov(16)        &57.3 &57.1 &57.8 &59.3 &59.2 &59.2  &63.3 &58.9 &60.2\\
+% Diab    &50000 &7     &\textbf{60.6} &\textbf{60.6} &59.3 &\textbf{60.6} &60.1 &57.9 &60.4 &\textbf{60.6}  &60.4 &\textcolor{blue}{60.5} &\textbf{60.6} &\textcolor{blue}{60.4}\\
+% Jannis    &40000 &54   &\textbf{78.6} &77.8 &74.7 &77.1 &73.9 &73.4 &77.3 &\textcolor{blue}{78.3} &74.8 &\textbf{78.6}  &75.1 &73.9\\
+% Bior   &2000 &419    &76.2 &74.1 &77.3 &73.5 &74.3 &73.6 &\textcolor{blue}{77.6} &76.8  &70.5 &\textbf{79.1}  &72.4 &72.8\\
+% Calif   &14000 &8     &\textcolor{blue}{88.2} &\textcolor{blue}{88.2} &87.0 &86.6 &82.1 &84.6 &86.6 &85.0  &84.5 &\textbf{89.1} &85.3 &85.6\\
+% Heloc    &7000 &22  &\textbf{71.6} &\textcolor{blue}{71.4} &66.1 &71.0 &69.9 &70.6 &71.3 &71.0 &68.6  &71.0 &71.2 &68.6\\
+% \hline 
+% \end{tabular}
+% \end{center}
+% \end{table*}
+
+
+\begin{table*}[t]
+\caption{Test accuracy on tabular datasets}
+\label{acc-tabular}
+\begin{center}
+\small
+\begin{tabular}{|p{0.63cm}|p{0.75cm}|p{0.43cm}|p{0.42cm}|p{0.55cm}|p{0.4cm}|p{0.5cm}|p{0.4cm}|p{0.4cm}|p{0.4cm}|p{0.4cm}|p{0.4cm}|p{0.4cm}|p{0.4cm}|p{0.40cm}|}
+\hline
+\multicolumn{3}{|c|}{Dataset char.} &\multicolumn{2}{|c|}{DLGN} &\multicolumn{6}{|c|}{Non tree algo} &\multicolumn{4}{|c|}{Tree algo} \\
+ \hline
+ Data &n &d &\textbf{dlgn} &\textbf{dlgnv} &relu &disnn &gln &svl &svm &sdt &cart &rf &zan &tao
+\\ \hline 
+Adult   &29000 &14 &\textcolor{blue}{85.7} &85.0 &83.2 &84.6 &83.3 &81.1 &84.2 &84.8 &83.0 &\textbf{86.1} &84.5 &85.1\\
+Bank     &27000 &16 &\textbf{91.6} &91.3 &89.6 &91.2 &90.4 &89.9 &90.7 &91.3 &90.3 &\textcolor{blue}{91.3} &91.1  &90.9\\
+Card     &18000 &23 &\textbf{81.6} &81.2 &78.4 &80.9 &80.4 &80.6 &81.1 &\textcolor{blue}{81.3} &77.6 &81.2 &\textcolor{blue}{81.3} &80.6\\
+Telesc      &11000 &10 &\textbf{88.2} &87.2 &87.7 &87.7 &85.6 &79.4 &87.1 &86.4 &82.9 &\textcolor{blue}{88.1} &87.0 &84.9\\
+Rice        &2000 &7 &\textbf{92.6} &\textbf{92.6} &92.3 &\textcolor{blue}{92.5} &\textcolor{blue}{92.3} &91.2 &91.4 &\textbf{92.6} &91.9 &91.8 &92.2 &90.1\\
+Stat     &100 &20   &\textbf{77.6} &72.6 &72.2 &76.5 &74.0 &71.1 &71.7 &75.2 &65.7 &\textcolor{blue}{77.4} &75.3 &68.0\\
+Spam   &3000 &57   &\textcolor{blue}{94.4} &94.0 &94.1 &94.0 &92.1 &92.3 &93.1 &93.4 &89.4 &\textbf{94.8} &93.1 &91.2\\
+Gyro       &19000 &8 &\textcolor{blue}{98.8} &98.3 &98.4 &98.4 &98.3 &98.3 &98.1 &98.4 &98.7 &\textbf{99.1} &98.6 &98.6\\
+Swar        &14000 &2400  &\textbf{100} &\textbf{100} &\textbf{100} &87.5 &99.6 &\textbf{100} &\textbf{100} &\textbf{100} &99.9 &\textbf{100} &\textbf{100}  &99.9\\
+Credit       &12000 &10    &76.2 &75.4 &75.5 &75.9 &70.2 &70.4 &74.5 &74.6 &76.1 &\textbf{78.2} &75.4 &76.2\\
+Elec   &27000 &7  &82.8 &80.6 &82.7 &79.6 &77.5 &73.6 &78.5 &75.8 &86.3 &\textbf{87.6} &76.5 &76.4\\
+Cover   &396000 &10  &\textbf{94.7} &93.3 &92.9 &81.1 &78.0 &78.3 &80.4 &77.4 &91.6 &94.2 &78.6 &84.9\\
+Pol    &7000 &26   &\textbf{98.9} &98.0 &98.2 &97.9 &93.8 &87.8 &97.7 &98.2 &96.6 &97.4 &97.6 &95.4\\
+House     &9000 &16   &\textcolor{blue}{87.8} &86.7 &87.4 &86.5 &85.6 &83.0 &87.2 &86.3  &84.0 &\textbf{88.0} &85.3 &85.1\\
+Mini    &51000 &50   &\textbf{93.6} &\textcolor{blue}{93.4} &93.2 &91.0 &88.6 &89.3 &89.3 &88.9  &89.9 &93.1 &91.7 &88.8\\
+% Eyemov(16)        &57.3 &57.1 &57.8 &59.3 &59.2 &59.2  &63.3 &58.9 &60.2\\
+Diab    &50000 &7     &\textbf{60.6} &\textbf{60.6} &59.4 &\textcolor{blue}{60.5} &60.2 &58.0 &60.3 &\textbf{60.6}  &60.3 &\textbf{60.6} &\textcolor{blue}{60.4} &60.3\\
+Jannis    &40000 &54   &\textbf{78.6} &78.0 &75.0 &77.2 &73.8 &73.9 &77.4 &78.4 &74.6 &\textbf{78.6}  &75.1 &74.1\\
+Bior   &2000 &419    &76.2 &74.3 &76.9 &73.6 &74.3 &73.5 &77.5 &76.9  &70.5 &\textbf{78.8}  &72.5 &72.9\\
+Calif   &14000 &8     &\textcolor{blue}{88.8} &88.1 &87.2 &86.6 &82.1 &84.7 &86.6 &85.4  &84.5 &\textbf{89.0} &85.3 &85.5\\
+Heloc    &7000 &22  &\textbf{71.9} &\textcolor{blue}{71.6} &66.2 &71.3 &70.2 &70.7 &71.4 &71.3 &68.6  &71.1 &71.2 &68.4\\
+\hline 
 \end{tabular}
 \end{center}
-\end{table}
-
-\section{Default Notation}
-
-In an attempt to encourage standardized notation, we have included the
-notation file from the textbook, \textit{Deep Learning}
-\cite{goodfellow2016deep} available at
-\url{https://github.com/goodfeli/dlbook_notation/}.  Use of this style
-is not required and can be disabled by commenting out
-\texttt{math\_commands.tex}.
-
-
-\centerline{\bf Numbers and Arrays}
-\bgroup
-\def\arraystretch{1.5}
-\begin{tabular}{p{1in}p{3.25in}}
-$\displaystyle a$ & A scalar (integer or real)\\
-$\displaystyle \va$ & A vector\\
-$\displaystyle \mA$ & A matrix\\
-$\displaystyle \tA$ & A tensor\\
-$\displaystyle \mI_n$ & Identity matrix with $n$ rows and $n$ columns\\
-$\displaystyle \mI$ & Identity matrix with dimensionality implied by context\\
-$\displaystyle \ve^{(i)}$ & Standard basis vector $[0,\dots,0,1,0,\dots,0]$ with a 1 at position $i$\\
-$\displaystyle \text{diag}(\va)$ & A square, diagonal matrix with diagonal entries given by $\va$\\
-$\displaystyle \ra$ & A scalar random variable\\
-$\displaystyle \rva$ & A vector-valued random variable\\
-$\displaystyle \rmA$ & A matrix-valued random variable\\
-\end{tabular}
-\egroup
-\vspace{0.25cm}
-
-\centerline{\bf Sets and Graphs}
-\bgroup
-\def\arraystretch{1.5}
-
-\begin{tabular}{p{1.25in}p{3.25in}}
-$\displaystyle \sA$ & A set\\
-$\displaystyle \R$ & The set of real numbers \\
-$\displaystyle \{0, 1\}$ & The set containing 0 and 1 \\
-$\displaystyle \{0, 1, \dots, n \}$ & The set of all integers between $0$ and $n$\\
-$\displaystyle [a, b]$ & The real interval including $a$ and $b$\\
-$\displaystyle (a, b]$ & The real interval excluding $a$ but including $b$\\
-$\displaystyle \sA \backslash \sB$ & Set subtraction, i.e., the set containing the elements of $\sA$ that are not in $\sB$\\
-$\displaystyle \gG$ & A graph\\
-$\displaystyle \parents_\gG(\ervx_i)$ & The parents of $\ervx_i$ in $\gG$
-\end{tabular}
-\vspace{0.25cm}
-
-
-\centerline{\bf Indexing}
-\bgroup
-\def\arraystretch{1.5}
-
-\begin{tabular}{p{1.25in}p{3.25in}}
-$\displaystyle \eva_i$ & Element $i$ of vector $\va$, with indexing starting at 1 \\
-$\displaystyle \eva_{-i}$ & All elements of vector $\va$ except for element $i$ \\
-$\displaystyle \emA_{i,j}$ & Element $i, j$ of matrix $\mA$ \\
-$\displaystyle \mA_{i, :}$ & Row $i$ of matrix $\mA$ \\
-$\displaystyle \mA_{:, i}$ & Column $i$ of matrix $\mA$ \\
-$\displaystyle \etA_{i, j, k}$ & Element $(i, j, k)$ of a 3-D tensor $\tA$\\
-$\displaystyle \tA_{:, :, i}$ & 2-D slice of a 3-D tensor\\
-$\displaystyle \erva_i$ & Element $i$ of the random vector $\rva$ \\
-\end{tabular}
-\egroup
-\vspace{0.25cm}
-
-
-\centerline{\bf Calculus}
-\bgroup
-\def\arraystretch{1.5}
-\begin{tabular}{p{1.25in}p{3.25in}}
-% NOTE: the [2ex] on the next line adds extra height to that row of the table.
-% Without that command, the fraction on the first line is too tall and collides
-% with the fraction on the second line.
-$\displaystyle\frac{d y} {d x}$ & Derivative of $y$ with respect to $x$\\ [2ex]
-$\displaystyle \frac{\partial y} {\partial x} $ & Partial derivative of $y$ with respect to $x$ \\
-$\displaystyle \nabla_\vx y $ & Gradient of $y$ with respect to $\vx$ \\
-$\displaystyle \nabla_\mX y $ & Matrix derivatives of $y$ with respect to $\mX$ \\
-$\displaystyle \nabla_\tX y $ & Tensor containing derivatives of $y$ with respect to $\tX$ \\
-$\displaystyle \frac{\partial f}{\partial \vx} $ & Jacobian matrix $\mJ \in \R^{m\times n}$ of $f: \R^n \rightarrow \R^m$\\
-$\displaystyle \nabla_\vx^2 f(\vx)\text{ or }\mH( f)(\vx)$ & The Hessian matrix of $f$ at input point $\vx$\\
-$\displaystyle \int f(\vx) d\vx $ & Definite integral over the entire domain of $\vx$ \\
-$\displaystyle \int_\sS f(\vx) d\vx$ & Definite integral with respect to $\vx$ over the set $\sS$ \\
-\end{tabular}
-\egroup
-\vspace{0.25cm}
-
-\centerline{\bf Probability and Information Theory}
-\bgroup
-\def\arraystretch{1.5}
-\begin{tabular}{p{1.25in}p{3.25in}}
-$\displaystyle P(\ra)$ & A probability distribution over a discrete variable\\
-$\displaystyle p(\ra)$ & A probability distribution over a continuous variable, or over
-a variable whose type has not been specified\\
-$\displaystyle \ra \sim P$ & Random variable $\ra$ has distribution $P$\\% so thing on left of \sim should always be a random variable, with name beginning with \r
-$\displaystyle  \E_{\rx\sim P} [ f(x) ]\text{ or } \E f(x)$ & Expectation of $f(x)$ with respect to $P(\rx)$ \\
-$\displaystyle \Var(f(x)) $ &  Variance of $f(x)$ under $P(\rx)$ \\
-$\displaystyle \Cov(f(x),g(x)) $ & Covariance of $f(x)$ and $g(x)$ under $P(\rx)$\\
-$\displaystyle H(\rx) $ & Shannon entropy of the random variable $\rx$\\
-$\displaystyle \KL ( P \Vert Q ) $ & Kullback-Leibler divergence of P and Q \\
-$\displaystyle \mathcal{N} ( \vx ; \vmu , \mSigma)$ & Gaussian distribution %
-over $\vx$ with mean $\vmu$ and covariance $\mSigma$ \\
-\end{tabular}
-\egroup
-\vspace{0.25cm}
-
-\centerline{\bf Functions}
-\bgroup
-\def\arraystretch{1.5}
-\begin{tabular}{p{1.25in}p{3.25in}}
-$\displaystyle f: \sA \rightarrow \sB$ & The function $f$ with domain $\sA$ and range $\sB$\\
-$\displaystyle f \circ g $ & Composition of the functions $f$ and $g$ \\
-  $\displaystyle f(\vx ; \vtheta) $ & A function of $\vx$ parametrized by $\vtheta$.
-  (Sometimes we write $f(\vx)$ and omit the argument $\vtheta$ to lighten notation) \\
-$\displaystyle \log x$ & Natural logarithm of $x$ \\
-$\displaystyle \sigma(x)$ & Logistic sigmoid, $\displaystyle \frac{1} {1 + \exp(-x)}$ \\
-$\displaystyle \zeta(x)$ & Softplus, $\log(1 + \exp(x))$ \\
-$\displaystyle || \vx ||_p $ & $\normlp$ norm of $\vx$ \\
-$\displaystyle || \vx || $ & $\normltwo$ norm of $\vx$ \\
-$\displaystyle x^+$ & Positive part of $x$, i.e., $\max(0,x)$\\
-$\displaystyle \1_\mathrm{condition}$ & is 1 if the condition is true, 0 otherwise\\
-\end{tabular}
-\egroup
-\vspace{0.25cm}
+\end{table*}
 
 
 
-\section{Final instructions}
-Do not change any aspects of the formatting parameters in the style files.
-In particular, do not modify the width or length of the rectangle the text
-should fit into, and do not change font sizes (except perhaps in the
-\textsc{References} section; see below). Please note that pages should be
-numbered.
+\textbf{Non-tree algorithms}:
+\textit{ReLU networks} \citep{fukushima1969visual}: Classic multilayer ReLU activation neural network with depth and width as hyperparameters.
+\textit{Disjunctive normal networks (disnn)} \citep{sajjadi2016disjunctive}: A neural network architecture explicitly designed to learn a union of the intersection of halfspaces, which exactly corresponds to the ODT labelling function with number of polytopes and number of half-spaces per polytope as hyperparameters.
+\textit{Gated linear networks (gln)}  \citep{veness2021gated}: A backpropagation-free architecture where each unit (neuron) learns locally and models nonlinear functions using data-dependent gating (context) with layer sizes, input size and context map size as hyperparameters.
+\textit{Support vector machines (SVM)} \citep{cortes1995support}: Constructs linear separators in a high dimensional space given by a non-linear kernel. The kernel choice and its parameters and the regularization constant are the key hyperparameters. \textit{Linear SVM (svl)} corresponds to SVM with a linear kernel.
+\textit{Soft decision tree SDT(sdt)} \citep{FrosstHinton17}: A soft decision tree made out of a trained neural network. Although it is termed a decision tree, it gives a predictive distribution of classes at the leaf with the maximum path probability rather than explicitly dividing the data into left and right nodes recursively. It uses input dimension, output dimension, depth and the regularisation coefficient as hyperparameters.\\
 
-\section{Preparing PostScript or PDF files}
+\textbf{Tree algorithms}:
+\textit{Classification and regression tree CART(cart)} \citep{breiman1984classification}: It splits the data greedily in a parallel-axis fashion and uses maximum depth, minimum samples split and minimum samples leaf as main hyperparameters.
+\textit{Standard random forest (rf)} \citep{ho1995random}: An ensemble method operating by constructing multiple axis-parallel decision trees at training. Number of trees estimators, maximum depth, minimum samples split and minimum samples leaf are its main hyperparameters.
+\textit{Zan-DT(zan)} \citep{Zantedeschi2020LearningBD}: A binary ODT learning algorithm that concurrently optimizes discrete and continuous parameters through sparse relaxation of a mixed-integer program, facilitating gradient flow for joint optimization with tree depth, regularization, number of layers and dropouts as hyperparameters.
+\textit{Tree alternating optimization TAO(tao)} \citep{carreira2018alternating}: An ODT learning algorithm where the initial tree parameters are optimized by decreasing the misclassification error, using alternating optimization over node subsets that are separable with number of iterations, minimum sample nodes, minimum leaf samples and regularization parameters as hyperparameters.\\
+Appendix \ref{sec:app-exp} details the experimental setup and all the hyperparameter sets used for these algorithms. The models exhibiting the highest performances are highlighted in \textbf{bold} in Tables \ref{acc-cob-odts} and \ref{acc-tabular}, giving results on synthetic and real tabular datasets.
 
-Please prepare PostScript or PDF files with paper size ``US Letter'', and
-not, for example, ``A4''. The -t
-letter option on dvips will produce US Letter files.
+\subsection{Performance on Synthetic Datasets}\label{sec:sd}
 
-Consider directly generating PDF files using \verb+pdflatex+
-(especially if you are a MiKTeX user).
-PDF figures must be substituted for EPS figures, however.
+% In accordance with Section \ref{sec:dlgnprop}, DLGN half-spaces exhibit alignment with target function discontinuities. To substantiate this claim, we generated synthetic datasets based on oblique decision trees, with specific details provided in Table~\ref{table 3}. As outlined in Section \ref{sec:dlgndt}, we developed DLGN-aided decision trees (DLGN\_DT) utilizing the half-space alignment attribute derived from DLGN. Both DLGN and DLGN\_DT demonstrated superior performance compared to standard CART and oblique decision tree algorithms (Zan DT). Notably, our methods exhibited enhanced proficiency in identifying appropriate data splits in contrast to greedy decision tree approaches. 
 
-Otherwise, please generate your PostScript and PDF files with the following commands:
-\begin{verbatim}
-dvips mypaper.dvi -t letter -Ppdf -G0 -o mypaper.ps
-ps2pdf mypaper.ps mypaper.pdf
-\end{verbatim}
+We construct three different synthetic datasets, where the data labels comes from COB-ODTs. The three datasets (SDI, SDII, and SDIII) have different input dimensions (20, 100, and 500, respectively) and use decision trees with depth 4. The dataset characteristics (number of training points $n$ and input dimension $d$) and results on these synthetic datasets are described in Table~\ref{acc-cob-odts}. Almost all the standard algorithms, including ODT learning algorithms, failed to perform satisfactorily on these datasets. Standard ReLU nets give good accuracy for some of these datasets, but they are sensitive to hyperparameter settings, particularly for higher dimensional data. Another qualitative property of DLGN-DT that is not fully reflected in Table \ref{acc-cob-odts} is that the hyperplanes in the learned tree closely match those in the true ODT. The main goal of designing DLGN and its variants is the study of feature learning, but it is also important to observe that they are indeed learning models with high accuracy and outperforming all other algorithms in some settings. The models exhibiting the highest and second highest performance are highlighted in \textbf{bold} and \textcolor{blue}{blue} respectively in Tables \ref{acc-cob-odts}.
 
-\subsection{Margins in LaTeX}
+% \begin{table}[t]
+% \caption{Dataset statistics}
+% \label{table 3}
+% \begin{center}
+% \begin{tabular}{|c|ccc|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+% \hline
+% Data &I &II &III &1 &2 &3 &4 &5 &6 &7 &8 &9 &10 &11 &12 &13 &14 &15 &16 &17 &18 &19 &20 &21 \\
+% \hline
+% Train(K) &20 &30 &50 &29 &27 &18 &11 &2 &0.1 &3 &19 &14 &12 &27 &396 &7 &9 &51 &5 &50 &40 &2 &14 &7 \\
+% Feat. &20 &100 &500 &14 &16 &23 &10 &7 &20 &57 &8 &2400 &10 &7 &10 &26 &16 &50 &20 &7 &54 &419 &8 &22 \\
+% \hline
+% SD - I          &20k &20 &20$\times$4 \\
+% SD - II         &30k &100 &10$\times$4 \\
+% SD - III         &50k &500 &10$\times$3 \\
+% % SD - III        &45.7k &15 &1250$\times$4 &500$\times$3,d=2\\
+% % SD - IV         &200k &250 &500$\times$3 &500$\times$3,d=2\\
 
-Most of the margin problems come from figures positioned by hand using
-\verb+\special+ or other commands. We suggest using the command
-\verb+\includegraphics+
-from the graphicx package. Always specify the figure width as a multiple of
-the line width as in the example below using .eps graphics
-\begin{verbatim}
-   \usepackage[dvips]{graphicx} ...
-   \includegraphics[width=0.8\linewidth]{myfile.eps}
-\end{verbatim}
-or % Apr 2009 addition
-\begin{verbatim}
-   \usepackage[pdftex]{graphicx} ...
-   \includegraphics[width=0.8\linewidth]{myfile.pdf}
-\end{verbatim}
-for .pdf graphics.
-See section~4.4 in the graphics bundle documentation (\url{http://www.ctan.org/tex-archive/macros/latex/required/graphics/grfguide.ps})
+% \hline
+% Adult           &29.3k &14 &125$\times$4\\
+% Bank            &27.12k &16 &1000$\times$3\\
+% Credit card     &18k &23 &200$\times$3\\
+% Telescope       &11.4k &10 &10$\times$3\\
+% Rice            &2.3k &7 &2$\times$4\\
+% Statlog         &.1k &20 &100$\times$5\\
+% Spambase        &2.8k &57 &200$\times$4\\
+% Gyro            &19.2k &8 &125$\times$4\\
+% Swarm           &14.4k &2400 &200$\times$3\\
 
-A number of width problems arise when LaTeX cannot properly hyphenate a
-line. Please give LaTeX hyphenation hints using the \verb+\-+ command.
+% \end{tabular}
+% \end{center}
+% \end{table}
+\subsection{Performance on Tabular Datasets}\label{sec:td}
+We assessed the performance of our methods, DLGN(dlgn) and DLGN-VT(dlgnv), compared to standard algorithms on real tabular datasets with the details of dataset characteristics (number of training points $n$ and input dimension $d$) outlined in Table~\ref{acc-tabular}. We used a total of 20 tabular binary classification datasets for the comparative study of our models. Most datasets are available in the UCI repository.\footnote{\url{https://archive.ics.uci.edu/datasets}} Some are taken from OpenML benchmark: \citep{grinsztajn2022tree}.\footnote{\url{https://www.openml.org/search?type=benchmark&study_type=task&sort=tasks_included&id=298}} We have performed the experiments with 5 different train test splits and the mean is considered here. The models exhibiting the highest performance are highlighted in \textbf{bold}, and models whose accuracy lie in 95 per cent confidence interval of the best performing model is marked by \textcolor{blue}{blue} in Tables \ref{acc-tabular}. We observe that the linear and kernel methods are almost always beaten by other algorithms which can potentially learn data-dependent features.
+DLGN and random forests are the best among the other algorithms. DLGN-VT also yielded competitive results while being more interpretable. This illustrates that feature learning is a useful property for these datasets, and DLGNs are capable of learning powerful features.
 
-\subsubsection*{Author Contributions}
-If you'd like to, you may include  a section for author contributions as is done
-in many journals. This is optional and at the discretion of the authors.
+% \begin{table}[t]
+% \caption{Test accuracy on Tabular datasets}
+% \label{table 6}
+% \begin{center}
+% \begin{tabular}{c|ccccc|ccccc}
+% \multicolumn{1}{c|}{\bf Dataset} &\multicolumn{1}{c}{\bf DLGN} &\multicolumn{1}{c}{\bf DLGN(V)} &\multicolumn{1}{c}{\bf ReLU} &\multicolumn{1}{c}{\bf SVM(L)} &\multicolumn{1}{c|}{\bf SVM} &\multicolumn{1}{c}{\bf CART} &\multicolumn{1}{c}{\bf RF} &\multicolumn{1}{c}{\bf SDT} &\multicolumn{1}{c}{\bf Zan DT} &\multicolumn{1}{c}{\bf TAO}
+% \\ \hline 
+% Credit           & 76.1 &75.3 &75.7 &xx &74.5 &76.1 &78.2 &74.7 &75.7 &xx\\
+% Electricity            & 82.6 &80.4 &82.5 &xx &78.3 &86.4 &87.7  &75.8 &76.7 &xx\\
+% CoverType     &94.5 &xx &92.8 &xx &80.4 &91.6 &94.3 &75.8 &78.1 &xx\\
+% Pol       &98.8 &98.0 &98.1 &xx &97.5 &96.8 &97.6 &98.1 &97.4 &xx\\
+% House\_16H            &87.3 &86.5 &87.3 &xx &87.0 &84.0 &88.3 &86.3 &85.1 &xx\\
+% MiniBooNE         &93.5 &93.5 &93.1 &xx &89.2 &89.8 &93.1 &88.9 &91.8 &xx\\
+% Eye\_movements        &57.3 &57.1 &57.8 &xx &59.3 &59.2 &63.3 &59.2 &58.9 &xx\\
+% Diabetes130US            &60.6 &60.6 &59.3 &xx &60.4 &60.4 &60.5 &60.6 &60.6 &xx\\
+% Jannis           &78.6 &77.8 &74.7 &xx &77.3 &74.8 &78.6  &78.3 &75.1 &xx\\
+% Bioresponse           &75.3 &74.1 &77.3 &xx &77.6 &70.5 &79.1  &76.8 &72.4 &xx\\
+% California           &88.2 &88.1 &87.0 &xx &86.6 &84.5 &89.1  &85.0 &85.3 &xx\\
+% Heloc           &71.6 &71.4 &66.1 &xx &71.3 &68.6 &71.0  &71.0 &71.2 &xx\\
 
-\subsubsection*{Acknowledgments}
-Use unnumbered third level headings for the acknowledgments. All
-acknowledgments, including those to funding agencies, go at the end of the paper.
+% \end{tabular}
+% \end{center}
+% \end{table}
 
+\section{Conclusion}
+
+Feature learning in deep networks is a fundamental problem and this paper makes several advances on this problem --  it gives a novel hypothesis, a novel data setup , a novel architecture and a way to verify if feature learning indeed happens during training. Exploiting this progress by getting better learning algorithms and theoretically proving that the proposed feature learning mechanism is present in training are exciting directions of future research. A further discussion of the feature learning narrative in this paper is given in the Appendix. 
+
+\newpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%% Use this environment to include acknowledgements (optional).
+%%% This will be omitted in doubleblind mode.
+
+% \begin{ack}
+% By using the \texttt{ack} environment to insert your (optional) 
+% acknowledgements, you can ensure that the text is suppressed whenever 
+% you use the \texttt{doubleblind} option. In the final version, 
+% acknowledgements may be included on the extra page intended for references.
+% \end{ack}
+
+\subsubsection*{Acknowledgements}
+HGR and CL thank the Robert Bosch Center for Data Science and Artificial Intelligence (RBCDSAI) and the Wadhwani School of Artificial Intelligence (WSAI) at IIT Madras for its support. 
 
 \bibliography{iclr2025_conference}
 \bibliographystyle{iclr2025_conference}
-
+\newpage 
 \appendix
 \section{Appendix}
-You may include other additional sections here.
+\subsection{DLGN Illustrations}
 
+\begin{figure*}[h]
+    \centering
+    \begin{subfigure}{0.35\textwidth}
+    \includegraphics[width=\textwidth]{figs/DLGN_networks/1. Gating_net.pdf}
+    \caption{Gating Network}
+    \end{subfigure}
+    \begin{subfigure}{0.3\textwidth}
+    \includegraphics[width= \textwidth]{figs/DLGN_Hyperplanes/1. First.pdf}
+    % \caption{Layer2 initial h-planes}
+    \end{subfigure}
+    \begin{subfigure}{0.3\textwidth}
+    \includegraphics[width= \textwidth]{figs/DLGN_Hyperplanes/2. Second.pdf}
+    % \caption{Layer3 initial h-planes}
+    \end{subfigure}
+    % \vspace*{3mm}
+    \begin{subfigure}{0.35\textwidth}
+    \includegraphics[width=\textwidth]{figs/DLGN_networks/2. Value_net.pdf}
+    \caption{Value Network}
+    \end{subfigure}
+    \begin{subfigure}{0.3\textwidth}
+    \includegraphics[width= \textwidth]{figs/DLGN_Hyperplanes/3. Third.pdf}
+    % \caption{Layer2 trained h-planes}
+    \end{subfigure}
+    \begin{subfigure}{0.3\textwidth}
+    \includegraphics[width= \textwidth]{figs/DLGN_Hyperplanes/4. Fourth.pdf}
+    % \caption{Layer3 trained h-planes}
+    \end{subfigure}
+    % \caption{Region of activation of all paths}
+    \vspace*{6mm}
+    \caption{An illustration of DLGN network and node hyperplanes}
+    \label{fig:DLGN-illustration}
+\end{figure*}
+Figure \ref{fig:DLGN-illustration}(a) and \ref{fig:DLGN-illustration}(b) give an example DLGN operating on a 2-dimensional input with 2 layers and 2 neurons per layer, i.e. $d=m=L=2$. Figure \ref{fig:DLGN-illustration}(c) illustrates the region of activation for all the $m^L=4$ paths given by the gating network \ref{fig:DLGN-illustration}(a). The value network in Figure \ref{fig:DLGN-illustration}(b) gives the path value for all these paths by multiplying the appropriate weights in the path.
+
+\subsection{DLGN Gating Hyperplane Clustering with Larger Width}
+\begin{table*}[h]
+\caption{Number of DLGN hyperplanes (after training) within a given distance of the label function ODT hyperplanes. The 15 ODT internal nodes are numbered 0 to 14, with 0 as the root. The distance of the closest (initial and trained) DLGN hyperplane to all the ODT hyperplanes is given in the last 2 rows. The DLGN has 4 hidden layers with 100 neurons in each layer, i.e. $L=4, m=100$.}
+
+\label{tab:Distance table SD2 for DLGN 100}
+\begin{center}
+\begin{adjustbox}{width=1 \textwidth}
+\begin{tabular}{|c||c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|} 
+\hline
+Distance & 0 & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 \\ \hline
+ 0.1        &6 &2 &1 &1 &0 &0 &0 &0 &0 &0 &0 &0 &1 &0 &0\\
+ 0.2        &18 &3 &1 &1 &0 &0 &1 &0 &1 &1 &0 &1 &1 &0 &1\\
+ 0.3       &27 &4 &1 &1 &0 &1 &1 &0 &1 &1 &0 &2 &1 &0 &1\\ 
+ \hline
+ \hline
+ Closest Dist.(init) &1.16 &1.2  &1.19 &1.21 &1.11 &1.21 &1.14 &1.19 &1.20 &1.15 &1.18 &1.20 &1.14 &1.20 &1.18\\
+ Closest Dist.(final) &0.06 &0.08 &0.09 &0.08 &0.38 &0.22 &0.15 &0.45 &0.12 &0.12 &0.57 &0.14 &0.08 &0.68 &0.11\\
+ \hline
+\end{tabular}
+\end{adjustbox}
+\end{center}
+\end{table*}
+
+% \begin{table*}[h]
+% \caption{Number of DLGN hyperplanes (after training) within a given distance of the label function ODT hyperplanes. The 15 ODT internal nodes are numbered 0 to 14, with 0 as the root. The distance of the closest (initial and trained) DLGN hyperplane to all the ODT hyperplanes is given in the last 2 rows. The DLGN has 4 hidden layers with 200 neurons in each layer, i.e. $L=4, m=200$.}
+% \label{tab:Distance table SD2 for DLGN 200}
+% \begin{center}
+% \begin{adjustbox}{width=1 \textwidth}
+% \begin{tabular}{|c||c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|} 
+% \hline
+% Distance & 0 & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 \\ \hline
+%  0.1        &0 &0 &0 &0 &0 &0 &0 &0 &0 &0 &0 &0 &0 &0 &0\\
+%  0.2        &25 &1 &1 &1 &0 &0 &0 &0 &1 &0 &0 &2 &1 &0 &1\\
+%  0.3       &43 &2 &6 &1 &0 &0 &0 &2 &1 &0 &0 &2 &1 &0 &1\\ 
+%  \hline
+%  \hline
+%  Closest Dist.(init) &1.17 &1.19 &1.2 &1.22 &1.13 &1.14 &1.18 &1.19 &1.17 &1.17 &1.16 &1.16 &1.15 &1.14 &1.16\\
+%  Closest Dist.(final) &0.11 &0.15 &0.14 &0.12 &0.77 &0.69 &0.77 &0.21 &0.11 &0.33 &0.35 &0.18 &0.13 &0.40 &0.19\\
+%  \hline
+% \end{tabular}
+% \end{adjustbox}
+% \end{center}
+% \end{table*}
+
+\begin{figure*}[h]
+    \centering
+    \begin{subfigure}{0.25\textwidth}
+    \includegraphics[width=\textwidth]{figs/Trained_DLGN/DLGN_init_L1_heavier.pdf}
+    \caption{Layer1 initial h-planes}
+    \end{subfigure}
+    \begin{subfigure}{0.25\textwidth}
+    \includegraphics[width= \textwidth]{figs/Trained_DLGN/DLGN_init_L2_heavier.pdf}
+    \caption{Layer2 initial h-planes}
+    \end{subfigure}
+    \begin{subfigure}{0.25\textwidth}
+    \includegraphics[width= \textwidth]{figs/Trained_DLGN/DLGN_init_L3_heavier.pdf}
+    \caption{Layer3 initial h-planes}
+    \end{subfigure}
+    \\
+    \vspace*{6mm}
+    \begin{subfigure}{0.25\textwidth}
+    \includegraphics[width=\textwidth]{figs/Trained_DLGN/DLGN_final_L1_heavier.pdf}
+    \caption{Layer1 trained h-planes}
+    \end{subfigure}
+    \begin{subfigure}{0.25\textwidth}
+    \includegraphics[width= \textwidth]{figs/Trained_DLGN/DLGN_final_L2_heavier.pdf}
+    \caption{Layer2 trained h-planes}
+    \end{subfigure}
+    \begin{subfigure}{0.25\textwidth}
+    \includegraphics[width= \textwidth]{figs/Trained_DLGN/DLGN_final_L3_heavier.pdf}
+    \caption{Layer3 trained h-planes}
+    \end{subfigure}
+    \vspace*{6mm}
+    \caption{An illustration of DLGN hyperplanes before and after training on data in Fig 1c.}
+    \label{fig:DLGN-hyperplanes-seek-discontinuities-in-label-func-app}
+\end{figure*}
+
+\subsection{Details of the DLGN architecture variants}
+
+We also consider two natural variants of the DLGN architecture. The first is a simple re-parameterisation, where the gating network $f_\pi$ is parameterised directly by the matrices $V^1, V^2, \ldots, V^L$, each of shape $m \times d$, instead of using the parameters $W^1, \ldots, W^L$. Clearly, this reparameterisation does not lose any representation power. We call this parameterisation as DLGN-SF (for shallow features). 
+
+Another variant that we use an explicit parameterisation of the coefficients $g_\pi$ instead of using a value network. This parameterisation is also clearly more powerful than the standard DLGN parameterisation in the previous section. However, this requires a parameter tensor of size $m^L$ and is not really practical for large $L$ and $m$. We call this reparameterisation as DLGN-VT (for value tensor). 
+
+All of these models can be extended to allow a bias parameter for the gating network so that the functions $\boldeta^\ell$ can also be affine functions instead of strict linear functions, but we do not discuss this version here for the purpose of simplicity.
+
+Number of DLGN hyperplanes (after training) within a given distance of the label function ODT hyperplanes of DLGN-VT and DLGN-SF are shown in Table \ref{tab:Distance table SD2 for DLGN_VT} and Table \ref{tab:Distance table SD2 for DLGN_SF}. At initialization, all these numbers are equal to zero. The 15 ODT internal nodes are numbered 0 to 14, with 0 as the root. Results of similar experiments as DLGN (Table ~\ref{tab:Distance table SD2 for DLGN}) shown in Table \ref{tab:Distance table SD2 for DLGN_SF} and \ref{tab:Distance table SD2 for DLGN_VT} for DLGN\_SF and DLGN\_VT respectively depicts identical hyperplane-seeking properties of these two variants of the DLGN architecture as well. For each node in the ODT, we count the number of DLGN hyperplanes within a distance of $0.1, 0.2$, and $0.3$ from it.
+
+\begin{table*}[t]
+\caption{Distance table for DLGN-SF Layers: 4 Nodes per layer: 10}
+\label{tab:Distance table SD2 for DLGN_SF}
+\begin{center}
+\begin{adjustbox}{width=0.99 \textwidth}
+\begin{tabular}{|c||c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|} 
+\hline
+Distance & 0 & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 \\ \hline
+ 0.1        &1 &1 &1 &1 &0 &0 &0 &1 &0 &0 &1 &0 &0 &0 &0\\
+ 0.2        &1 &1 &1 &1 &1 &1 &1 &1 &1 &0 &1 &1 &1 &1 &0\\
+ 0.3       &1 &1 &1 &1 &1 &1 &1 &1 &1 &1 &1 &1 &1 &1 &1\\ 
+ \hline
+ \hline
+ Closest Dist.(init) &1.20 &1.22 &1.26 &1.27 &1.24 &1.24 &1.25 &1.22 &1.29 &1.27 &1.24 &1.26 &1.15 &1.26 &1.25\\
+ Closest Dist.(final) &0.05 &0.07 &0.08 &0.08 &0.12 &0.11 &0.13 &0.09 &0.18 &0.26 &0.08 &0.16 &0.10 &0.14 &0.21\\
+ \hline
+\end{tabular}
+\end{adjustbox}
+\end{center}
+\end{table*}
+
+\begin{table*}[t]
+\caption{Distance table for DLGN-VT Layers: 4 Nodes per layer: 10}
+\label{tab:Distance table SD2 for DLGN_VT}
+\begin{center}
+\begin{adjustbox}{width=0.99 \textwidth}
+\begin{tabular}{|c||c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|} 
+\hline
+Distance & 0 & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 \\ \hline
+ 0.1    &3 &2 &2 &0 &2 &2 &1 &1 &0 &1 &2 &1 &1 &1 &1\\
+ 0.2        &3 &2 &2 &0 &2 &2 &1 &1 &0 &2 &2 &1 &1 &1 &1\\
+ 0.3       &3 &2 &2 &0 &2 &2 &1 &1 &1 &2 &2 &1 &1 &1 &1\\ 
+ \hline
+ \hline
+ Closest Dist.(init) &1.16 &1.27 &1.23 &1.22 &1.28 &1.22 &1.18 &1.17 &1.27 &1.26 &1.19 &1.21 &1.26 &1.23
+ &1.21\\
+ Closest Dist.(final) &0.03 &0.05 &0.06 &0.35 &0.08 &0.09 &0.06 &0.09 &0.24 &0.06 &0.04 &0.07 &0.05 &0.07
+ &0.05\\
+ \hline
+\end{tabular}
+\end{adjustbox}
+\end{center}
+\end{table*}
+
+
+\subsection{Local Discontinuity Coefficient Illustration}
+
+Figure \ref{fig:local-discontinuity} gives an example of regions $\mathcal{R}_1, \mathcal{R}_2$ and $\mathcal{R}_3$ and manifold functions $f_1, f_2$. Based on the definition of the local discontinuity coefficient $\gamma$, we have the following. The manifold given by the root node $f_1(x)=0$ has high $\gamma$ value in the smaller scope $\cR_1$, but has a much smaller $\gamma$ value in the larger scope of $\cR_2$. i.e. $\gamma(\cR_1,f_1) \approx 1$ and $\gamma(\cR_2,f_1) \approx 0 $. The manifold given by any ODT internal node hyperplane has a scope within which it is discontinuous, e.g. the scope of discontinuity of the manifold $f_2(\x)=0$ would correspond to $\cR_3$, i.e.  $\gamma(\cR_3, f_2) \approx 1$.
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width= 0.5\textwidth]{figs/Local_discontinuity/LDC_2.pdf}
+    \caption{An illustration of Local Discontinuity Coefficient.}
+    \label{fig:local-discontinuity}
+\end{figure}
+
+\subsection{Proof of DLGN Computation Equivalence}
+
+In this section we prove that Equation \ref{eqn:DLGN_MoE} is implemented by Equation \ref{eqn:DLGN_computation}. 
+
+For any $\ell \in [L]$, let $D^\ell(\x)$ be an $m \times m$ diagonal matrix, whose $(i,i)^{\text{th}}$ entry is $1$ if the $i^{\text{th}}$ hidden node in hidden layer $\ell$ is active and $0$ otherwise, i.e. 
+\[
+[D^\ell(\x)]_{i,i} = 1(\boldeta^\ell_i(\x) \geq 0)
+\]
+where $\boldeta$ is the gating function defined in Equation \ref{eqn:boldeta}. We suppress the dependence of $D^\ell$ on $\x$ for convenience below. Consider the following function of $\x$ :
+\begin{equation}
+\tilde y(\x) = (\bu^{L+1})^\top D^L U^L D^{L-1} \ldots D^2 U^2 D^1 \bu^1 = (\bu^{L+1})^\top \left(\prod_{\ell=L}^2 D^\ell U^\ell \right) D^1 \bu^1
+\label{eqn:y_tilde}
+\end{equation}
+
+We will show that the above expression is equal to the RHS of equation \ref{eqn:DLGN_MoE} when the path values $g_\pi$ are represented as a product of pairwise terms as in Equation \ref{eqn:g_pi}. 
+
+Writing the equation above as product of $L+1$ matrices, with the first and last being vectors of size $m$ and the intermediate matrices ($D^\ell U^\ell$) as matrices of size $m \times m$, and expanding the terms of the matrix product as a sum of $m^L$ terms
+\begin{align*}
+\tilde y(\x) 
+&= \sum_{(i_L, i_{L-1}, \ldots, i_1) \in [m]^L}  \left(\bu^{L+1}_{i_L} \prod_{\ell=L}^2 \left(D^\ell_{i_\ell, i_\ell}  U^\ell_{i_\ell, i_{\ell-1}} \right) D^1_{i_1,i_1} \bu^1_{i_1} \right) \\
+&= \sum_{(i_L, i_{L-1}, \ldots, i_1) \in [m]^L} \left( \prod_{\ell=1}^L  
+D^\ell_{i_\ell, i_\ell} (\x)  \right) \left( \bu^1_{i_1} \prod_{\ell=2}^L \left(U^\ell_{i_\ell, i_{\ell-1}} \right) \bu^{L+1}_{i_L} \right) 
+&= \sum_{\pi \in [m]^L} f_\pi(\x) g_\pi 
+\end{align*}
+
+To see that the RHS of Equation \ref{eqn:y_tilde} also corresponds to the RHS of equation \ref{eqn:DLGN_computation}, just observe that $h^k(\x) = \prod_{\ell=k}^2 \left( D^\ell(\x) U^\ell \right) D^1(\x)\bu^1 $. Thus the computational procedure given by Equation \ref{eqn:DLGN_computation}, exactly implements the conceptual path decomposition given in Equation \ref{eqn:DLGN_MoE}.
+
+\subsection{Relation Between the ReLU Network and the DLGN}
+While the DLGN might seem like a completely different architecture from the ReLU network, it is quite intimately related to and motivated from the ReLU network. 
+
+The ReLU network can also be expressed in a matrix product format like Equation \ref{eqn:y_tilde}. However, the elements of the diagonal matrices $D^\ell$ (except the first layer with $\ell=1$) are not simple halfspace indicator functions. They still correspond to whether the corresponding node is `active' or `not active'. 
+
+In this case, we can still view elements of the matrices $D^\ell$ as features of the network, which corresponds to the standard usage of features as the activation maps of neurons. The ReLU network features would correspond to `bent hyperplanes'. However, the simple view of connected but separate features that the DLGN affords is no longer viable. We currently have no insight into why bent hyperplane features could be better than straight hyperplanes.
+
+\subsection{Value of the Feature Learning Narrative from DLGN}
+We believe that the feature learning insights drawn from DLGN are applicable in general. More importantly, we believe that it can shed light on several phenomena that remain mysteries with deep networks. Some of the mysteries and  candidate answers motivated from this paper are given below.
+\begin{itemize}
+    \item[Q:] Is neural network training using gradient descent parameter efficient? 
+    \item[A:] No. The greedy nature of gradient descent, pushes multiple interconnected parts towards the same feature when it is potentially not required. e.g. In Table \ref{tab:Distance table SD2 for DLGN 100} the distances of learned DLGN hyperplanes (with width $m=100$) to the ODT hyperplanes are given. While the root node hyperplane is discovered separately by multiple gating hyperplanes, some of the other internal nodes are  left in the lurch. This causes poor generalisation. Potentially, this narrative can be exploited to make gradient descent less greedy.
+
+    \item[Q:] How does gradient descent discover the label function discontinuities in high dimensional input space?
+    \item[A:] The full labeling function may be far from being a linear separator, but when data is restricted within a small enough scope, one of the manifolds making up the decision boundary could very well be a good classifier (this argument uses the insight that even in high-dimensional data, if it is linearly separable, picking up the separator can be done in a compute and data efficient manner).  This causes that manifold to be picked up by one of the components of the deep network, and thereby making the rest of the learning problem easier and kickstarting a virtuous cycle.
+    
+    \item[Q:] Why does neural network pruning enable better learning of smaller architectures than training the smaller architecture from scratch?
+    \item[A:] We assume effective learning happens only in problems where the number of label function discontinuities is small. Significant parts of the neural network are simply not necessary to represent the discontinuities, which can be done by a small fraction of the trained deep network model. A large width network is still better for training, because (say) doubling the number of neurons per layer increases the number of paths by a factor of $2^L$. This increases the chances of some path picking a right scope during training enabling the learning of the appropriate label function discontinuity.  Once the learning is complete, a significant fraction of the network which were unlucky to not have gotten a good scope can be removed.
+
+    \item[Q:] What is the role of layers in deep networks? Is increasing the number of layers always beneficial?
+    \item[A:] The main role of layers is to give context/scope to other layers. For example, with a depth 4 ODT labelling function, a DLGN with 3 or lesser number of hidden layers would not be able to give a good scope to any neuron. A DLGN with 5 or more layers is just unnecessary. This is reflected in our experiments as well, where depth 4 DLGN performed best for a depth 4 ODT labelling function. 
+    
+    
+\end{itemize}
+
+
+\subsection{Details of subroutines used in DLGN-DT}
+
+This function takes into account the DLGN model after training. It iteratively calculates the effective weights of the layer using the formula $V^\ell = W^\ell W^{\ell-1} \ldots W^1$ as in lines 3 of the algorithm. It finally returns each layer's effective weight (hyperplanes) as a vector.
+
+\begin{algorithm}[h]
+  \caption{Return gates of a trained DLGN model}\label{alg:return_gates}
+  \textbf{Arguments:} A DLGN model with parameters $W^1, \ldots, W^L, \u^1, U^2,\ldots,U^L,\u^{L+1}$\\
+    \textbf{Outputs:} $mL$ hyperplanes in the input dimension
+  \begin{algorithmic}[1]
+    \Function{\textsc{GateHyperplanes}}{\myVar{model}}
+        \For{$l \gets 1$ \textbf{to} $L$}
+        \State $V^\ell \gets W^\ell W^{\ell-1} \ldots W^1$ 
+        \EndFor
+      \State \Return{$V$ $\gets$ $V^1, \ldots, V^L$}
+    \EndFunction
+  \end{algorithmic}
+\end{algorithm}
+
+\subsection{Datasets used}
+We have used 3 synthetic datasets and 20 tabular datasets to evaluate the performance of our model DLGN and its variants against some standard algorithms. In this section, we will elaborately describe the datasets used.
+
+\subsubsection{Synthetic Datasets:}
+
+\begin{table*}[t]
+\caption{Synthetic Datasets Generation}
+\label{syn-data-gen}
+\begin{center}
+\begin{adjustbox}{width=0.99 \textwidth}
+\begin{tabular}{|p{1cm}|p{1.75cm}|p{2.25cm}|p{1.75cm}|p{.75cm}|p{.75cm}|p{.75cm}|p{2cm}|}
+\hline
+% \multicolumn{3}{|c||}{Dataset Char.} &\multicolumn{3}{|c||}{DLGN} &\multicolumn{4}{|c||}{Non Tree Algo} &\multicolumn{5}{|c|}{Tree Algo} \\
+%  \hline
+dataset &total\_samples &train\_samples(n) &n\_features(d) &depth &seed &thres &generate\_data\\
+ \hline
+SDI    &40000 &20000 &20 &4 &365 &0 &through code\\
+SDII   &60000 &30000 &100 &4 &365 &0 &through code\\
+SDIII  &100000 &50000 &500 &4 &365 &0 &through code\\
+\hline 
+\end{tabular}
+\end{adjustbox}
+\end{center}
+\end{table*}
+ 
+This dataset is synthetically generated with specified dimensions from a labelling function $f^*$ given by an Oblique Decision Tree (ODT) with depth and a defined number of data points as given in Table ~\ref{syn-data-gen}. The datapoints $\x$ are drawn uniformly from the surface of a $d$-dimensional sphere of radius 1, centred at the origin. We used COB-ODTs as mentioned in Section ~\ref{sec:discont} with biases kept at zero. The leaf node labels are chosen so that sibling labels get opposite signs. The final output includes the pruned data, labels, and information about the tree's structure. Three synthetic datasets (SD) are used, named SDI, SDII, and SDIII.\\
+Table ~\ref{syn-data-gen} presents the parameters used for constructing the datasets.
+
+\subsubsection{Tabular Datasets:}
+
+\begin{table*}[t]
+\caption{Tabular datasets}
+\label{tab-data-gen}
+\begin{center}
+\begin{tabular}{|p{.75cm}|p{12.25cm}|}
+\hline
+% \multicolumn{3}{|c||}{Dataset Char.} &\multicolumn{2}{|c||}{DLGN} &\multicolumn{4}{|c||}{Non Tree Algo} &\multicolumn{4}{|c|}{Tree Algo} \\
+%  \hline
+ data  &download\_link
+\\ \hline 
+Adult   &\url{https://archive.ics.uci.edu/static/public/2/adult.zip} \\
+Bank     &\url{https://archive.ics.uci.edu/static/public/222/bank+marketing.zip} \\
+Card     &\url{https://archive.ics.uci.edu/static/public/350/default+of+credit+card+clients.zip} \\
+Telesc      &\url{https://archive.ics.uci.edu/static/public/159/magic+gamma+telescope.zip} \\
+Rice       &\url{https://archive.ics.uci.edu/static/public/545/rice+cammeo+and+osmancik.zip} \\
+Stat      &\url{http://archive.ics.uci.edu/static/public/144/statlog+german+credit+data.zip} \\
+Spam   &\url{http://archive.ics.uci.edu/static/public/94/spambase.zip} \\
+Gyro       &\url{https://archive.ics.uci.edu/static/public/755/accelerometer+gyro+mobile+phone+dataset.zip} \\
+Swar        &\url{https://archive.ics.uci.edu/static/public/524/swarm+behaviour.zip} \\
+Credit        &\url{https://api.openml.org/data/v1/download/22103185/credit.arff} \\
+Elec    &\url{https://api.openml.org/data/v1/download/22103245/electricity.arff} \\
+Cover    &\url{https://api.openml.org/data/v1/download/22103246/covertype.arff} \\
+Pol      &\url{https://api.openml.org/data/v1/download/22103247/pol.arff}\\
+House    &\url{https://api.openml.org/data/v1/download/22103248/house_16H.arff}\\
+Mini     &\url{https://api.openml.org/data/v1/download/22103253/MiniBooNE.arff}\\
+Diab      &\url{https://api.openml.org/data/v1/download/22111908/Diabetes130US.arff}\\
+Jannis   &\url{https://api.openml.org/data/v1/download/22111907/jannis.arff} \\
+Bior      &\url{https://api.openml.org/data/v1/download/22111905/Bioresponse.arff}\\
+Calif     &\url{https://api.openml.org/data/v1/download/22111914/california.arff}\\
+Heloc   &\url{https://api.openml.org/data/v1/download/22111912/heloc.arff}\\
+\hline 
+\end{tabular}
+\end{center}
+\end{table*}
+
+We used a total of 20 tabular binary classification datasets for the comparative study of our models. Most datasets are available in the UCI repository \url{https://archive.ics.uci.edu/datasets}. Some are taken from the OpenML benchmark, as given in the paper \citep{grinsztajn2022tree}. \url{https://www.openml.org/search?type=benchmark&study_type=task&sort=tasks_included&id=298}. The dataset download URL is in Table ~\ref{tab-data-gen}. After downloading the datasets, they are preprocessed by dropping rows with missing values, converting categorical features using Label Encoding, Standardizing numerical features, and Encoding the target variables to 0 and 1.
+
+
+
+
+Figure \ref{fig:DLGN-hyperplanes-seek-discontinuities-in-label-func-app} illustrates an example scenario when a 3-hidden layer DLGN is trained on data given in Figure \ref{fig:ODT}(c). The initial hyperplanes(h-planes) given by $V^1$ and  $V^2$ and $V^3$ as shown in Figure \ref{fig:DLGN-hyperplanes-seek-discontinuities-in-label-func-app}(a-c) are essentially random. However, after training, the hyperplanes in the later layers show a remarkable tendency to move towards the hyperplanes corresponding to the decision tree -- particularly that of nodes close to the root (See Figures \ref{fig:DLGN-hyperplanes-seek-discontinuities-in-label-func-app}(d-f)).
+
+
+
+
+\subsection{Experimental Setup Details}\label{sec:app-exp}
+% The results presented in Table \ref{tab:CIFAR10results} were obtained using the CIFAR-10 dataset. Conv5(R) denotes a five-layered Convolutional Neural Network (CNN) employing Rectified Linear Unit (ReLU) activation, while Conv(D) signifies a five-layered Convolutional model featuring DLGN architecture instead of ReLU. The subsequent section outlines the specific hyperparameters and configurations utilized for this analysis.
+% \subsubsection{Deatails of experiments performed on CIFAR10}
+% \subsubsection{Hyperparameters}
+% \begin{itemize}
+%     \item Number of Convolution Layers = 5
+%     \item Number of filters in each layer = 26
+%     \item Optimizer: Adam
+%     \item Learning rate = 2e-4
+% \end{itemize}
+
+% \subsubsection{Architectures}
+% \begin{itemize}
+%     \item ReLU network : 5 Convolution layers with ReLU activation in each layer, followed by Global Average Pooling, followed by 1 Dense layer with 64 neurons.
+%     \item DLGN: 5 Convolution layers, followed by Global Average Pooling, followed by 1 Dense layer with 64 neurons.
+% \end{itemize}
+
+\subsubsection{Train\_Validation\_Test Split:} For the synthetic datasets SDI, SDII, and SDIII, the dataset is split into 50\% train, 25\% test, and 25\% validation set. Models are trained on the training data and validated on the validation set, and then the test score is reported against the test data with the best hyperparameters. Similarly, for the tabular datasets, the dataset is split into 60\% train, 20\% test, and 20\% validation set.
+\subsubsection{Number of folds:} Based on the algorithms used, the number of folds used is also varied. For standard ML algorithms like CART, Random Forest, SVM, and SVM Linear, we use 3-fold cross-validation; for most other algorithms, including DLGNs, we use one-fold size.
+\subsubsection{Hardware:} All the experiments are performed on Kaggle, and all the neural network-based experiments use GPU, whereas traditional ML algorithms are performed on CPU. Kaggle provided GPUs, such as GPU T4 x2 and GPU P100.
+\subsubsection{Hyperparameters tuning:} Each algorithm used in this paper has a different set of hyperparameters, and hyperparameter tuning is one of the most important aspects for getting the best accuracy. Here, for each algorithm, we extensively searched from a collection of hyperparameters and validated their result on the validation set to obtain the best-performing hyperparameters. Test results are reported based on the best hyperparameters. The below tables give a list of all hyperparameters for each algorithm used. 
+
+\begin{table*}[htbp]
+\caption{DLGN and DLGN-SF hyperparameters space}
+\label{dlgn-hyp}
+\begin{center}
+\begin{tabular}{|p{4cm}|p{8cm}|}
+\hline
+Parameters &Set of values searched on\\
+ \hline
+num layers     &3, 4, 5\\
+num nodes(each layer)   &10, 20, 50, 100, 200, 500, 1000\\
+beta  &3, 10, 20, 30\\
+learning rate(lr)     &0.1, 0.01, 0.02, 0.05, 0.001, 0.005, 0.0001\\
+epochs   &200, 300, 500\\
+batches  &1, 10, 100\\
+optimizers     &Adam, SGD\\
+weight decay   &0, 0.1\\
+\hline 
+\end{tabular}
+\end{center}
+\end{table*}
+
+% Table ~\ref{dlgn-hyp} contains the hyperparameter set used in training the DLGN and DLGN-SF models on all the datasets. The trained model is tested on a validation set, and the best hyperparameter combination is found, which is then used to get the test accuracy. Parameters num layers, num nodes(each layer), and beta are the most important hyperparameters.
+Table ~\ref{dlgn-hyp} lists the hyperparameters for training DLGN and DLGN-SF across all datasets. The best combination, selected via validation, determines test accuracy. Key parameters include num layers, num nodes (per layer), and beta.
+
+\begin{table*}[htbp]
+\caption{DLGN-VT hyperparameters space}
+\label{dlgn-vt-hyp}
+\begin{center}
+\begin{tabular}{|p{4cm}|p{8cm}|}
+\hline
+Parameters &Set of values searched on\\
+ \hline
+num layers     &3, 4\\
+num nodes(each layer)   &10, 20\\
+beta  &3, 10, 20, 30\\
+learning rate(lr)     &1., 0.1, 0.01, 0.02, 0.05, 0.001, 0.005, 0.0001\\
+epochs   &200, 300, 500,1000,5000,10000,15000\\
+batches  &1, 10, 100\\
+optimizers     &Adam, SGD\\
+weight decay   &0, 0.1\\
+C &0.1, 0.03, 1.0\\
+max\_iter &100, 500, 1000\\
+penalty &l1, l2\\
+solver &liblinear\\
+\hline 
+\end{tabular}
+\end{center}
+\end{table*}
+
+Table ~\ref{dlgn-vt-hyp} lists the hyperparameters for training DLGN-VT across all datasets. The best combination, selected via validation, determines test accuracy. Along with the DLGN parameters, it has C, max\_iter, penalty and solver as additional parameters.
+
+\begin{table*}[htbp]
+\caption{DLGN-DT hyperparameters space}
+\label{dlgn-dt-hyp}
+\begin{center}
+\begin{tabular}{|p{4cm}|p{8cm}|}
+\hline
+Parameters &Set of values searched on\\
+ \hline
+num layers     &3, 4, 5\\
+num nodes(each layer)   &10, 20, 50, 100, 200, 500, 1000\\
+beta  &3, 10, 20, 30\\
+learning rate(lr)     &0.1, 0.01, 0.02, 0.05, 0.001, 0.005, 0.0001\\
+epochs   &200, 300, 500\\
+batches  &1, 10, 100\\
+optimizers     &Adam, SGD\\
+weight decay   &0, 0.1\\
+eps &0.1, 0.2, 0.3\\
+min\_samples &1, 2, 3, 5, 7, 10, 15, 22, 40\\
+max\_depth &1 to 10\\
+\hline 
+\end{tabular}
+\end{center}
+\end{table*}
+
+Table ~\ref{dlgn-dt-hyp} lists the hyperparameters for training DLGN-DT across all datasets. The best combination, selected via validation, determines test accuracy. Key parameters include eps, min\_samples, and max\_depth for clustering and tree depth.
+
+\begin{table*}[htbp]
+\caption{ReLU hyperparameters space}
+\label{relu-hyp}
+\begin{center}
+\begin{tabular}{|p{4cm}|p{8cm}|}
+\hline
+Parameters &Set of values searched on\\
+ \hline
+num layers     &3, 4, 5\\
+num nodes(each layer)   &10, 20, 50, 100, 200, 500, 1000\\
+learning rate(lr)     &0.1, 0.01, 0.02, 0.05, 0.001, 0.005, 0.0001\\
+epochs   &200, 500, 1000\\
+optimizers     &Adam, SGD\\
+weight decay   &0, 0.1\\
+\hline 
+\end{tabular}
+\end{center}
+\end{table*}
+Table ~\ref{relu-hyp} lists the hyperparameters for training ReLU models across all datasets. The best combination, selected via validation, determines test accuracy.
+
+\begin{table*}[htbp]
+\caption{SVM Linear hyperparameters space}
+\label{svl-hyp}
+\begin{center}
+\begin{tabular}{|p{4cm}|p{8cm}|}
+\hline
+Parameters &Set of values searched on\\
+ \hline
+C     &0.1, 0.5, 1, 2, 5\\
+kernel   &Linear\\
+\hline 
+\end{tabular}
+\end{center}
+\end{table*}
+Table ~\ref{svl-hyp} lists the hyperparameters for training Linear SVM across all datasets. The best combination, selected via validation, determines test accuracy, with the kernel set to Linear.
+
+\begin{table*}[htbp]
+\caption{SVM hyperparameters space}
+\label{svm-hyp}
+\begin{center}
+\begin{tabular}{|p{4cm}|p{8cm}|}
+\hline
+Parameters &Set of values searched on\\
+ \hline
+C     &0.1, 0.5, 1, 2, 5\\
+kernel   & rbf, sigmoid\\
+gamma     &scale, auto, 0.001, 0.01, 0.1, 1, 10\\
+degree   &2, 3, 4, 5\\
+\hline 
+\end{tabular}
+\end{center}
+\end{table*}
+Table ~\ref{svm-hyp} lists the hyperparameters for training Non-linear SVM across all datasets. The best combination, selected via validation, determines test accuracy, with the kernel set to rbf or sigmoid.
+
+\begin{table*}[htbp]
+\caption{CART hyperparameters space}
+\label{cart-hyp}
+\begin{center}
+\begin{tabular}{|p{4cm}|p{8cm}|}
+\hline
+Parameters &Set of values searched on\\
+ \hline
+criterion &gini, entropy\\
+splitter &best, random\\
+max\_depth &1 to 10\\
+min\_samples\_split &1 to 10\\
+min\_samples\_leaf &1, 2, 4, 5\\
+max\_features &sqrt, log2\\
+\hline 
+\end{tabular}
+\end{center}
+\end{table*}
+Table ~\ref{cart-hyp} lists the hyperparameters for training the CART model across all datasets. The best combination, selected via validation, determines test accuracy, with max\_depth as the key parameter.
+
+\begin{table*}[htbp]
+\caption{Random Forest hyperparameters space}
+\label{rf-hyp}
+\begin{center}
+\begin{tabular}{|p{4cm}|p{8cm}|}
+\hline
+Parameters &Set of values searched on\\
+ \hline
+criterion &gini, entropy\\
+n\_estimators &10, 20, 50, 100\\
+max\_depth &1 to 10\\
+min\_samples\_split &1 to 10\\
+min\_samples\_leaf &1, 2, 4, 5\\
+max\_features &sqrt, log2\\
+\hline 
+\end{tabular}
+\end{center}
+\end{table*}
+
+Table ~\ref{rf-hyp} contains the hyperparameter set used in training the random forest model on all the datasets. The trained model is tested on a validation set, and the best hyperparameter combination is found, which is then used to get the test accuracy. n\_estimators define the number of estimators in the random forest as one of the most vital hyperparameters.
+
+\begin{table*}[htbp]
+\caption{SDT hyperparameters space}
+\label{sdt-hyp}
+\begin{center}
+\begin{tabular}{|p{4cm}|p{8cm}|}
+\hline
+Parameters &Set of values searched on\\
+ \hline
+depth &1 to 10\\
+lamda &0.1, 0.01, 0.02, 0.05, 0.001\\
+learning rate(lr)     &0.1, 0.01, 0.02, 0.05, 0.001, 0.005, 0.0001\\
+epochs   &200, 300, 500\\
+batches  &32, 64, 128\\
+weight decay   &0, 0.1, 0.0005\\
+
+\hline 
+\end{tabular}
+\end{center}
+\end{table*}
+
+Table ~\ref{sdt-hyp} contains the hyperparameter set used in training the SDT model on all the datasets. The trained model is tested on a validation set, and the best hyperparameter combination is found, which is then used to get the test accuracy. depth is the tree depth of SDT which is the most vital hyperparameter to tune.
+
+\begin{table*}[htbp]
+\caption{TAO hyperparameters space}
+\label{tao-hyp}
+\begin{center}
+\begin{tabular}{|p{4cm}|p{8cm}|}
+\hline
+Parameters &Set of values searched on\\
+ \hline
+n\_iters &10, 20, 30\\
+max\_leaf\_nodes &5, 10, 15\\
+randomize\_tree &True, False\\
+update\_scoring &accuracy\\
+min\_node\_samples\_tao &1, 2, 3, 4, 5\\
+min\_leaf\_samples\_tao &1, 2, 3, 4, 5\\
+reg\_param &0.1, 0.01, 0.02, 0.05, 0.001\\
+\hline 
+\end{tabular}
+\end{center}
+\end{table*}
+
+Table ~\ref{tao-hyp} contains the hyperparameter set used in training the TAO model on all the datasets. The trained model is tested on a validation set, and the best hyperparameter combination is found, which is then used to get the test accuracy. n\_iters, max\_leaf\_nodes and min\_node\_samples are important hyperparameters to train.
+
+\begin{table*}[htbp]
+\caption{Zan-DT hyperparameters space}
+\label{zan-hyp}
+\begin{center}
+\begin{tabular}{|p{4cm}|p{8cm}|}
+\hline
+Parameters &Set of values searched on\\
+ \hline
+depth &1 to 10\\
+reg &0.1, 0.01, 1.48, 1.5, 2\\
+mlp\_layer &3, 4, 5\\
+dropout &0.0, 0.01, 0.05, 0.07, 0.1\\
+lr &0.1, 0.01, 0.02, 0.05, 0.001\\
+epochs   &200, 300, 500\\
+batches  &32, 64, 128, 512\\
+\hline 
+\end{tabular}
+\end{center}
+\end{table*}
+
+Table ~\ref{zan-hyp} contains the hyperparameter set used in training the Zan-DT models on all the datasets. The trained model is tested on a validation set, and the best hyperparameter combination is found, which is then used to get the test accuracy. depth, reg and mlp\_layer are vital parameters.
+
+\begin{table*}[htbp]
+\caption{Disnn hyperparameters space}
+\label{disnn-hyp}
+\begin{center}
+\begin{tabular}{|p{4cm}|p{8cm}|}
+\hline
+Parameters &Set of values searched on\\
+ \hline
+n\_polytopes\_list &1 - 15,20,30,100\\
+m\_list &1 - 15,20,30,100\\
+\hline 
+\end{tabular}
+\end{center}
+\end{table*}
+
+Table ~\ref{disnn-hyp} contains the hyperparameter set used in training the Disnn model on all the datasets. The trained model is tested on a validation set, and the best hyperparameter combination is found, which is then used to get the test accuracy. A value of 10-15 for n\_polytopes\_list and m\_list works best.
+ 
+\begin{table*}[htbp]
+\caption{GLN hyperparameters space}
+\label{gln-hyp}
+\begin{center}
+\begin{tabular}{|p{4cm}|p{8cm}|}
+\hline
+Parameters &Set of values searched on\\
+ \hline
+layer\_sizes &3,4,5\\
+num\_nodes &5,10,20,50\\
+context\_map\_size &2 to 10\\
+lr &0.1, 0.01, 0.02, 0.05, 0.001,0.00025\\
+\hline 
+\end{tabular}
+\end{center}
+\end{table*}
+
+Table ~\ref{gln-hyp} contains the hyperparameter set used in training the GLN model on all the datasets. The trained model is tested on a validation set, and the best hyperparameter combination is found, which is then used to get the test accuracy. layer\_sizes, num\_nodes and  context\_map\_size are important parameters. context\_map\_size = 4 gives the best result.
+
+% \subsubsection{Best Hyperparameters:}
+
+% \subsection{Additional Experiments} 
+
+% \subsubsection{Additional Experiments performed on Synthetic Datasets}
+
+% We performed additional experiments on another set of three synthetic datasets to show the superiority of DLGN and DLGN-DT on datasets coming from ODT. Table ~\ref{table 24} shows the results that DLGN and DLGN-DT both outperform other methods. These three synthetic datasets are:
+
+% \textbf{Synthetic Dataset I (SD - I):}
+% \begin{itemize}
+%     \item Number of datapoints = 300000
+%     \item Dimension of the data = 19
+%     \item Seed: 1387
+%     \item Depth = 4
+%     \item threshold = 0.1
+% \end{itemize}
+% \textbf{Synthetic Dataset II (SD - II):}
+% \begin{itemize}
+%     \item Number of datapoints = 100000
+%     \item Dimension of the data = 100
+%     \item Seed: 1387
+%     \item Depth = 3
+%     \item threshold = 0.05
+% \end{itemize}
+% \textbf{Synthetic Dataset III (SD - III):}
+% \begin{itemize}
+%     \item Number of datapoints = 100000
+%     \item Dimension of the data = 500
+%     \item Seed: 365
+%     \item Depth = 3
+%     \item threshold = 0.01
+% \end{itemize}
+
+% \begin{table*}[t]
+% \caption{Test accuracy on synthetic datasets}
+% \label{table 24}
+% \begin{center}
+% \begin{tabular}{|c|ccc|ccccc|}
+% \hline
+% \multicolumn{1}{|c|}{\bf Dataset} &\multicolumn{1}{c}{\bf DLGN} &\multicolumn{1}{c}{\bf ReLU} &\multicolumn{1}{c|}{\bf SVM} &\multicolumn{1}{c}{\bf CART} &\multicolumn{1}{c}{\bf RF} &\multicolumn{1}{c}{\bf SDT} &\multicolumn{1}{c}{\bf Zan DT} &\multicolumn{1}{c|}{\bf DLGN DT}
+% \\ \hline
+% SD - I         &98.6 &98.9 &83.5 &61.3 &72.6 &93.4 &89.4  &97.1\\
+% SD - II       &99.3 &94.8 &73.9 &54.6 &65.5 &96.7 &89.7  & 97.8\\
+% SD - III       &93.7 &72.0 &68.0 &51.3 &60.6 &88.4 &67.0 & 94.2\\
+% % SD - III       &99.9 &99.3 &87.2 &65.5 &99.8  & 99.9\\
+% % SD - IV       &99.5 &93.6 &70.7 &52.6 &00.0  & 98.8\\
+% \hline
+% \end{tabular}
+% \end{center}
+% \end{table*}
+
+% \begin{table*}[t]
+% \caption{Number of DLGN hyperplanes (after training) within a given distance of the label function ODT hyperplanes. At initialization, all these numbers are equal to zero. The 15 ODT internal nodes are numbered 0 to 14, with 0 as the root.}
+% \label{tab:Distance table SD1}
+% \begin{center}
+% \begin{tabular}{|c||c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|} 
+% \hline
+% Distance & 0 & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 \\ \hline
+%  0.1        &31 &4 &4 &0 &0  &0 &0 &0 &0 &0 &0  &1 &2  &1 &3\\
+%  0.2        &162 &8 &18 &0 &0 &2 &0 &2 &1 &5  &2 &2  &6 &2 &6\\
+%  0.3       &284 &14 &40 &1 &2  &5 &2 &2 &1 &6 &5  &2 &8  &4 &9\\ 
+%  \hline
+% \end{tabular}
+% \end{center}
+% \end{table*}
+
+% Table \ref{tab:Distance table SD1} gives the results of a real experiment on a synthetic dataset similar to Table ~\ref{tab:Distance table SD2 for DLGN} in which the data is a $19$-dimensional vector labeled by a depth-4 complete ODT with 15 internal nodes. A 4 hidden layer DLGN with 1000 neurons in each layer was trained on this dataset containing about 18000 data points. For each node in the ODT, we count the number of DLGN hyperplanes within a distance of $0.1, 0.2$, and $0.3$ from it
+
+% \subsubsection{Hyperparameters of DLGN model}
+% \begin{itemize}
+%     \item Number of hidden layers = 3(SD-II,SD-III) 4(SD-I)
+%     \item Number of nodes in each layer = 1000(SD-I) 500(SD-II,SD-III)
+%     \item Optimizer: Adam
+%     \item Learning rate = 0.001
+%     \item beta=3 
+% \end{itemize}
+
+% \subsubsection{Hyperparameters of DLGN DT model}
+
+% \textbf{DLGN Model used:}
+% \begin{itemize}
+%     \item Number of hidden layers = 3
+%     \item Number of nodes in each layer = 500
+%     \item Optimizer: Adam
+%     \item Learning rate = 0.001
+%     \item beta=3 
+% \end{itemize}
+% \textbf{Clustering Model used:}
+% We are using DBScan clustering to find the largest cluster center and towards the bottom of the tree in case no cluster is detected, we are using Logistic Regression to find the features for the nodes.
+% \begin{itemize}
+%     \item Name of the algorithm = DBScan
+%     \item eps = 0.2
+%     \item \textbf{min\_samples:} \\
+%     \textbf{SD-I,SD-II}
+%         \begin{itemize}
+%             \item Node 0 - 10
+%             \item Node 1 - 15
+%             \item Node 2 - 30
+%             \item Other nodes - 40
+%         \end{itemize}
+%     \textbf{SD-III}
+%         \begin{itemize}
+%             \item Node 0 - 30
+%             \item Node 1 - 100
+%             \item Node 2 - 50
+%             \item Other nodes - 100
+%         \end{itemize}
+% \end{itemize}
+
+% \subsubsection{Results of DLGN-DT on some UCI Datasets}
+% We performed a comparative study of DLGN and DLGN-DT on some UCI datasets already used in our comparison. As in Table ~\ref{table 35}, DLGN-DT seems to be comparable to DLGN for these tabular datasets and has more interpretability. 
+% \begin{table*}[t]
+% \caption{Test accuracy on UCI datasets}
+% \label{table 35}
+% \begin{center}
+% \begin{tabular}{|c|c|c|}
+% \hline
+% \multicolumn{1}{|c|}{\bf Dataset} &\multicolumn{1}{c}{\bf DLGN} &\multicolumn{1}{c|}{\bf DLGN DT}
+% \\ \hline 
+% Adult           & 85.3 &84.1\\
+% Bank            & 91.7 &90.6\\
+% Credit card     & 81.6 &81.1\\
+% Telescope       & 88.1 &85.6\\
+% Rice            & 92.8 & 92.7\\
+% Statlog         &77.5 & 80.0\\
+% Spambase        & 94.1 &93.6\\
+% Gyro            & 98.8 &98.1\\
+% Swarm           & 100 &99.9\\
+% \hline
+% \end{tabular}
+% \end{center}
+% \end{table*}
+% The results are presented in Table \ref{table 5}.The UCI Machine Learning Repository is a collection of numerous datasets for machine learning tasks. We picked our real datasets from the UCI dataset repository available at \url{https://archive.ics.uci.edu/datasets}. The datasets picked for our binary classification tasks are \textbf{Adult\footnote{\url{https://archive.ics.uci.edu/dataset/2/adult}}}
+% \textbf{Bank\footnote{\url{https://archive.ics.uci.edu/dataset/222/bank+marketing}}}
+% \textbf{Credit card\footnote{\url{https://archive.ics.uci.edu/dataset/350/default+of+credit+card+clients}}}
+% \textbf{Telescope\footnote{\url{https://archive.ics.uci.edu/dataset/159/magic+gamma+telescope}}}
+% \textbf{Rice\footnote{\url{https://archive.ics.uci.edu/dataset/545/rice+cammeo+and+osmancik}}}
+% \textbf{Statlog\footnote{\url{http://archive.ics.uci.edu/dataset/144/statlog+german+credit+data}}}
+% \textbf{Spambase\footnote{\url{http://archive.ics.uci.edu/dataset/94/spambase}}}
+% \textbf{Gyro\footnote{\url{https://archive-beta.ics.uci.edu/dataset/755/accelerometer+gyro+mobile+phone+dataset}}}
+% \textbf{Swarm\footnote{\url{https://archive.ics.uci.edu/dataset/524/swarm+behaviour}}}\\
+% The data and model statistics are given in Table \ref{table 3}:
+
+% \subsubsection{Hyperparameters of DLGN model}
+% \begin{itemize}
+%     \item Optimizer: Adam
+%     \item Learning rate = 0.001
+%     \item beta=3 
+% \end{itemize}
+
+% \subsubsection{Hyperparameters of DLGN DT model}
+% \textbf{Clustering Model used:}
+% We are using DBScan clustering to find the largest cluster center and towards the bottom of the tree in case no cluster is detected, we are using Logistic Regression to find the features for the nodes.
+% \begin{itemize}
+%     \item Name of the algorithm = DBScan
+%     \item eps = 0.2 (Spambase) 0.3(rest all) 
+%     \item \textbf{min\_samples:}
+%         \begin{itemize}
+%             \item Adult - 5
+%             \item Bank - 5
+%             \item Credit Card- 6
+%             \item Telescope - 6
+%             \item Rice - 6
+%             \item Statlog - 5
+%             \item Spambase Card- 10
+%             \item Gyro - 6
+%             \item Swarm - 6
+%         \end{itemize}
+% \end{itemize}
+
+% \subsection{Trained DLGN Hyperplanes Illustration}
+
+% \begin{figure*}[t]
+%     \centering
+%     \begin{subfigure}{0.27 \textwidth}
+%     \includegraphics[width=\textwidth]{figs/Oblique_DT/depth3_DT_level2.pdf}    
+%     \subcaption{ODT h-planes of root and children}
+%     \end{subfigure}
+%     \begin{subfigure}{0.27 \textwidth}
+%     \includegraphics[width=\textwidth]{figs/Oblique_DT/depth3_DT_level3.pdf}    
+%     \subcaption{ODT h-planes of grandchildren}
+%     \end{subfigure}
+%     \begin{subfigure}{0.27 \textwidth}
+%     \includegraphics[width=\textwidth]{figs/Oblique_DT/depth3_DT full.pdf}
+%     \subcaption{Shaded leaf node regions.}
+%     \end{subfigure}
+%     \vspace*{8mm}
+%     \caption{Hyperplanes and labelling function for a complete ODT of depth 3. The children of an internal node $i$ are $2i+1$ and $2i+2$. Green and red shades indicate positive and negative labels respectively. \vspace*{5mm}}
+%     \label{fig:ODT}
+% \end{figure*}
+
+% \begin{figure*}[h]
+% \centering
+% \hspace{4em}
+% \begin{subfigure}{0.19\textwidth}
+% \includegraphics[width=\textwidth]{figs/DT_Construction/DT_const_type2_without_tree1.pdf}
+% \caption{Level 0}
+% \end{subfigure}
+% \hspace{6em} 
+% \begin{subfigure}{0.4\textwidth}
+% \includegraphics[width=\textwidth]{figs/DT_Construction/DT_const_type2_without_tree2.pdf}
+% \caption{Level 1}
+% \end{subfigure}
+% \\
+% \vspace*{5mm}
+
+% \begin{subfigure}{0.8\textwidth}
+% \includegraphics[width=\textwidth]{figs/DT_Construction/DT_const_type2_without_tree3.pdf}
+% \caption{Level 2}
+% \vspace*{5mm}
+% \end{subfigure}
+
+% \caption{DLGN based ODT Learning. Illustration of the recursive procedure where for each level starting at 0, we have $2^\text{level}$ DLGNs trained on different splits of the data given by previous levels. The main result of each training run is the largest cluster of the learned DLGN hyperplanes, which is shown in the figures by red dashed lines.}
+% \label{fig:DLGN_ODT}
+% \end{figure*}
 
 \end{document}
