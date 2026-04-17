@@ -13,6 +13,7 @@ dependencies = [
     "torchvision",
     "pyyaml>=6.0",
     "pytest>=8.0",
+    "pandas>=3.0.2",
 ]
 
 [project.scripts]

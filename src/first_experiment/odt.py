@@ -98,6 +98,73 @@ def _validate_tree(spec: COBODTSpec, tree: COBODTTree) -> None:
         raise ValueError("leaf_labels must only contain -1 and +1.")
 
 
+def _path_directions_from_root(node_id: int) -> list[int]:
+    """Return root-to-node directions (0=left, 1=right)."""
+    directions: list[int] = []
+    curr = node_id
+    while curr > 0:
+        parent = (curr - 1) // 2
+        is_right = 1 if curr == (2 * parent + 2) else 0
+        directions.append(is_right)
+        curr = parent
+    directions.reverse()
+    return directions
+
+
+def samples_reaching_node(
+    *,
+    x: np.ndarray,
+    tree: COBODTTree,
+    depth: int,
+    node_id: int,
+    return_mask: bool = False,
+) -> np.ndarray | tuple[np.ndarray, np.ndarray]:
+    """Return all samples that reach a given internal or leaf node.
+
+    Args:
+        x: Input samples of shape (n, d).
+        tree: COB-ODT parameters.
+        depth: Tree depth.
+        node_id: Node index in heap order (root=0).
+        return_mask: If True, also return a boolean mask over `x`.
+    """
+    num_internal = (2**depth) - 1
+    num_total_nodes = (2 ** (depth + 1)) - 1
+    if node_id < 0 or node_id >= num_total_nodes:
+        raise ValueError(
+            f"node_id must be in [0, {num_total_nodes - 1}], got {node_id}."
+        )
+
+    if x.ndim != 2:
+        raise ValueError(f"x must be 2D with shape (n, d), got shape {x.shape}.")
+    if tree.w_list.shape[1] != x.shape[1]:
+        raise ValueError(
+            "x dimension does not match tree hyperplanes: "
+            f"x has d={x.shape[1]}, tree expects d={tree.w_list.shape[1]}."
+        )
+    if tree.w_list.shape[0] != num_internal:
+        raise ValueError(
+            "tree does not match provided depth: "
+            f"expected {num_internal} internal nodes, got {tree.w_list.shape[0]}."
+        )
+
+    directions = _path_directions_from_root(node_id)
+    mask = np.ones(x.shape[0], dtype=bool)
+    curr_node = 0
+    for go_right in directions:
+        margins = x[mask] @ tree.w_list[curr_node] + tree.b_list[curr_node]
+        next_mask = margins > 0 if go_right == 1 else margins <= 0
+        full_next_mask = np.zeros_like(mask)
+        full_next_mask[np.where(mask)[0][next_mask]] = True
+        mask = full_next_mask
+        curr_node = 2 * curr_node + 1 + go_right
+
+    x_subset = x[mask]
+    if return_mask:
+        return x_subset, mask
+    return x_subset
+
+
 def build_default_cob_odt_tree(
     *, dim: int, depth: int, rng: np.random.Generator, global_leaf_sign: int = 1
 ) -> COBODTTree:
