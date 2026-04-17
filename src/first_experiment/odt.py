@@ -1,0 +1,162 @@
+"""COB-ODT synthetic data generation utilities.
+
+This module implements the Paper 1 synthetic dataset defaults used in milestone 1:
+- inputs sampled uniformly from the unit sphere,
+- complete orthogonal balanced ODT internal hyperplanes,
+- zero biases by default,
+- labels in {-1, +1} with sibling leaves assigned opposite signs.
+"""
+
+from __future__ import annotations
+
+from dataclasses import dataclass
+
+import numpy as np
+
+
+@dataclass(frozen=True)
+class COBODTSpec:
+    """Configuration for a complete orthogonal balanced ODT."""
+
+    dim: int
+    depth: int
+    threshold: float = 0.0
+
+    @property
+    def num_internal_nodes(self) -> int:
+        return (2**self.depth) - 1
+
+    @property
+    def num_leaf_nodes(self) -> int:
+        return 2**self.depth
+
+
+@dataclass(frozen=True)
+class COBODTTree:
+    """Tree parameters defining the ODT label function."""
+
+    w_list: np.ndarray
+    b_list: np.ndarray
+    leaf_labels: np.ndarray
+
+
+def _sample_unit_sphere(rng: np.random.Generator, num_data: int, dim: int) -> np.ndarray:
+    x = rng.standard_normal((num_data, dim))
+    x /= np.linalg.norm(x, axis=1, keepdims=True)
+    return x
+
+
+def _sample_orthonormal_vectors(
+    rng: np.random.Generator, *, num_vectors: int, dim: int
+) -> np.ndarray:
+    if num_vectors > dim:
+        raise ValueError(
+            "Cannot sample mutually orthonormal vectors when num_vectors > dim. "
+            f"Got num_vectors={num_vectors}, dim={dim}."
+        )
+    gaussian = rng.standard_normal((dim, dim))
+    q, _ = np.linalg.qr(gaussian)
+    return q[:, :num_vectors].T
+
+
+def _default_leaf_labels(depth: int, global_sign: int = 1) -> np.ndarray:
+    if global_sign not in (-1, 1):
+        raise ValueError(f"global_sign must be -1 or +1, got {global_sign}.")
+    num_leaf_nodes = 2**depth
+    parity = np.arange(num_leaf_nodes) % 2
+    labels = np.where(parity == 0, -1, 1)
+    return labels.astype(np.int8) * np.int8(global_sign)
+
+
+def _traverse_tree(margins: np.ndarray, depth: int) -> np.ndarray:
+    curr_index = np.zeros(margins.shape[0], dtype=np.int64)
+    for _ in range(depth):
+        decision = margins[np.arange(margins.shape[0]), curr_index]
+        went_right = (decision > 0).astype(np.int64)
+        curr_index = (2 * curr_index) + 1 + went_right
+    return curr_index
+
+
+def _validate_tree(spec: COBODTSpec, tree: COBODTTree) -> None:
+    expected_internal = spec.num_internal_nodes
+    if tree.w_list.shape != (expected_internal, spec.dim):
+        raise ValueError(
+            "w_list has wrong shape. "
+            f"Expected {(expected_internal, spec.dim)}, got {tree.w_list.shape}."
+        )
+    if tree.b_list.shape != (expected_internal,):
+        raise ValueError(
+            "b_list has wrong shape. "
+            f"Expected {(expected_internal,)}, got {tree.b_list.shape}."
+        )
+    if tree.leaf_labels.shape != (spec.num_leaf_nodes,):
+        raise ValueError(
+            "leaf_labels has wrong shape. "
+            f"Expected {(spec.num_leaf_nodes,)}, got {tree.leaf_labels.shape}."
+        )
+    if not np.all(np.isin(tree.leaf_labels, (-1, 1))):
+        raise ValueError("leaf_labels must only contain -1 and +1.")
+
+
+def build_default_cob_odt_tree(
+    *, dim: int, depth: int, rng: np.random.Generator, global_leaf_sign: int = 1
+) -> COBODTTree:
+    """Create default COB-ODT parameters following Paper 1 defaults."""
+
+    num_internal_nodes = (2**depth) - 1
+    w_list = _sample_orthonormal_vectors(rng, num_vectors=num_internal_nodes, dim=dim)
+    b_list = np.zeros(num_internal_nodes, dtype=np.float64)
+    leaf_labels = _default_leaf_labels(depth=depth, global_sign=global_leaf_sign)
+    return COBODTTree(w_list=w_list, b_list=b_list, leaf_labels=leaf_labels)
+
+
+def generate_cob_odt_data(
+    *,
+    num_data: int,
+    dim: int,
+    depth: int,
+    seed: int,
+    threshold: float = 0.0,
+    tree: COBODTTree | None = None,
+) -> tuple[np.ndarray, np.ndarray, COBODTTree, dict[str, int | float]]:
+    """Generate synthetic data from a complete orthogonal balanced ODT.
+
+    Returns:
+        x_pruned: Input vectors on the unit sphere after threshold pruning.
+        y_pruned: Labels in {-1, +1}.
+        tree: ODT parameters used for generation.
+        meta: Counts useful for reproducibility and diagnostics.
+    """
+
+    spec = COBODTSpec(dim=dim, depth=depth, threshold=threshold)
+    rng = np.random.default_rng(seed)
+
+    if tree is None:
+        tree = build_default_cob_odt_tree(dim=dim, depth=depth, rng=rng)
+    _validate_tree(spec, tree)
+
+    x = _sample_unit_sphere(rng, num_data=num_data, dim=dim)
+    margins = x @ tree.w_list.T + tree.b_list
+
+    leaf_indices = _traverse_tree(margins, depth=depth)
+    leaf_offsets = leaf_indices - spec.num_internal_nodes
+    y = tree.leaf_labels[leaf_offsets]
+
+    min_abs_margin = np.min(np.abs(margins), axis=1)
+    keep = min_abs_margin > threshold
+
+    x_pruned = x[keep]
+    y_pruned = y[keep].astype(np.int8)
+
+    meta: dict[str, int | float] = {
+        "num_requested": int(num_data),
+        "num_kept": int(x_pruned.shape[0]),
+        "num_pruned": int(num_data - x_pruned.shape[0]),
+        "dim": int(dim),
+        "depth": int(depth),
+        "num_internal_nodes": int(spec.num_internal_nodes),
+        "num_leaf_nodes": int(spec.num_leaf_nodes),
+        "threshold": float(threshold),
+        "seed": int(seed),
+    }
+    return x_pruned, y_pruned, tree, meta
