@@ -30,13 +30,20 @@ Model (DLGN_SF, i.e. Paper 1's shallow-features variant = Paper 2's DLGN):
 - `M = 20`            (paper, Table 2 caption: "20 neurons in each layer")
 - `beta = 30`         (notebook, `multi_path_dlgn.ipynb` cell 9; paper does not pin beta explicitly)
 - gating bias = False (paper)
-- value network: deep linear (paper, Eq. `DLGN_computation`)
+- value network mode in code: `value_input_mode="ones"` by default (inferred compact variant for current exploration)
+- paper-faithful alternative available: `value_input_mode="x"` (matches deep linear value network with `h_0=x`)
 
-Training (to be pulled from `notebooks/old_notebooks/discontinuities_clustering/code/1.DLGN_DLGN_SF_Synthetic.ipynb` during implementation):
-- optimizer, learning rate, batch size, epochs: TBD (will cite notebook cell)
-- loss: log-loss (BCEWithLogits on outputs remapped to {-1,+1}) (paper, Sec. 3 — "log loss for binary classification")
+Training (milestone-1 implementation status):
+- optimizer: Adam (notebook, `1.DLGN_DLGN_SF_Synthetic.ipynb` cell 9)
+- loss: log-loss / BCE-with-logits (paper, Sec. 3; implementation maps `{-1,+1}` -> `{0,1}` for BCE)
+- learning rate: `2e-3` (notebook cell 11 for the shown synthetic run uses `lr=0.002`)
+- batching: mini-batch (`batch_size=1024`) (inferred; notebook uses `no_of_batches=10`, i.e. batch size derived from dataset size)
+- epochs: `200` default in code (inferred for fast baseline iteration; notebook uses larger runs such as 1500 epochs)
+- seed: `365` default (paper Table `syn-data-gen`)
 
-(Populate this block once the notebook is inspected in the implementation step.)
+Notes:
+- Paper 1 does not pin a single canonical LR/epoch setting in the main text for all synthetic runs.
+- We intentionally avoid retrospective tuning to match final paper numbers; inferred defaults are explicitly marked above.
 
 Snapshotting:
 - save effective gating weights `V^l` at epoch 0 (init) and at the end of training, plus a handful of intermediate epochs for analysis.
