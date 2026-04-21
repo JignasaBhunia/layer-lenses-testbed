@@ -16,11 +16,11 @@ class DLGNSF(nn.Module):
     Gating layer `l` always reads from the raw input `x`:
         gate_l(x) = sigmoid(beta * (V_l x))
     Value network has two modes:
-    - `value_input_mode="ones"` (default): h_0 = 1 and the first value
-      transform is directly parameterized by a vector u_1 of shape (M,).
-      This removes redundant parameters from an MxD matrix that would be
-      used only via row sums under h_0=1.
+    - `value_input_mode="ones"` (default): h_0 = 1.
     - `value_input_mode="x"`: paper-faithful deep linear value network with h_0 = x.
+
+    Both modes use the same value-network parameters. The only difference is
+    whether the initial hidden input is raw `x` or an all-ones tensor.
     """
 
     def __init__(
@@ -51,27 +51,14 @@ class DLGNSF(nn.Module):
             [nn.Linear(input_dim, width, bias=bias) for width in hidden_dims]
         )
 
-        if self.value_input_mode == "ones":
-            self.first_value_vector = nn.Parameter(torch.empty(hidden_dims[0]))
-            nn.init.normal_(self.first_value_vector, mean=0.0, std=1.0)
-
-            # Remaining value layers: hidden-to-hidden plus final hidden-to-1.
-            value_dims = [*hidden_dims, 1]
-            self.value_layers = nn.ModuleList(
-                [
-                    nn.Linear(value_dims[i], value_dims[i + 1], bias=bias)
-                    for i in range(len(value_dims) - 1)
-                ]
-            )
-        else:
-            self.first_value_vector = None
-            value_dims = [input_dim, *hidden_dims, 1]
-            self.value_layers = nn.ModuleList(
-                [
-                    nn.Linear(value_dims[i], value_dims[i + 1], bias=bias)
-                    for i in range(len(value_dims) - 1)
-                ]
-            )
+        # Value network: same parameterization for both input modes.
+        value_dims = [input_dim, *hidden_dims, 1]
+        self.value_layers = nn.ModuleList(
+            [
+                nn.Linear(value_dims[i], value_dims[i + 1], bias=bias)
+                for i in range(len(value_dims) - 1)
+            ]
+        )
 
     def effective_gating_weights(self) -> list[torch.Tensor]:
         """Return effective gating weights V^l for each hidden layer."""
@@ -80,22 +67,12 @@ class DLGNSF(nn.Module):
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """Return logits of shape (batch,)."""
         if self.value_input_mode == "ones":
-            # h_0 = 1, first value transform is directly u_1.
-            h = self.first_value_vector.unsqueeze(0).expand(x.shape[0], -1)
-
-            gate0 = torch.sigmoid(self.beta * self.gating_layers[0](x))
-            h = h * gate0
-
-            for i in range(1, len(self.gating_layers)):
-                gate_values = torch.sigmoid(self.beta * self.gating_layers[i](x))
-                h = self.value_layers[i - 1](h) * gate_values
-            logits = self.value_layers[-1](h).squeeze(-1)
-            return logits
-
-        h = x
+            h = torch.ones_like(x)
+        else:
+            h = x
         for i, gate_layer in enumerate(self.gating_layers):
             gate_scores = gate_layer(x)
             gate_values = torch.sigmoid(self.beta * gate_scores)
             h = self.value_layers[i](h) * gate_values
-        logits = self.value_layers[-1](h).squeeze(-1)
+        logits = 2*self.value_layers[-1](h).squeeze(-1) # mult by 2 to mimic the [-z,z] with cross entropy loss behaviour in legacy notebook
         return logits

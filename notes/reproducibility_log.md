@@ -30,8 +30,9 @@ Model (DLGN_SF, i.e. Paper 1's shallow-features variant = Paper 2's DLGN):
 - `M = 20`            (paper, Table 2 caption: "20 neurons in each layer")
 - `beta = 30`         (notebook, `multi_path_dlgn.ipynb` cell 9; paper does not pin beta explicitly)
 - gating bias = False (paper)
-- value network mode in code: `value_input_mode="ones"` by default (inferred compact variant for current exploration)
-- paper-faithful alternative available: `value_input_mode="x"` (matches deep linear value network with `h_0=x`)
+- value network mode in code: `value_input_mode="ones"` by default (`h_0=1`)
+- alternative mode: `value_input_mode="x"` (`h_0=x`, paper-faithful)
+- both modes now use the same value-network parameterization; only the initial hidden input differs
 
 Training (milestone-1 implementation status):
 - optimizer: Adam (notebook, `1.DLGN_DLGN_SF_Synthetic.ipynb` cell 9)

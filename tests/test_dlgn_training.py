@@ -3,7 +3,12 @@ import torch
 
 from first_experiment.dlgn import DLGNSF
 from first_experiment.odt import generate_cob_odt_data
-from first_experiment.training import TrainConfig, evaluate_dlgn_sf, train_dlgn_sf
+from first_experiment.training import (
+    TrainConfig,
+    effective_gating_weights_from_checkpoint,
+    evaluate_dlgn_sf,
+    train_dlgn_sf,
+)
 
 
 def test_dlgn_sf_forward_shape() -> None:
@@ -20,6 +25,18 @@ def test_dlgn_sf_forward_shape_x_mode() -> None:
     x = torch.randn(7, 10)
     logits = model(x)
     assert logits.shape == (7,)
+
+
+def test_dlgn_sf_same_parameter_count_across_modes() -> None:
+    model_ones = DLGNSF(
+        input_dim=10, hidden_dims=[6, 6], beta=10.0, bias=False, value_input_mode="ones"
+    )
+    model_x = DLGNSF(
+        input_dim=10, hidden_dims=[6, 6], beta=10.0, bias=False, value_input_mode="x"
+    )
+    n_ones = sum(p.numel() for p in model_ones.parameters())
+    n_x = sum(p.numel() for p in model_x.parameters())
+    assert n_ones == n_x
 
 
 def test_dlgn_sf_invalid_value_input_mode_raises() -> None:
@@ -53,9 +70,14 @@ def test_train_dlgn_sf_smoke_loss_decreases() -> None:
     assert len(losses) == config.epochs
     assert losses[-1] < losses[0]
 
-    snapshots = out["snapshots"]
-    assert 0 in snapshots and 20 in snapshots
-    assert len(snapshots[0]) == len(model.hidden_dims)
+    ckpt = out["checkpoint_snapshots"]
+    assert set(ckpt.keys()) == {0, 20}
+    assert set(ckpt[0].keys()) == set(out["model"].state_dict().keys())
+
+    gw0 = effective_gating_weights_from_checkpoint(out["model"], ckpt[0])
+    assert len(gw0) == len(model.hidden_dims)
+    gw20 = effective_gating_weights_from_checkpoint(out["model"], ckpt[20])
+    assert all(w.shape == gw0[i].shape for i, w in enumerate(gw20))
 
 
 def test_evaluate_dlgn_sf_reports_metrics() -> None:

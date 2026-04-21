@@ -68,6 +68,7 @@ def _sample_orthonormal_vectors(
             f"Got num_vectors={num_vectors}, dim={dim}."
         )
     gaussian = rng.standard_normal((dim, dim))
+    # gaussian = np.identity(dim)  # for testing purposes setting ODT normals to identity
     q, _ = np.linalg.qr(gaussian)
     return q[:, :num_vectors].T
 

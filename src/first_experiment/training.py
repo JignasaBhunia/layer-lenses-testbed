@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import copy
 from dataclasses import dataclass
 
 import numpy as np
@@ -75,6 +76,21 @@ def evaluate_dlgn_sf(
     }
 
 
+def effective_gating_weights_from_checkpoint(
+    template: DLGNSF,
+    state_dict: dict[str, torch.Tensor],
+) -> list[torch.Tensor]:
+    """Return effective gating weights after loading a CPU ``state_dict`` snapshot.
+
+    Uses a deep copy of ``template`` so the live trained model is not mutated.
+    """
+    model = copy.deepcopy(template)
+    model.load_state_dict(state_dict)
+    model.eval()
+    with torch.no_grad():
+        return [w.detach().cpu().clone() for w in model.effective_gating_weights()]
+
+
 def train_dlgn_sf(
     *,
     model: DLGNSF,
@@ -84,8 +100,10 @@ def train_dlgn_sf(
 ) -> dict[str, object]:
     """Train DLGN-SF with Adam and BCE-with-logits loss.
 
-    Returns a dictionary with the trained model, epoch losses, and snapshots.
-    Snapshots store effective gating weights at selected epochs.
+    Returns a dictionary with the trained model, epoch losses, and
+    ``checkpoint_snapshots``: full CPU ``state_dict`` copies at ``snapshot_epochs``
+    (reload with ``model.load_state_dict`` or use
+    ``effective_gating_weights_from_checkpoint`` for gating-only analysis).
     """
     set_seed(config.seed)
     device = torch.device(config.device)
@@ -99,8 +117,6 @@ def train_dlgn_sf(
 
     gating_params = list(model.gating_layers.parameters())
     value_params = list(model.value_layers.parameters())
-    if getattr(model, "first_value_vector", None) is not None:
-        value_params.append(model.first_value_vector)
 
     optimizer = torch.optim.Adam(
         [
@@ -112,21 +128,24 @@ def train_dlgn_sf(
 
     num_samples = x.shape[0]
     losses: list[float] = []
-    snapshots: dict[int, list[torch.Tensor]] = {}
+    checkpoint_snapshots: dict[int, dict[str, torch.Tensor]] = {}
 
     epoch_iter = range(config.epochs + 1)
     if config.show_progress:
         epoch_iter = tqdm(epoch_iter, desc="Training DLGN-SF", leave=False)
 
+    # permutation = torch.randperm(num_samples, device=device) # Same order of data points in every epoch. for testing purposes only.
+
     for epoch in epoch_iter:
         if epoch in config.snapshot_epochs:
-            snapshots[epoch] = [
-                w.cpu().clone() for w in model.effective_gating_weights()
-            ]
+            checkpoint_snapshots[epoch] = {
+                k: v.detach().cpu().clone() for k, v in model.state_dict().items()
+            }
+        permutation = torch.randperm(num_samples, device=device) # Randomly shuffle the data points in every epoch.
         if epoch == config.epochs:
             break
 
-        permutation = torch.randperm(num_samples, device=device)
+        
         running_loss = 0.0
         seen = 0
 
@@ -154,5 +173,5 @@ def train_dlgn_sf(
     return {
         "model": model,
         "epoch_losses": losses,
-        "snapshots": snapshots,
+        "checkpoint_snapshots": checkpoint_snapshots,
     }
