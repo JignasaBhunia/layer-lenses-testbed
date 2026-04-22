@@ -66,6 +66,22 @@ When asked to do work in this repo:
 4. Make minimal, reviewable changes.
 5. Explain what changed and how to validate it.
 
+## Session logging
+At the end of any non-trivial session, append an entry to
+`notes/session_log.md` following the format at the top of that file.
+
+- Always preserve the user's prompts **verbatim** in the
+  "User prompts (verbatim)" subsection. Do not paraphrase or summarize
+  them.
+- Do not store verbatim agent responses; summarize them in "Changes"
+  and "Decisions" instead.
+- If a decision is durable (paper vs notebook, a hyperparameter choice,
+  a naming convention), also update the appropriate long-lived note
+  (`paper_mismatches.md`, `reproducibility_log.md`, or this file) and
+  link to it from the session entry.
+- Trivial sessions (pure Q&A, no repo changes) can be skipped, but
+  err on the side of logging.
+
 ## Coding preferences
 - Prefer simple, explicit Python over clever abstractions.
 - Use Python 3.12.
