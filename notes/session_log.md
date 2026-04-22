@@ -170,3 +170,38 @@ termination.
 
 ### Open questions
 - None for this meta-session.
+
+---
+
+## 2026-04-22 — Fix legacy notebook log loss
+
+### Goal
+Make minimal edits to the legacy notebook so loss is computed directly
+as binary cross-entropy on scalar logits, instead of first converting
+to 2-class logits `[-y, y]` for cross-entropy.
+
+### User prompts (verbatim)
+- "Can you make minimal changes to the @notebooks/legacy_dlgn_minimal.ipynb  notebook that only fixes the log loss computation? Instead of making an output y into a [-y, y] before computing cross-entropy loss, make a direct binary cross-entropy loss from the model ouptut y. Change all places that use the cross-entropy loss with this modification."
+
+### Changes
+- Updated notebook cell 4 (`give_loss`) to use
+  `nn.BCEWithLogitsLoss()` directly on `preds`, with float targets
+  reshaped to `(N, 1)`.
+- Updated notebook cell 13 (`train_dlgn`) to replace all
+  `nn.CrossEntropyLoss()` usage and all `torch.cat((-1*..., ...), dim=1)`
+  constructions with direct `nn.BCEWithLogitsLoss()` on scalar logits.
+- Kept edits minimal and localized to the loss computation path only.
+
+### Decisions
+- Targets are cast to `float32` and reshaped to match model logit shape
+  for BCE-with-logits compatibility.
+- No other notebook logic (model architecture, data generation,
+  evaluation/error plotting) was changed.
+
+### Current state / where to pick up
+- `notebooks/legacy_dlgn_minimal.ipynb` now has no remaining
+  `CrossEntropyLoss` usage and no `[-y, y]` logits construction in the
+  training/loss code paths.
+
+### Open questions
+- None.
