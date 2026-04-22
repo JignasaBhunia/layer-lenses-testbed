@@ -1,0 +1,10 @@
+[90m[main 2026-04-22T04:09:26.986Z][0m updateURL https://api2.cursor.sh/updates/api/update/darwin-arm64/cursor/3.1.17/9a24a712b1b3cf9dbbbf5d2b4b24fd82f9d1637b0ef9b6e0e810cf2305cc2189/stable
+[90m[main 2026-04-22T04:09:26.988Z][0m update#setState idle
+[90m[main 2026-04-22T04:09:28.303Z][0m [Tray] getMacOSIconPath: hasNotifications: false
+[90m[main 2026-04-22T04:09:58.147Z][0m update#setState checking for updates
+[90m[main 2026-04-22T04:09:59.128Z][0m UpdateService onUpdateNotAvailable()
+[90m[main 2026-04-22T04:09:59.129Z][0m update#setState idle
+[90m[main 2026-04-22T04:10:25.931Z][0m Extension host with pid 94265 exited with code: 0, signal: unknown.
+[90m[main 2026-04-22T04:10:25.945Z][0m Extension host with pid 94264 exited with code: 0, signal: unknown.
+[90m[main 2026-04-22T04:10:25.946Z][0m Extension host with pid 94263 exited with code: 0, signal: unknown.
+[90m[main 2026-04-22T04:10:25.947Z][0m Extension host with pid 94262 exited with code: 0, signal: unknown.

@@ -47,6 +47,32 @@ def test_dlgn_sf_invalid_value_input_mode_raises() -> None:
         pass
 
 
+def test_dlgn_sf_init_weight_scales_affect_initialization() -> None:
+    torch.manual_seed(123)
+    base = DLGNSF(
+        input_dim=10,
+        hidden_dims=[6, 6],
+        beta=10.0,
+        bias=False,
+        gating_weight_scale=1.0,
+        value_weight_scale=1.0,
+    )
+    torch.manual_seed(123)
+    scaled = DLGNSF(
+        input_dim=10,
+        hidden_dims=[6, 6],
+        beta=10.0,
+        bias=False,
+        gating_weight_scale=2.0,
+        value_weight_scale=0.5,
+    )
+
+    for layer_base, layer_scaled in zip(base.gating_layers, scaled.gating_layers):
+        assert torch.allclose(layer_scaled.weight, 2.0 * layer_base.weight)
+    for layer_base, layer_scaled in zip(base.value_layers, scaled.value_layers):
+        assert torch.allclose(layer_scaled.weight, 0.5 * layer_base.weight)
+
+
 def test_train_dlgn_sf_smoke_loss_decreases() -> None:
     x, y, _, _ = generate_cob_odt_data(
         num_data=512,

@@ -31,6 +31,8 @@ class DLGNSF(nn.Module):
         beta: float = 30.0,
         bias: bool = False,
         value_input_mode: str = "ones",
+        gating_weight_scale: float = 1.0,
+        value_weight_scale: float = 1.0,
     ) -> None:
         super().__init__()
         if not hidden_dims:
@@ -45,6 +47,8 @@ class DLGNSF(nn.Module):
         self.hidden_dims = hidden_dims
         self.beta = float(beta)
         self.value_input_mode = value_input_mode
+        self.gating_weight_scale = float(gating_weight_scale)
+        self.value_weight_scale = float(value_weight_scale)
 
         # Gating (DLGN-SF): each hidden layer gate is parameterized directly from x.
         self.gating_layers = nn.ModuleList(
@@ -59,6 +63,15 @@ class DLGNSF(nn.Module):
                 for i in range(len(value_dims) - 1)
             ]
         )
+        self._apply_init_weight_scales()
+
+    def _apply_init_weight_scales(self) -> None:
+        """Scale initialized layer weights to control init magnitudes."""
+        with torch.no_grad():
+            for layer in self.gating_layers:
+                layer.weight.mul_(self.gating_weight_scale)
+            for layer in self.value_layers:
+                layer.weight.mul_(self.value_weight_scale)
 
     def effective_gating_weights(self) -> list[torch.Tensor]:
         """Return effective gating weights V^l for each hidden layer."""
