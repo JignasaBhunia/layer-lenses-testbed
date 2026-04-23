@@ -205,3 +205,123 @@ to 2-class logits `[-y, y]` for cross-entropy.
 
 ### Open questions
 - None.
+
+---
+
+## 2026-04-22 — Metrics run selector in scratch notebook
+
+### Goal
+Replace manual metrics-cell assignment with a small selectable block for
+choosing one-phase or either two-phase stage, including automatic
+`fig.suptitle`.
+
+### User prompts (verbatim)
+- "Can you make a small piece of code that assigns out, train_cfg, and sets fig.suptitle based on one of three options: one phase, two phase-phase1 or two-phase-phase2 ? Something that can be pasted at the top of the metrics cell to replace the current manual assignment?"
+- "Please do."
+
+### Changes
+- Updated the metrics plotting code cell in `notebooks/scratch.ipynb`
+  to add:
+  - `RUN_MODE` selector with options:
+    `\"one_phase\"`, `\"two_phase_phase1\"`, `\"two_phase_phase2\"`
+  - `run_map` dictionary mapping each mode to:
+    `out`, `train_cfg`, and title text
+  - mode validation (`ValueError` for invalid mode)
+  - dynamic assignment:
+    `out = run_map[RUN_MODE][\"out\"]`,
+    `train_cfg = run_map[RUN_MODE][\"train_cfg\"]`,
+    `FIG_SUPTITLE = run_map[RUN_MODE][\"title\"]`
+  - dynamic suptitle:
+    `fig.suptitle(FIG_SUPTITLE)`
+
+### Decisions
+- Kept all downstream metric/evaluation logic untouched; only the manual
+  top-of-cell selection block was replaced.
+
+### Current state / where to pick up
+- Metrics cell now supports one-line workflow switching via `RUN_MODE`
+  without editing variable names manually.
+
+### Open questions
+- None.
+
+---
+
+## 2026-04-22 — Add scratch variable reference cell
+
+### Goal
+Add a short markdown reference cell before the metrics section in
+`notebooks/scratch.ipynb` listing analysis-relevant variable names and
+their meanings.
+
+### User prompts (verbatim)
+- "Can you create a markdown cell before the metric plotting cell to give the variable names (out_one_phase, train_cfg_one_phase etc) that are relevant for analysis later with a brief description?"
+
+### Changes
+- Inserted a new markdown cell immediately before the metrics markdown
+  section in `notebooks/scratch.ipynb`.
+- The cell documents:
+  - `out_one_phase`, `train_cfg_one_phase`
+  - `out_two_phase_phase1`, `train_cfg_phase1`
+  - `out_two_phase_phase2`, `train_cfg_phase2`
+  - compatibility aliases (`out`, `train_cfg`, `out_phase2`)
+
+### Decisions
+- Kept the text concise and analysis-focused, without modifying any
+  metric/plot code.
+
+### Current state / where to pick up
+- Notebook now includes an explicit pre-metrics variable reference for
+  downstream analysis.
+
+### Open questions
+- None.
+
+---
+
+## 2026-04-22 — Scratch notebook pre-metrics cleanup
+
+### Goal
+Apply minimal fixes in `notebooks/scratch.ipynb` before the "Metrics at
+each snapshot epoch" section: reproducible seeding (including model
+init), clearer two-phase/one-phase naming, and consistent checkpoint
+creation setup.
+
+### User prompts (verbatim)
+- "I have built a pipeline in scratch.ipynb to compare the two-phase training (gating regularisation followed by no-regularisation with an optional not-yet implemented pruning step in-between) to the no-regularisation one phase only training. In scratch.ipynb. Can you go over it and see if it serves the intended purpose? You can suggest minor renaming/consistency edits. \n\nOne other issue I noticed is reproducibility with random seeds. Randomness is used in three places -- data-generation, model initialisation and training mini-batch selection. Only data-gen and SGD randomness are seeded. The init is not. Can you suggest fixes for that too?"
+- "Yes, make these minimal edits up to the training/creation of these checkpoint snapshots for both the workflows. I have not yet started to go through the plotting/comparisons yet. So only fix the issues pointed out by you in the cells before the \"Metrics at each snapshot epoch\" markdown cell."
+
+### Changes
+- Updated imports/config cell to include `set_seed` and explicit seed
+  variables: `DATA_SEED`, `INIT_SEED`, `TRAIN_SEED_PHASE1`,
+  `TRAIN_SEED_PHASE2`, `TRAIN_SEED_ONE_PHASE`.
+- Switched data generation to use `seed=DATA_SEED`.
+- Added explicit initialization seeding before two-phase model creation
+  (`set_seed(INIT_SEED)`), and renamed model variable to
+  `model_two_phase`.
+- Updated the two-phase training cell to:
+  - use fair epoch accounting (`TOTAL_EPOCHS`, split into
+    `PHASE1_EPOCHS` and `PHASE2_EPOCHS`),
+  - use renamed run outputs (`out_two_phase_phase1`,
+    `out_two_phase_phase2`),
+  - use separate training seeds for phase 1 and phase 2 configs.
+- Renamed one markdown header to "one-phase no-regularization run".
+- Updated the one-phase training cell to:
+  - reseed initialization before creating `model_one_phase`,
+  - use `train_cfg_one_phase` and `out_one_phase`,
+  - keep temporary aliases (`out`, `train_cfg`, `out_phase2`) for
+    downstream compatibility with existing metric/plot cells.
+
+### Decisions
+- Kept edits strictly before the metrics markdown section as requested.
+- Preserved backward-compatible aliases to avoid breaking later cells
+  before a dedicated plotting/comparison cleanup pass.
+
+### Current state / where to pick up
+- Both workflows now have explicit checkpoint-producing training paths
+  with controlled data/init/train randomness.
+- The metrics and plotting sections remain intentionally untouched and
+  still reference compatibility aliases.
+
+### Open questions
+- None.
