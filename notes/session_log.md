@@ -23,7 +23,7 @@ runs*. This file captures the *narrative and intent* around changes.
 ## Entry format
 
 ```
-## YYYY-MM-DD — <short session title>
+## YYYY-MM-DD HH:MM IST — <short session title>
 
 ### Goal
 One or two lines on what the session set out to do.
@@ -46,13 +46,17 @@ One or two lines on what the session set out to do.
 - Anything that needs the user's input or further investigation.
 ```
 
-Keep entries short. If a decision is durable (paper vs notebook, a
+Keep entries short. Use IST for all timestamps. If exact historical
+times are unknown, keep the date and mark the heading as `(IST)` without
+an HH:MM time. Always append new entries at the end of this file only
+(never insert between existing entries). If a decision is durable
+(paper vs notebook, a
 hyperparameter choice, a naming convention), migrate it into the
 appropriate long-lived note and link to it from here.
 
 ---
 
-## 2026-04-22 — Retroactive snapshot of repo state
+## 2026-04-22 (IST) — Retroactive snapshot of repo state
 
 This entry predates the session-log policy and is written from a
 cold read of the repo (git log, source files, notes, tests). It is a
@@ -133,7 +137,7 @@ fallback for older sessions.
 
 ---
 
-## 2026-04-22 — Establish session-log policy
+## 2026-04-22 (IST) — Establish session-log policy
 
 ### Goal
 Set up a durable, in-repo context-preservation mechanism so that a new
@@ -173,7 +177,7 @@ termination.
 
 ---
 
-## 2026-04-22 — Fix legacy notebook log loss
+## 2026-04-22 (IST) — Fix legacy notebook log loss
 
 ### Goal
 Make minimal edits to the legacy notebook so loss is computed directly
@@ -208,78 +212,38 @@ to 2-class logits `[-y, y]` for cross-entropy.
 
 ---
 
-## 2026-04-22 — Metrics run selector in scratch notebook
+## 2026-04-22 (IST) — Correct IST format and chronology (no exact times)
 
 ### Goal
-Replace manual metrics-cell assignment with a small selectable block for
-choosing one-phase or either two-phase stage, including automatic
-`fig.suptitle`.
+Switch session-log headings to IST conventions, correct chronology from
+context, and leave historical times blank where exact HH:MM is unknown.
 
 ### User prompts (verbatim)
-- "Can you make a small piece of code that assigns out, train_cfg, and sets fig.suptitle based on one of three options: one phase, two phase-phase1 or two-phase-phase2 ? Something that can be pasted at the top of the metrics cell to replace the current manual assignment?"
-- "Please do."
+- "Use IST for the time stamps. Some of the time stamps are clearly wrong and end up giving the updates in the wrong order. (e.g. LR scheduling log is the latest entry prior to this meta conversation) If you don't have the exact times the previous log entries were made, please re-order them correctly from context and leave the times for those blank."
 
 ### Changes
-- Updated the metrics plotting code cell in `notebooks/scratch.ipynb`
-  to add:
-  - `RUN_MODE` selector with options:
-    `\"one_phase\"`, `\"two_phase_phase1\"`, `\"two_phase_phase2\"`
-  - `run_map` dictionary mapping each mode to:
-    `out`, `train_cfg`, and title text
-  - mode validation (`ValueError` for invalid mode)
-  - dynamic assignment:
-    `out = run_map[RUN_MODE][\"out\"]`,
-    `train_cfg = run_map[RUN_MODE][\"train_cfg\"]`,
-    `FIG_SUPTITLE = run_map[RUN_MODE][\"title\"]`
-  - dynamic suptitle:
-    `fig.suptitle(FIG_SUPTITLE)`
+- Updated heading guidance to IST usage with explicit fallback:
+  date + `(IST)` when exact HH:MM is unknown.
+- Converted existing same-day headings to date-only `(IST)` style where
+  earlier times were uncertain.
+- Reordered entries so chronology follows context:
+  pre-metrics cleanup → variable reference → metrics selector →
+  LR scheduler → append/timestamp meta fix.
 
 ### Decisions
-- Kept all downstream metric/evaluation logic untouched; only the manual
-  top-of-cell selection block was replaced.
+- Avoided fabricating exact historical times; used date-only `(IST)` for
+  prior entries that could not be timed reliably.
 
 ### Current state / where to pick up
-- Metrics cell now supports one-line workflow switching via `RUN_MODE`
-  without editing variable names manually.
+- Session log now reads in correct chronological order and uses IST
+  convention without guessed timestamps.
 
 ### Open questions
 - None.
 
 ---
 
-## 2026-04-22 — Add scratch variable reference cell
-
-### Goal
-Add a short markdown reference cell before the metrics section in
-`notebooks/scratch.ipynb` listing analysis-relevant variable names and
-their meanings.
-
-### User prompts (verbatim)
-- "Can you create a markdown cell before the metric plotting cell to give the variable names (out_one_phase, train_cfg_one_phase etc) that are relevant for analysis later with a brief description?"
-
-### Changes
-- Inserted a new markdown cell immediately before the metrics markdown
-  section in `notebooks/scratch.ipynb`.
-- The cell documents:
-  - `out_one_phase`, `train_cfg_one_phase`
-  - `out_two_phase_phase1`, `train_cfg_phase1`
-  - `out_two_phase_phase2`, `train_cfg_phase2`
-  - compatibility aliases (`out`, `train_cfg`, `out_phase2`)
-
-### Decisions
-- Kept the text concise and analysis-focused, without modifying any
-  metric/plot code.
-
-### Current state / where to pick up
-- Notebook now includes an explicit pre-metrics variable reference for
-  downstream analysis.
-
-### Open questions
-- None.
-
----
-
-## 2026-04-22 — Scratch notebook pre-metrics cleanup
+## 2026-04-22 (IST) — Scratch notebook pre-metrics cleanup
 
 ### Goal
 Apply minimal fixes in `notebooks/scratch.ipynb` before the "Metrics at
@@ -322,6 +286,153 @@ creation setup.
   with controlled data/init/train randomness.
 - The metrics and plotting sections remain intentionally untouched and
   still reference compatibility aliases.
+
+### Open questions
+- None.
+
+---
+
+## 2026-04-22 (IST) — Add scratch variable reference cell
+
+### Goal
+Add a short markdown reference cell before the metrics section in
+`notebooks/scratch.ipynb` listing analysis-relevant variable names and
+their meanings.
+
+### User prompts (verbatim)
+- "Can you create a markdown cell before the metric plotting cell to give the variable names (out_one_phase, train_cfg_one_phase etc) that are relevant for analysis later with a brief description?"
+
+### Changes
+- Inserted a new markdown cell immediately before the metrics markdown
+  section in `notebooks/scratch.ipynb`.
+- The cell documents:
+  - `out_one_phase`, `train_cfg_one_phase`
+  - `out_two_phase_phase1`, `train_cfg_phase1`
+  - `out_two_phase_phase2`, `train_cfg_phase2`
+  - compatibility aliases (`out`, `train_cfg`, `out_phase2`)
+
+### Decisions
+- Kept the text concise and analysis-focused, without modifying any
+  metric/plot code.
+
+### Current state / where to pick up
+- Notebook now includes an explicit pre-metrics variable reference for
+  downstream analysis.
+
+### Open questions
+- None.
+
+---
+
+## 2026-04-22 (IST) — Metrics run selector in scratch notebook
+
+### Goal
+Replace manual metrics-cell assignment with a small selectable block for
+choosing one-phase or either two-phase stage, including automatic
+`fig.suptitle`.
+
+### User prompts (verbatim)
+- "Can you make a small piece of code that assigns out, train_cfg, and sets fig.suptitle based on one of three options: one phase, two phase-phase1 or two-phase-phase2 ? Something that can be pasted at the top of the metrics cell to replace the current manual assignment?"
+- "Please do."
+
+### Changes
+- Updated the metrics plotting code cell in `notebooks/scratch.ipynb`
+  to add:
+  - `RUN_MODE` selector with options:
+    `\"one_phase\"`, `\"two_phase_phase1\"`, `\"two_phase_phase2\"`
+  - `run_map` dictionary mapping each mode to:
+    `out`, `train_cfg`, and title text
+  - mode validation (`ValueError` for invalid mode)
+  - dynamic assignment:
+    `out = run_map[RUN_MODE][\"out\"]`,
+    `train_cfg = run_map[RUN_MODE][\"train_cfg\"]`,
+    `FIG_SUPTITLE = run_map[RUN_MODE][\"title\"]`
+  - dynamic suptitle:
+    `fig.suptitle(FIG_SUPTITLE)`
+
+### Decisions
+- Kept all downstream metric/evaluation logic untouched; only the manual
+  top-of-cell selection block was replaced.
+
+### Current state / where to pick up
+- Metrics cell now supports one-line workflow switching via `RUN_MODE`
+  without editing variable names manually.
+
+### Open questions
+- None.
+
+---
+
+## 2026-04-22 (IST) — Add LR scheduler to training routine
+
+### Goal
+Add a learning-rate scheduler to the core training routine with a
+reasonable decay behavior and test coverage.
+
+### User prompts (verbatim)
+- "In the training routine, can you add a learning rate scheduler that decays appropriately?"
+
+### Changes
+- Updated `src/first_experiment/training.py`:
+  - Added `TrainConfig.lr_scheduler` with options `\"none\"` (default)
+    and `\"cosine\"`.
+  - Added `TrainConfig.lr_scheduler_eta_min_ratio` to control cosine
+    minimum LR (`eta_min = lr * ratio`).
+  - Added scheduler setup in `train_dlgn_sf` and per-epoch
+    `scheduler.step()` call after each training epoch.
+  - Added `lr_history` to the returned training output dictionary.
+  - Added validation error for unsupported scheduler names.
+- Updated `tests/test_dlgn_training.py`:
+  - Added `test_train_dlgn_sf_cosine_scheduler_decays_learning_rate`
+    to verify LR decreases across epochs when cosine scheduling is
+    enabled.
+- Ran tests:
+  - `./.venv/bin/python -m pytest tests/test_dlgn_training.py -q`
+    passed (`8 passed`).
+
+### Decisions
+- Kept behavior backward-compatible by defaulting scheduler to
+  `\"none\"`; existing experiments keep fixed LR unless explicitly
+  configured.
+- Used cosine annealing as the built-in decay strategy because it
+  decays smoothly and needs only epoch count + minimum LR ratio.
+
+### Current state / where to pick up
+- Training now supports both fixed-LR and cosine-decay modes through
+  `TrainConfig`.
+- Existing notebook/config code can opt in with
+  `lr_scheduler=\"cosine\"`.
+
+### Open questions
+- None.
+
+---
+
+## 2026-04-22 (IST) — Fix append order and add timestamps in session log
+
+### Goal
+Fix session-log ordering issues (entries being inserted in the middle)
+and include a time stamp in heading dates.
+
+### User prompts (verbatim)
+- "The session logs are being inserted in the middle and not appended. Can you also add a time stamp to the date there?"
+
+### Changes
+- Updated session-log heading format template from
+  `YYYY-MM-DD` to `YYYY-MM-DD HH:MM`.
+- Added an explicit instruction in this file: always append new entries
+  at the end, never insert between existing entries.
+- Updated existing 2026-04-22 entry headings to include time stamps.
+- Reordered misplaced recent entries so newest entries appear lower in
+  the file (append-style progression).
+
+### Decisions
+- Used timestamped headings consistently to avoid ambiguity and make
+  ordering easier to audit.
+
+### Current state / where to pick up
+- `notes/session_log.md` now has timestamped headings and explicit
+  append-only guidance.
 
 ### Open questions
 - None.

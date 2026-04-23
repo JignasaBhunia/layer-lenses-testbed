@@ -132,3 +132,28 @@ def test_evaluate_dlgn_sf_reports_metrics() -> None:
     assert metrics["log_loss"] >= 0.0
     assert 0.0 <= metrics["zero_one_loss"] <= 1.0
     assert 0.0 <= metrics["accuracy"] <= 1.0
+
+
+def test_train_dlgn_sf_cosine_scheduler_decays_learning_rate() -> None:
+    x, y, _, _ = generate_cob_odt_data(
+        num_data=256,
+        dim=10,
+        depth=3,
+        seed=111,
+        threshold=0.0,
+    )
+    model = DLGNSF(input_dim=10, hidden_dims=[8, 8], beta=10.0, bias=False)
+    cfg = TrainConfig(
+        epochs=12,
+        lr=2e-3,
+        batch_size=64,
+        seed=111,
+        device="cpu",
+        show_progress=False,
+        lr_scheduler="cosine",
+        lr_scheduler_eta_min_ratio=0.2,
+    )
+    out = train_dlgn_sf(model=model, x_train=x, y_train=y, config=cfg)
+    lr_history = out["lr_history"]
+    assert len(lr_history) == cfg.epochs
+    assert lr_history[0] > lr_history[-1]

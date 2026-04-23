@@ -26,6 +26,8 @@ class TrainConfig:
     show_progress: bool = True
     weight_decay_gating: float = 0.0
     weight_decay_value: float = 0.0
+    lr_scheduler: str = "none"
+    lr_scheduler_eta_min_ratio: float = 0.1
 
 
 def set_seed(seed: int) -> None:
@@ -100,7 +102,7 @@ def train_dlgn_sf(
 ) -> dict[str, object]:
     """Train DLGN-SF with Adam and BCE-with-logits loss.
 
-    Returns a dictionary with the trained model, epoch losses, and
+    Returns a dictionary with the trained model, epoch losses, lr history, and
     ``checkpoint_snapshots``: full CPU ``state_dict`` copies at ``snapshot_epochs``
     (reload with ``model.load_state_dict`` or use
     ``effective_gating_weights_from_checkpoint`` for gating-only analysis).
@@ -125,9 +127,24 @@ def train_dlgn_sf(
         ],
         lr=config.lr,
     )
+    scheduler: torch.optim.lr_scheduler.LRScheduler | None = None
+    if config.lr_scheduler == "none":
+        scheduler = None
+    elif config.lr_scheduler == "cosine":
+        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
+            optimizer=optimizer,
+            T_max=max(1, config.epochs),
+            eta_min=config.lr * config.lr_scheduler_eta_min_ratio,
+        )
+    else:
+        raise ValueError(
+            "lr_scheduler must be one of {'none', 'cosine'}, "
+            f"got {config.lr_scheduler!r}."
+        )
 
     num_samples = x.shape[0]
     losses: list[float] = []
+    lr_history: list[float] = []
     checkpoint_snapshots: dict[int, dict[str, torch.Tensor]] = {}
 
     epoch_iter = range(config.epochs + 1)
@@ -167,11 +184,15 @@ def train_dlgn_sf(
 
         epoch_loss = running_loss / max(1, seen)
         losses.append(epoch_loss)
+        lr_history.append(float(optimizer.param_groups[0]["lr"]))
+        if scheduler is not None:
+            scheduler.step()
         if config.show_progress:
             epoch_iter.set_postfix(loss=f"{epoch_loss:.4f}")
 
     return {
         "model": model,
         "epoch_losses": losses,
+        "lr_history": lr_history,
         "checkpoint_snapshots": checkpoint_snapshots,
     }
