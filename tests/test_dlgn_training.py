@@ -157,3 +157,63 @@ def test_train_dlgn_sf_cosine_scheduler_decays_learning_rate() -> None:
     lr_history = out["lr_history"]
     assert len(lr_history) == cfg.epochs
     assert lr_history[0] > lr_history[-1]
+
+
+def test_train_dlgn_sf_freeze_zero_gating_rows_keeps_zeroed_rows_fixed() -> None:
+    x, y, _, _ = generate_cob_odt_data(
+        num_data=256,
+        dim=10,
+        depth=3,
+        seed=222,
+        threshold=0.0,
+    )
+    model = DLGNSF(input_dim=10, hidden_dims=[8, 8], beta=10.0, bias=False)
+
+    with torch.no_grad():
+        # Manually zero one gating row so freeze logic can pick it up at init.
+        model.gating_layers[0].weight[0, :] = 0.0
+        zeroed_row_init = model.gating_layers[0].weight[0, :].clone()
+        nonzero_row_init = model.gating_layers[0].weight[1, :].clone()
+
+    cfg = TrainConfig(
+        epochs=8,
+        lr=2e-3,
+        batch_size=64,
+        seed=222,
+        device="cpu",
+        show_progress=False,
+        freeze_zero_gating_rows=True,
+    )
+    out = train_dlgn_sf(model=model, x_train=x, y_train=y, config=cfg)
+    trained_model = out["model"]
+
+    zeroed_row_final = trained_model.gating_layers[0].weight[0, :].detach().cpu()
+    nonzero_row_final = trained_model.gating_layers[0].weight[1, :].detach().cpu()
+
+    assert torch.allclose(zeroed_row_final, zeroed_row_init.cpu(), atol=1e-8)
+    assert not torch.allclose(nonzero_row_final, nonzero_row_init.cpu())
+
+
+def test_train_dlgn_sf_unknown_frozen_parameter_raises() -> None:
+    x, y, _, _ = generate_cob_odt_data(
+        num_data=128,
+        dim=10,
+        depth=3,
+        seed=333,
+        threshold=0.0,
+    )
+    model = DLGNSF(input_dim=10, hidden_dims=[8, 8], beta=10.0, bias=False)
+    cfg = TrainConfig(
+        epochs=2,
+        lr=2e-3,
+        batch_size=64,
+        seed=333,
+        device="cpu",
+        show_progress=False,
+        freeze_parameter_names=("not_a_real_param",),
+    )
+    try:
+        train_dlgn_sf(model=model, x_train=x, y_train=y, config=cfg)
+        assert False, "Expected ValueError for unknown frozen parameter name."
+    except ValueError:
+        pass

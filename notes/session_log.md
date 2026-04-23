@@ -212,6 +212,108 @@ to 2-class logits `[-y, y]` for cross-entropy.
 
 ---
 
+## 2026-04-22 (IST) — Add init-time freezing for zeroed gating rows
+
+### Goal
+Add init-time parameter freezing support in training, then use it in the
+scratch notebook's zeroed Phase-2 branch so zeroed gating vectors remain
+frozen during Phase 2.
+
+### User prompts (verbatim)
+- "Need functionality in the training routine to freeze some parameters at init. This is to be used in the two phase training second phase to freeze the gating vectors set to zero. Make changes to both the training sub-routine and the scratch notebook to reflect this change."
+
+### Changes
+- Updated `src/first_experiment/training.py`:
+  - Added `TrainConfig.freeze_parameter_names` for exact-name parameter
+    freezing at initialization.
+  - Added `TrainConfig.freeze_zero_gating_rows` to freeze all-zero
+    gating rows detected at init.
+  - Added validation for unknown entries in `freeze_parameter_names`
+    (raises `ValueError`).
+  - Implemented row-level gradient masking hooks for zeroed gating rows.
+  - Added post-step projection to keep frozen gating rows exactly zero.
+  - Expanded train function docstring to document freezing controls.
+- Updated `tests/test_dlgn_training.py`:
+  - Added `test_train_dlgn_sf_freeze_zero_gating_rows_keeps_zeroed_rows_fixed`.
+  - Added `test_train_dlgn_sf_unknown_frozen_parameter_raises`.
+  - Ran tests: `./.venv/bin/python -m pytest tests/test_dlgn_training.py -q`
+    passed (`10 passed`).
+- Updated `notebooks/scratch.ipynb`:
+  - In the zeroed Phase-2 branch, introduced
+    `train_cfg_phase2_zeroed` with `freeze_zero_gating_rows=True`.
+  - Wired `out_two_phase_phase2_zeroed` to use this config.
+  - Updated run selector map so
+    `two_phase_phase2_zeroed` uses `train_cfg_phase2_zeroed`.
+  - Updated selector title text to indicate rows are both pre-zeroed and
+    frozen.
+
+### Decisions
+- Kept freezing behavior opt-in and backward compatible (defaults remain
+  non-freezing).
+- Used row-level freezing for the gating weights to match the notebook
+  use case without requiring architecture changes.
+
+### Current state / where to pick up
+- Two-phase branch now supports:
+  - Phase 2 without zeroing (`out_two_phase_phase2_nozero`)
+  - Phase 2 with pre-zeroed + frozen low-norm gating rows
+    (`out_two_phase_phase2_zeroed`)
+- Training routine supports both generic named-parameter freezing and
+  automatic freezing of zero-initialized gating rows.
+
+### Open questions
+- None.
+
+---
+
+## 2026-04-22 (IST) — Add alternate zeroed-gating Phase 2 branch
+
+### Goal
+Extend the two-phase notebook pipeline so Phase 1 is shared, then run
+two different Phase-2 branches: with and without pre-zeroing low-norm
+gating vectors, alongside the one-phase baseline.
+
+### User prompts (verbatim)
+- "Build an alternate Phase 2 for the two phase training. The main difference is that before the second phase begins, all gating neurons whose weight vector norm is less than a threshold is zeroed. It also uses the same Phase 1.\n\nSo now there are 4 training runs that has to happen:\n\nPhase 1\nPhase 2 after zeroing some gating vectors\nPhase 2 without any zeroing of gate vectors\nSingle phase."
+
+### Changes
+- Updated `notebooks/scratch.ipynb` two-phase section:
+  - Added `GATING_NORM_ZERO_THRESHOLD = 0.2`.
+  - Kept the same Phase-1 output (`out_two_phase_phase1`) as the shared
+    starting point.
+  - Added Phase-2 branch A:
+    `out_two_phase_phase2_nozero` (no pre-zeroing).
+  - Added Phase-2 branch B:
+    `out_two_phase_phase2_zeroed` after setting to zero all gating-layer
+    rows with norm below threshold.
+  - Kept compatibility alias:
+    `out_two_phase_phase2 = out_two_phase_phase2_nozero`.
+- Updated variable-reference markdown cell to document:
+  - `out_two_phase_phase2_nozero`
+  - `out_two_phase_phase2_zeroed`
+  - `GATING_NORM_ZERO_THRESHOLD`
+- Updated metrics run selector cell:
+  - Added `RUN_MODE` options for both Phase-2 variants:
+    `two_phase_phase2_nozero` and `two_phase_phase2_zeroed`.
+
+### Decisions
+- Used `copy.deepcopy(...)` to ensure both Phase-2 branches start from
+  the same Phase-1 state without mutating each other.
+- Performed gating-row zeroing under `torch.no_grad()` so it is a direct
+  parameter edit before Phase-2 training begins.
+
+### Current state / where to pick up
+- Notebook now supports four runs:
+  - `out_two_phase_phase1`
+  - `out_two_phase_phase2_nozero`
+  - `out_two_phase_phase2_zeroed`
+  - `out_one_phase`
+
+### Open questions
+- None.
+
+---
+
 ## 2026-04-22 (IST) — Correct IST format and chronology (no exact times)
 
 ### Goal

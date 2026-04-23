@@ -28,6 +28,8 @@ class TrainConfig:
     weight_decay_value: float = 0.0
     lr_scheduler: str = "none"
     lr_scheduler_eta_min_ratio: float = 0.1
+    freeze_parameter_names: tuple[str, ...] = ()
+    freeze_zero_gating_rows: bool = False
 
 
 def set_seed(seed: int) -> None:
@@ -106,6 +108,11 @@ def train_dlgn_sf(
     ``checkpoint_snapshots``: full CPU ``state_dict`` copies at ``snapshot_epochs``
     (reload with ``model.load_state_dict`` or use
     ``effective_gating_weights_from_checkpoint`` for gating-only analysis).
+
+    Optional freezing controls:
+    - ``freeze_parameter_names``: exact parameter names to freeze at init.
+    - ``freeze_zero_gating_rows``: for each gating layer, rows that are all-zero
+      at init are frozen to zero throughout training.
     """
     set_seed(config.seed)
     device = torch.device(config.device)
@@ -116,6 +123,28 @@ def train_dlgn_sf(
     y_bin = _labels_pm1_to_binary(y_pm1)
 
     criterion = nn.BCEWithLogitsLoss()
+
+    frozen_param_names = set(config.freeze_parameter_names)
+    unknown_frozen = frozen_param_names.difference(dict(model.named_parameters()).keys())
+    if unknown_frozen:
+        raise ValueError(
+            "freeze_parameter_names contains unknown parameters: "
+            f"{sorted(unknown_frozen)}"
+        )
+    for name, param in model.named_parameters():
+        if name in frozen_param_names:
+            param.requires_grad_(False)
+
+    gating_row_freeze_masks: list[torch.Tensor] = []
+    if config.freeze_zero_gating_rows:
+        with torch.no_grad():
+            for layer in model.gating_layers:
+                # Shape: (num_neurons, 1), 1 for trainable rows, 0 for frozen rows.
+                row_nonzero_mask = (layer.weight.abs().sum(dim=1, keepdim=True) > 0).float()
+                gating_row_freeze_masks.append(row_nonzero_mask.to(layer.weight.device))
+
+    for layer, row_mask in zip(model.gating_layers, gating_row_freeze_masks):
+        layer.weight.register_hook(lambda grad, mask=row_mask: grad * mask)
 
     gating_params = list(model.gating_layers.parameters())
     value_params = list(model.value_layers.parameters())
@@ -177,6 +206,10 @@ def train_dlgn_sf(
             loss = criterion(logits, yb)
             loss.backward()
             optimizer.step()
+            if config.freeze_zero_gating_rows:
+                with torch.no_grad():
+                    for layer, row_mask in zip(model.gating_layers, gating_row_freeze_masks):
+                        layer.weight.mul_(row_mask)
 
             batch_n = end - start
             running_loss += float(loss.detach().cpu()) * batch_n
