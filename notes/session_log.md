@@ -212,6 +212,43 @@ to 2-class logits `[-y, y]` for cross-entropy.
 
 ---
 
+## 2026-04-23 22:26 IST — Remove redundant re-training API block from notebook
+
+### Goal
+Confirm whether the notebook `run_multiseed(...)` section retrains models
+and remove it if redundant relative to already-trained checkpoint-based
+analysis flow.
+
+### User prompts (verbatim)
+- "Does the cell using the run_multiseed API (## Aggregate stats path using the new API (`run_multiseed`)) in the multiseed_multipath_runner.ipynb file train the model again?  Training run over all the run modes takes about 40 minutes per seed.
+
+Does this cell (## Aggregate stats path using the new API (`run_multiseed`)) give me any more functionality than the cells before it and after it does? If not and it actually trains again please remove it."
+
+### Changes
+- Updated `notebooks/multiseed_multipath_runner.ipynb`:
+  - Removed imports used only by the `run_multiseed(...)` section:
+    `ExperimentConfig`, `DataConfig`, `ModelConfig`, `run_multiseed`.
+  - Replaced the markdown section text to explicitly mark the
+    `run_multiseed` path as removed.
+  - Replaced the `run_multiseed(...)` code cell with a placeholder
+    comment to prevent accidental full retraining.
+
+### Decisions
+- Confirmed `run_multiseed(...)` does retrain all modes for all seeds.
+- Since equivalent start/end aggregates are already computed from
+  `all_results` (existing checkpoint-rich run), keeping the API block in
+  this notebook was redundant and expensive.
+
+### Current state / where to pick up
+- Notebook now performs only one training pass (`all_results`) and uses
+  those outputs for scatter plots and aggregate start/end tables.
+- Accidental duplicate retraining from the removed section is prevented.
+
+### Open questions
+- None.
+
+---
+
 ## 2026-04-22 (IST) — Add init-time freezing for zeroed gating rows
 
 ### Goal
@@ -535,6 +572,130 @@ and include a time stamp in heading dates.
 ### Current state / where to pick up
 - `notes/session_log.md` now has timestamped headings and explicit
   append-only guidance.
+
+### Open questions
+- None.
+
+---
+
+## 2026-04-23 21:53 IST — Refactor multipath workflow into scriptable APIs
+
+### Goal
+Implement the approved refactor plan to move multipath DLGN experiment
+logic from notebook orchestration into stable Python modules, including
+multi-seed execution, descriptive statistics, artifact IO, and tests.
+
+### User prompts (verbatim)
+- "Implement the plan as specified, it is attached for your reference. Do NOT edit the plan file itself.
+
+To-do's from the plan have already been created. Do not create them again. Mark them as in_progress as you work, starting with the first one. Don't stop until you have completed all the to-dos."
+- "log the changes in session_log."
+
+### Changes
+- Added `src/first_experiment/experiment_config.py`:
+  - Introduced experiment-level contracts:
+    `SeedOffsets`, `SeedBundle`, `DataConfig`, `ModelConfig`,
+    `ExperimentConfig`, `EvalMetrics`, `PruningSummary`,
+    `RegimeResult`, `SeedRunResult`.
+  - Encoded branch-specific `TrainConfig` builders for phase-1,
+    phase-2 (no-zero), phase-2 (zeroed/frozen), and one-phase runs.
+- Added `src/first_experiment/experiment_runner.py`:
+  - Implemented `run_one_phase`, `run_two_phase_nozero`,
+    `run_two_phase_zeroed`, and `run_all_regimes_for_seed`.
+  - Ported notebook branch logic (shared phase-1 base model, optional
+    pre-phase-2 zeroing by norm threshold, freeze-compatible training).
+  - Added pruning invariants (`rows_zeroed_per_layer`,
+    `rows_still_zero_after_training`).
+- Added `src/first_experiment/analysis.py`:
+  - Implemented descriptive aggregation across seeds:
+    `mean`, `std`, `n`, `sem`, `ci95_low`, `ci95_high`.
+  - Added baseline-delta summary helper
+    `compute_delta_vs_baseline(...)`.
+- Added `src/first_experiment/io.py`:
+  - Added run-root creation, manifest writing, per-seed JSON output,
+    and summary CSV writing under `results/`.
+- Added `src/first_experiment/multiseed.py`:
+  - Implemented API-first multi-seed orchestration (`run_multiseed`)
+    with optional artifact persistence.
+- Added tests:
+  - `tests/test_experiment_runner.py`
+  - `tests/test_multiseed_analysis.py`
+  - Coverage includes seed-fairness invariants, zeroed-branch freeze
+    invariants, descriptive schema checks, and artifact writes.
+- Validation run:
+  - `./.venv/bin/python -m pytest tests/test_experiment_runner.py tests/test_multiseed_analysis.py tests/test_dlgn_training.py`
+  - Result: `15 passed`.
+
+### Decisions
+- Kept implementation API-first (as requested) while preserving a
+  deterministic artifact structure for later CLI wiring.
+- Scoped statistics to descriptive summaries + 95% CI for this
+  milestone; deferred inferential tests/effect sizes.
+- Used normal-approximation 95% CI in `analysis.py` for initial
+  reviewer-facing summaries; this can be replaced with t-based CI in a
+  later refinement pass if required.
+
+### Current state / where to pick up
+- Multipath orchestration is now available from importable Python APIs
+  in `src/first_experiment/`.
+- Multi-seed runs and summary table generation are available via
+  `run_multiseed(...)`, with optional writing to `results/`.
+- New tests for runner/analysis contracts pass alongside existing
+  training tests.
+- Next practical step: adapt `notebooks/scratch.ipynb` to consume these
+  APIs and read saved outputs instead of owning execution logic.
+
+### Open questions
+- Whether to switch CI computation from normal-approximation to t-based
+  intervals for small sample counts.
+- Whether to add hypothesis testing/effect sizes in the next milestone
+  for reviewer rebuttal material.
+
+---
+
+## 2026-04-23 22:05 IST — Create fresh multi-seed notebook template
+
+### Goal
+Provide a copy-paste-ready fresh notebook for running 5-seed multipath
+experiments with lower checkpoint frequency, scatter support per
+seed/mode/checkpoint, and aggregate statistics.
+
+### User prompts (verbatim)
+- "Let's say my goal is to run the experiments in scratch.ipynb for 5 different seeds. Can you give me code that can be copy pasted into a fresh notebook? Intersperse python cells with markdown cells describing the code cells below.
+
+Potential issues include running out of memory becuase we store checkpoints every 20 epochs in all training runs. Maybe reduce that to every 200 epochs for convenience. I need to have the capability to get the scatter plots of the checkpoint epochs of any of the 5 seeds, and all the run modes using that seed config. I also need aggregate statistics such as training loss, test error at the beginning and end of all the run modes for all the chosen seeds.
+
+Other settings such as epoch numbers, depth of tree, number of data points can be taken from the curent scratch.ipynb."
+- "Please do so. While you are at it, just create the notebook also and put these cells in it."
+
+### Changes
+- Added new notebook:
+  `notebooks/multiseed_multipath_runner.ipynb`.
+- Populated notebook with interleaved markdown/python cells covering:
+  - 5-seed multipath training workflow.
+  - Scratch-aligned defaults (`DIM`, `DEPTH`, `N_TRAIN`,
+    `TOTAL_EPOCHS`, hidden dims, `BETA`).
+  - Reduced checkpoint cadence (`SNAPSHOT_STRIDE=200`).
+  - Per-seed checkpoint-rich execution for scatter plots.
+  - Scatter helper for any seed/mode/checkpoint:
+    `plot_scatter_for_checkpoint(...)`.
+  - Aggregate summaries via new API modules:
+    `ExperimentConfig` + `run_multiseed(...)` for descriptive/final
+    summaries and baseline deltas.
+  - Explicit start/end checkpoint metrics aggregation
+    (`train_log_loss`, `test_error`) across all seeds and modes.
+
+### Decisions
+- Kept two complementary paths in the notebook:
+  - direct checkpoint-heavy run path for scatter flexibility;
+  - `run_multiseed(...)` API path for script-aligned aggregate outputs.
+- Retained scratch defaults while only lowering snapshot frequency to
+  reduce memory pressure.
+
+### Current state / where to pick up
+- Notebook is ready to run end-to-end.
+- User can change `MASTER_SEEDS` and `SNAPSHOT_STRIDE` in one place.
+- Scatter and aggregate tables are both wired.
 
 ### Open questions
 - None.
