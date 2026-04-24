@@ -39,4 +39,6 @@ results/*
 *.pth
 *.ckpt
 *.pkl
+*.pkl.gz
+*.gz
 *.joblib
