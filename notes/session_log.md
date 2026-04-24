@@ -212,6 +212,278 @@ to 2-class logits `[-y, y]` for cross-entropy.
 
 ---
 
+## 2026-04-24 19:22 IST — Switch to dense-early quadratic snapshots
+
+### Goal
+Capture early-training transitions better by replacing uniform
+`SNAPSHOT_STRIDE=200` with a dense-near-init snapshot schedule.
+
+### User prompts (verbatim)
+- "Most interesting transitions in the neural network happen early in training. Having snapshots only every 200 epochs does not capture it. Can we capture snapshots more frequently close to init? e.g. quadratically spaced snapshots? 0,1,2,4,7,11,16,22,29, etc?"
+
+### Changes
+- Updated `notebooks/scratch.ipynb` config cell:
+  - Removed fixed `SNAPSHOT_STRIDE`-based snapshot generation.
+  - Added `quadratic_snapshot_epochs(total_epochs, n_points=80)`.
+  - Set `SNAPSHOT_EPOCHS` from quadratic spacing over `[0, TOTAL_EPOCHS]`.
+  - Added printouts for count + early/late snapshot values for quick
+    verification.
+
+### Decisions
+- Used quadratic spacing (`frac**2`) to make snapshots much denser near
+  initialization and gradually sparser later in training.
+
+### Current state / where to pick up
+- Training now stores more early checkpoints while limiting total
+  snapshot count.
+- Scatter/analysis cells continue to work with `SNAPSHOT_EPOCHS`.
+
+### Open questions
+- None.
+
+---
+
+## 2026-04-24 19:17 IST — Add first-layer ReLU vs ODT scatter cell
+
+### Goal
+Add a scatter-plot analysis cell in `scratch.ipynb` (before aggregate
+analysis) showing first-layer ReLU weight norms against max absolute
+cosine similarity to ODT vectors, colored by the best-matching ODT node.
+
+### User prompts (verbatim)
+- "Create the code for the scatter plot cell in scratch.ipynb where the weight vector norm of the first layer relu net is plotted w.r.t the max abs cosine similarity to ODT vectors. Color the points based on the ODT node maximising this abs cosine similarity. Similar to the scatter plots for the DLGN made earlier.
+
+Make this in the cell before \"aggregate analysis\"."
+
+### Changes
+- Updated `notebooks/scratch.ipynb` cell before “Aggregate analysis”:
+  - Validates chosen checkpoint epoch exists.
+  - Loads first-layer ReLU weights from checkpoint
+    (`hidden_layers.0.weight`).
+  - Computes per-neuron weight norm.
+  - Computes cosine similarities with ODT normals (`tree.w_list`),
+    then max absolute cosine and argmax ODT node index.
+  - Renders scatter:
+    - x: first-layer weight norm
+    - y: max absolute cosine similarity to ODT vectors
+    - color: ODT node index maximizing abs cosine
+  - Adds colorbar, labels, title, and light grid.
+
+### Decisions
+- Implemented with torch ops throughout for consistency with checkpoint
+  tensors and numerical stability (`clamp_min(1e-12)` in denominator).
+
+### Current state / where to pick up
+- Notebook now has DLGN-style alignment scatter for the ReLU first layer
+  in the requested position.
+
+### Open questions
+- None.
+
+---
+
+## 2026-04-24 15:34 IST — Add progress option to ReLU training
+
+### Goal
+Add an option in ReLU training to show epoch-wise progress.
+
+### User prompts (verbatim)
+- "Can you add an option in the relu training for showing progress?"
+
+### Changes
+- Updated `src/first_experiment/relu_training.py`:
+  - Added `show_progress: bool = False` to `ReLUTrainConfig`.
+  - Added tqdm support in `train_relu_mlp(...)`:
+    - wraps epoch iteration with a progress bar when enabled
+    - shows current epoch loss via `set_postfix`.
+
+### Decisions
+- Mirrored DLGN training progress behavior for consistency across
+  training modules.
+
+### Current state / where to pick up
+- ReLU training now supports progress display with
+  `ReLUTrainConfig(show_progress=True)`.
+- Validation passed:
+  - `./.venv/bin/python -m pytest` -> `24 passed`.
+
+### Open questions
+- None.
+
+---
+
+## 2026-04-24 15:30 IST — Move ReLU training routine into Python module
+
+### Goal
+Move ReLU training logic out of `scratch.ipynb` into a `.py` training
+module while keeping experiment orchestration/data generation in the
+notebook.
+
+### User prompts (verbatim)
+- "It is better to have the training routine in a .py file . But there is already a training.py file that is for the DLGN, maybe you can reuse the same file or create another file and rename accordingly."
+
+### Changes
+- Added `src/first_experiment/relu_training.py`:
+  - `ReLUTrainConfig`
+  - `train_relu_mlp(...)`
+  - `evaluate_relu_mlp(...)`
+  - internal PM1-to-binary label conversion helper
+- Updated `notebooks/scratch.ipynb`:
+  - Replaced notebook-local ReLU train/eval implementations with imports
+    from `first_experiment.relu_training`.
+  - Kept data generation and seed orchestration in notebook code.
+  - `run_single_seed(...)` now calls `train_relu_mlp(...)` with
+    `ReLUTrainConfig`.
+- Added `tests/test_relu_training.py` for new module coverage.
+
+### Decisions
+- Chose a separate `relu_training.py` instead of merging into DLGN
+  `training.py` to keep model-specific training paths clean and avoid
+  coupling.
+
+### Current state / where to pick up
+- ReLU training routine is now reusable and importable from Python code.
+- Notebook remains experiment-driver for data generation and analysis.
+- Validation passed:
+  - `./.venv/bin/python -m pytest` -> `24 passed`.
+
+### Open questions
+- None.
+
+---
+
+## 2026-04-24 15:26 IST — Simplify to single-phase ReLU workflow in notebook
+
+### Goal
+Reorganize ReLU experiment code to remove multi-phase analysis utilities,
+keep only `relu_mlp.py`, and move experiment/training logic into
+`scratch.ipynb`.
+
+### User prompts (verbatim)
+- "Reorganise the code. There is no need yet for multi-phase analysis. Only a single phase of training is required for now. Keep only the relu_mlp file, and move all experimental details in relu_experiments.py to scratch.ipynb. Have the data generation and training happen in scratch itself using calls to odt.py etc. Remove the relu_experiments.py file."
+
+### Changes
+- Deleted `src/first_experiment/relu_experiments.py`.
+- Deleted `tests/test_relu_experiments.py` (depended on removed module).
+- Updated `notebooks/scratch.ipynb` to a single-phase-only ReLU pipeline:
+  - Replaced multi-phase content with direct notebook-local helpers.
+  - Imports now use `odt.py`, `training.set_seed`, and `relu_mlp.py`.
+  - Added notebook-local training loop (`train_relu_single_phase`) and
+    evaluation helper (`evaluate_relu_mlp`).
+  - Added notebook-local `run_single_seed` that generates data and trains
+    one-phase model per seed.
+  - Updated aggregate analysis and plots to compare start vs end
+    metrics only (no run-mode axis).
+
+### Decisions
+- Kept only `relu_mlp.py` as reusable architecture code, per request.
+- Moved all experiment orchestration details (configs, training loop,
+  evaluation flow) into `scratch.ipynb`.
+
+### Current state / where to pick up
+- ReLU workflow is now single-phase and notebook-driven.
+- Test suite passes after cleanup:
+  - `./.venv/bin/python -m pytest` -> `22 passed`.
+
+### Open questions
+- None.
+
+---
+
+## 2026-04-24 15:18 IST — Add standard ReLU MLP experiment pipeline
+
+### Goal
+Create a standard fully connected ReLU architecture path (no dropout,
+no normalization), add required experiment files, and repopulate
+`scratch.ipynb` for analysis on this architecture.
+
+### User prompts (verbatim)
+- "Thanks. Now I need to perform these experiments with a different architecture. Simply the standard fully connected ReLU is sufficient for now. Can you create the required files, and populate the (now empty) scratch.ipynb for performing analysis with it? Choose appropriate hyperparameters as configs (number of hidden layers, number of neurons per layer etc). No need for extra layer magics like dropout or normalization for now."
+
+### Changes
+- Added `src/first_experiment/relu_mlp.py`:
+  - Introduced `ReLUMLP`, a plain fully connected ReLU classifier with
+    scalar-logit output.
+- Added `src/first_experiment/relu_experiments.py`:
+  - Added `ReLUTrainConfig` and `ReLUExperimentConfig`.
+  - Added `evaluate_binary_classifier(...)`.
+  - Added `train_relu_mlp(...)` with Adam + cosine schedule + optional
+    row-freeze for pruned hidden neurons.
+  - Added `run_relu_single_seed(...)` implementing:
+    - `two_phase_phase1`
+    - `two_phase_phase2_no_prune`
+    - `two_phase_phase2_pruned`
+    - `one_phase`
+- Repopulated `notebooks/scratch.ipynb`:
+  - Added config/imports cells for ReLU experiments.
+  - Added helper cell to collect start/end checkpoint metrics.
+  - Added full multi-seed run cell.
+  - Added aggregate per-seed and mean/std analysis tables.
+  - Added quick end-metric visualization plots.
+- Added `tests/test_relu_experiments.py`:
+  - Forward-shape sanity for `ReLUMLP`.
+  - Training/evaluation smoke coverage.
+  - Single-seed run-mode output coverage.
+
+### Decisions
+- Used `hidden_dims=(256, 256, 256)` as a strong but still standard
+  baseline for this first ReLU pass.
+- Kept training loop simple (no dropout/norm/other layer magic) per
+  request.
+- Preserved previous experiment framing (one-phase vs two-phase with and
+  without pruning) while swapping the architecture.
+
+### Current state / where to pick up
+- ReLU experiment path is now available in package code and notebook.
+- `scratch.ipynb` is analysis-ready for multi-seed ReLU runs.
+- Validation passed:
+  - `./.venv/bin/python -m pytest` -> `25 passed`.
+
+### Open questions
+- None.
+
+---
+
+## 2026-04-24 10:53 IST — Stop storing split arrays in `all_results`
+
+### Goal
+Reduce serialized notebook cache size by removing `x_train`, `x_eval`,
+`y_train`, `y_eval` from `all_results` and regenerating splits from
+`data_seed` when needed for analysis.
+
+### User prompts (verbatim)
+- "Can we avoid storing the x_train, x_eval, y_train, y_eval as part of all_results? We could just generate those from the seeds, right?"
+- "Yes, please do so."
+
+### Changes
+- Updated `notebooks/multiseed_multipath_runner.ipynb`:
+  - Added helper function:
+    `regenerate_split_from_seed(data_seed)` to deterministically
+    reconstruct train/eval splits from generation settings.
+  - Updated `run_single_seed_with_checkpoints(...)` return payload to
+    remove the `"data"` block (`x_train`, `y_train`, `x_eval`, `y_eval`)
+    from `all_results`.
+  - Updated start/end aggregate metrics cell to regenerate split arrays
+    from `seed_result["seeds"]["data_seed"]` instead of reading stored
+    arrays.
+
+### Decisions
+- Kept deterministic regeneration path in-notebook because dataset
+  generation is seed-driven and split slicing is fixed.
+- Chose to reduce cache payload size rather than storing duplicated
+  arrays per seed.
+
+### Current state / where to pick up
+- `all_results` is now lighter and still supports scatter and aggregate
+  analysis.
+- Saved pickle caches will no longer carry train/eval arrays if produced
+  after re-running the updated notebook cells.
+
+### Open questions
+- None.
+
+---
+
 ## 2026-04-23 22:26 IST — Remove redundant re-training API block from notebook
 
 ### Goal
