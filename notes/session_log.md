@@ -212,6 +212,189 @@ to 2-class logits `[-y, y]` for cross-entropy.
 
 ---
 
+## 2026-04-30 19:36 IST — Add neuron-to-leaf activity-vector helper
+
+### Goal
+Add a reusable helper in `relu_analysis.py` that converts `neuron_leaf_activity_summary` into a dictionary mapping each neuron to a leaf-ordered activity vector.
+
+### User prompts (verbatim)
+- "Can you write a piece of code that takes neuron_leaf_activity_summary as input and creates dictionary with each key corresponding to a neuron, and value corresponding to a numpy array of length equal to the number of leaf nodes in the ODT? Each element in this array should correspond to the total points in the leaf that are active for that neuron."
+- "PLease do so, and put it in the @src/first_experiment/relu_analysis.py file."
+
+### Changes
+- Updated `src/first_experiment/relu_analysis.py` with:
+  - `neuron_leaf_activity_dict(neuron_leaf_activity_summary, *, key_mode='global')`
+    returning `(mapping, leaf_order)`.
+  - Supports `key_mode='global'` and `key_mode='layer_local'`.
+  - Validates required input columns and handles empty input safely.
+
+### Decisions
+- Return both mapping and `leaf_order` to make the vector index-to-leaf correspondence explicit and robust in downstream analysis.
+
+### Current state / where to pick up
+- Use:
+  - `mapping, leaf_order = neuron_leaf_activity_dict(neuron_leaf_activity_summary)`
+  - or `key_mode='layer_local'` for `(layer, local_neuron_id)` keys.
+- Lints are clean and import check via `uv run python` succeeded.
+
+### Open questions
+- None.
+
+---
+
+## 2026-04-30 19:11 IST — Add neuron activity count by ODT leaf
+
+### Goal
+Add a reusable helper for counting neuron activity within a specified ODT leaf and use it in the scratch notebook to build an all-neuron/all-leaf activity summary.
+
+### User prompts (verbatim)
+- "Write a function which takes a model checkpoint, a neuron id, and a ODT label leafnode id, and gives the total number of points with that label leaf node id for which that neuron is active. Have this function be in relu_analysis.py
+
+Use this function in scratch.ipynb to get an appropriate summary object for all neurons and ODT nodes. Insert this cell just before the start/end metrics cell."
+
+### Changes
+- Updated `src/first_experiment/relu_analysis.py`:
+  - Added `count_active_points_for_neuron_leaf(...)` to count active points for a given hidden neuron and leaf node.
+  - Added supporting internal helpers for precomputing hidden activation masks / leaf IDs and resolving neuron IDs.
+  - Added `summarize_neuron_leaf_activity(...)` convenience helper.
+- Updated `notebooks/scratch.ipynb`:
+  - Inserted a new code cell immediately before the `## Start/end metrics` section that loops all hidden neurons and ODT leaf nodes and builds `neuron_leaf_activity_summary` using `count_active_points_for_neuron_leaf`.
+  - Left two previously inserted duplicate cells as no-op comments indicating that the summary moved.
+
+### Decisions
+- Accept both global neuron ids (`0..119`) and `(layer_idx, local_neuron_idx)` tuples in the counting helper for flexibility.
+- Use leaf IDs in ODT heap indexing (`31..62` for depth 5), matching current notebook conventions.
+
+### Current state / where to pick up
+- Run the new pre-start-metrics cell to populate `neuron_leaf_activity_summary`.
+- Use the resulting dataframe directly or with `itables.show(...)` for interactive filtering.
+
+### Open questions
+- None.
+
+---
+
+## 2026-04-30 16:53 IST — Extract ReLU notebook analysis helpers
+
+### Goal
+Move reusable functions out of `notebooks/scratch.ipynb` into importable source code while keeping plots and exploratory analysis in the notebook.
+
+### User prompts (verbatim)
+- "I want the plots and analyses to be on the scratch notebook, but would like to move all functions to an appropriate (maybe new or one of the old ones) .py file. \n\nIf any other piece of code in the notebook (not yet as a function) can also be moved into a function that would also be good.\n\nCan you do this reorganisation? "
+
+### Changes
+- Added `src/first_experiment/relu_analysis.py` with reusable ReLU/COB-ODT helpers:
+  - single-seed ReLU run setup,
+  - start/end metric collection,
+  - checkpoint model loading,
+  - first-layer ODT alignment computation and scatter plotting,
+  - layered ReLU graph plotting,
+  - masked ReLU forward/eval by ODT leaf,
+  - single-neuron ablation responsibility analysis,
+  - compact responsibility summary generation.
+- Updated `notebooks/scratch.ipynb` to import those helpers and replaced notebook function definitions with calls.
+- Replaced inline scatter/graph mechanics with calls to `plot_first_layer_odt_alignment` and `plot_layered_relu_graph`.
+
+### Decisions
+- Created a new `relu_analysis.py` rather than extending `analysis.py`, because existing `analysis.py` is focused on multipath DLGN aggregate statistics.
+- Kept plotting calls in the notebook, but moved plotting implementations into source so the notebook remains a thin analysis driver.
+
+### Current state / where to pick up
+- Re-run the first import/config cell in `notebooks/scratch.ipynb` before running downstream analysis cells.
+- `relu_analysis.py` imported successfully through `uv run python`; IDE lints report no errors for the touched notebook and module.
+
+### Open questions
+- None.
+
+---
+
+## 2026-04-30 09:29 IST — Add ReLU neuron leaf-responsibility ablation
+
+### Goal
+Add notebook tooling to assign hidden ReLU neurons to ODT label leaves by measuring per-leaf log-loss increase after single-neuron ablation.
+
+### User prompts (verbatim)
+- "In the cell before the start metrics, I am trying to see if the neurons (all the 120 neurons) can be assigned to one or multiple ODT nodes -- i.e. I want to say \"this neuron is responsible for getting data entering these ODT label leaf nodes classified correctly\".  One way to do this is as follows: have a mask that is all ones, and zero only that neuron and look at all ODT nodes where the log loss is much higher than if we had all neurons active. \n\nCan you write a function which takes in a model and outputs a dictionary with keys being (layer, neuron_id) and values capturing the ODT nodes that neuron is responsible for. Ideally it would also capture the impact of that neuron e.g. how much does the log loss go up by for those ODT nodes etc. \n\nInsert this function and a small script calling it appropriately before the start/end metrics cell."
+
+### Changes
+- Inserted a new code cell in `notebooks/scratch.ipynb` before the start/end metrics section.
+- Added `neuron_leaf_responsibility_from_ablation`, which compares all-active per-leaf metrics against one-neuron-ablated metrics for all hidden neurons.
+- Added an example call that produces `neuron_responsibility`, `neuron_responsibility_df`, `baseline_leaf_metrics`, and a compact `neuron_summary` display.
+
+### Decisions
+- Use per-leaf `mean_log_loss` deltas as the primary responsibility signal, with optional thresholds for relative log-loss delta and accuracy drop.
+- Keep layer indices zero-based to match `hidden_layers` indexing in `ReLUMLP`.
+
+### Current state / where to pick up
+- Run the new notebook cell after the per-leaf masked evaluation helper has been defined and after `seed_result`, `ckpts`, and `EPOCH` exist.
+- Tune `min_log_loss_delta` to control how many ODT leaves are attributed to each neuron.
+
+### Open questions
+- None.
+
+---
+
+## 2026-04-30 08:52 IST — Add per-leaf masked ReLU log loss
+
+### Goal
+Extend the masked ReLU ODT-leaf evaluation helper in the scratch notebook to report average log loss per leaf, not only accuracy.
+
+### User prompts (verbatim)
+- "Can you make a change directly in the notebook for also returning the average log loss in each leaf node?"
+
+### Changes
+- Updated `notebooks/scratch.ipynb` helper `masked_accuracy_by_odt_leaf` to compute per-example BCE/logistic loss from `{−1,+1}` labels and logits using `np.logaddexp`.
+- Added `mean_log_loss` to the returned per-leaf summary table.
+
+### Decisions
+- Use the numerically stable `{−1,+1}` logistic-loss form `logaddexp(0, -y * logit)` to match the BCE-with-logits objective used during training.
+
+### Current state / where to pick up
+- Re-run the helper-definition cell and then the leaf-accuracy display cell to see the new `mean_log_loss` column.
+
+### Open questions
+- None.
+
+---
+
+## 2026-04-25 08:43 IST — Simplify scratch notebook to single-seed focus
+
+### Goal
+Remove multi-seed distractions from `scratch.ipynb` and focus all
+learning-dynamics analysis on one selected seed.
+
+### User prompts (verbatim)
+- "I want to analyse the learning dynamics for a single seed now. Having multiple seeds in all results in other places distracts me. Can you make this modification to the scratch.ipynb notebook?"
+
+### Changes
+- Updated `notebooks/scratch.ipynb` to single-seed workflow:
+  - Replaced `MASTER_SEEDS` + `all_results` with:
+    - `SEED = 5178`
+    - `seed_result = None`
+  - Replaced training loop over seeds with one run:
+    - `seed_result = run_single_seed(SEED)`.
+  - Updated scatter cell to read from `seed_result` and use `SEED` in
+    title; added guard if training hasn’t run yet.
+  - Replaced aggregate multi-seed table cell with single-seed start/end
+    table (`metrics_table`).
+  - Updated final visualization cell to plot from `metrics_table`
+    instead of `agg_table`; added guard if training hasn’t run yet.
+  - Updated markdown headings/descriptions to reflect single-seed focus.
+
+### Decisions
+- Kept helper function `collect_start_end_metrics(...)` unchanged,
+  because it already supports a single seed result input cleanly.
+
+### Current state / where to pick up
+- Notebook is now organized around one seed and no longer presents
+  multi-seed aggregation outputs in the main flow.
+- You can switch seed by changing `SEED` in one place.
+
+### Open questions
+- None.
+
+---
+
 ## 2026-04-24 19:22 IST — Switch to dense-early quadratic snapshots
 
 ### Goal
@@ -968,6 +1151,140 @@ Other settings such as epoch numbers, depth of tree, number of data points can b
 - Notebook is ready to run end-to-end.
 - User can change `MASTER_SEEDS` and `SNAPSHOT_STRIDE` in one place.
 - Scatter and aggregate tables are both wired.
+
+### Open questions
+- None.
+
+---
+
+## 2026-04-25 10:13 IST — ReLU layers-as-lenses extension plan
+
+### Goal
+Draft a high-level research plan to extend the "Layers as Lenses"
+narrative from DLGN to standard ReLU MLPs on COB-ODT data (gates,
+paths, neuron-level dynamics) and persist it in a referenceable note.
+
+### User prompts (verbatim)
+- "My goal in this research project is to explain, predict and understand where and how neural network parameters move during training. The layers as lenses paper (one of the two papers in research_spec.md and in the old_notebooks folder) tries to do this for a simple single path DLGN and extends it to multi-path DLGNs. \n\nMy goal now is to do similar analysis for ReLU networks and maybe extend it further. I need to extend the notion of gates in DLGN (which are simply halfspaces in the input space) to ReLU networks. And paths in DLGNs (which are simply a product of gates) also to ReLU networks. These are no longer as simple in ReLU MLPs. But the phenomena they cause are similar. I believe the learning dynamics (even in ReLU MLPs) can be explained using the concept of a positive feedback between the dual roles of a neuron. \n\nTo that end I have taken a single successful ReLU run on a ODT dataset for analysis in scratch.ipynb. I am interested in studyng neuron level evolution of gates, as well as the evolution of paths. \n\nDo read the layers as lenses paper again (available both as pdf and tex file in the project) and the scratch.ipynb notebook and its results and think of a high level plan of action for hypotheses and ways of testing/visualising these. No need for code suggestions right now. Take your time and thnk deeply. We will have more conversations and brainstorming of ideas once you are done."
+- "Great, this sounds like a good starting point. Move this to research_spec.md so that I can refer to it easier in future conversations."
+
+### Changes
+- Re-read `notebooks/old_notebooks/layers_as_lenses/Layers_as_Lenses.tex`
+  and `notebooks/scratch.ipynb` to anchor the plan in current state.
+- Appended a new section to `notes/research_spec.md`:
+  "Extension Plan: Layers-as-Lenses Narrative for ReLU MLPs". Covers
+  recap of paper claims, conceptual translation of gates/paths/lens to
+  ReLU, 15 numbered hypotheses (Tiers A–E), 9 visualisation ideas,
+  suggested sequencing, pitfalls, and open decisions.
+
+### Decisions
+- Plan kept conceptual only (no code changes) per user's explicit
+  instruction.
+- Hypotheses organised into tiers by ambition so future sessions can
+  pick a subset to operationalise without re-deriving the framing.
+
+### Current state / where to pick up
+- Research charter for the ReLU analysis phase lives in
+  `notes/research_spec.md` under the "Extension Plan" section.
+- `notebooks/scratch.ipynb` still holds the single-seed ReLU run that
+  the plan refers to (one successful seed, snapshot-rich training,
+  level-coloured first-layer scatter already implemented).
+- No code/test changes were made this session.
+
+### Open questions
+- Which of H1–H6 to prioritise for the first deep dive.
+- Whether to introduce a `bias=False` parallel ReLU run for cleaner
+  first-layer alignment comparisons.
+- Whether to define ReLU "paths" as first-class objects in
+  `src/first_experiment/` or keep them as analysis-time constructs
+  inside the notebook for now.
+
+---
+
+## 2026-04-25 10:21 IST — Fix Markdown LaTeX rendering in research spec
+
+### Goal
+Make the math in `notes/research_spec.md` render correctly in Cursor's
+Markdown viewer.
+
+### User prompts (verbatim)
+- "Latex is not rendered properly in the markdown viewer on cursor. Can you check why? e.g. in researchspec.md."
+- "Please do so."
+
+### Changes
+- Updated LaTeX expressions in `notes/research_spec.md` to avoid custom
+  paper macros unsupported by Markdown renderers.
+- Replaced shorthand macros with standard forms used by KaTeX/MathJax:
+  `\w, \x, \bu, \m, \E, \1` -> `\mathbf{w}, \mathbf{x}, \mathbf{u},
+  \mathbf{m}, \mathbb{E}, \mathbb{1}`.
+- Fixed one intermediate replacement artifact (`\mathbf{m}ath...`) and
+  verified no unsupported shorthand macros remain.
+
+### Decisions
+- Keep equations renderer-friendly in notes by avoiding dependency on
+  `.tex` preamble macros.
+
+### Current state / where to pick up
+- The math in `notes/research_spec.md` now uses standard Markdown-safe
+  LaTeX and should render in Cursor.
+
+### Open questions
+- None.
+
+---
+
+## 2026-04-25 10:24 IST — Diagnose markdown LaTeX rendering
+
+### Goal
+Identify why LaTeX was not rendering in Cursor markdown preview and apply a fix.
+
+### User prompts (verbatim)
+- "No I still don't see proper rendering. Can you create a small markdown test file with a simple latex command?"
+- "No this also does not render. How to fix this?"
+
+### Changes
+- Added `notes/latex_render_test.md` with minimal inline and block math checks.
+- Updated Cursor user settings at
+  `~/Library/Application Support/Cursor/User/settings.json` to include:
+  - `"markdown.math.enabled": true`
+
+### Decisions
+- Treat issue as renderer/settings-level (not file content syntax), because even minimal test math did not render.
+
+### Current state / where to pick up
+- Project markdown files contain valid KaTeX-style math delimiters (`$...$`, `$$...$$`).
+- Cursor now has explicit markdown math enabled in user settings.
+- If still not visible, next check is whether user is viewing source editor vs markdown preview pane and reload window.
+
+### Open questions
+- None.
+
+---
+
+## 2026-04-25 10:39 IST — Add notebook copy for math-rendered research plan
+
+### Goal
+Provide a renderable (equation-friendly) version of the ReLU extension plan,
+since Cursor markdown preview does not render LaTeX reliably in `.md` files.
+
+### User prompts (verbatim)
+- "It still fails. Maybe relevant: Markdown cells in .ipynb files seem to render fine."
+- "Yes please do so."
+
+### Changes
+- Added `notes/research_spec_math.ipynb` containing the ReLU extension plan
+  as markdown content with equations for notebook rendering.
+- Updated `notes/research_spec.md` to add a pointer line under the
+  "Extension Plan" heading:
+  - Math-rendered copy: `notes/research_spec_math.ipynb`.
+
+### Decisions
+- Keep `notes/research_spec.md` as the canonical plain-text spec and use
+  the notebook as the render-focused companion for math-heavy reading.
+
+### Current state / where to pick up
+- Use `notes/research_spec_math.ipynb` for rendered equations in Cursor.
+- Use `notes/research_spec.md` for text-first reference and search.
 
 ### Open questions
 - None.
