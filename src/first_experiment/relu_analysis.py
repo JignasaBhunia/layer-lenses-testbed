@@ -755,6 +755,82 @@ def _resolve_hidden_neuron_id(
     return layer_idx, local_idx, global_idx
 
 
+def _precompute_hidden_activation_masks(
+    *,
+    model: ReLUMLP,
+    x_eval: np.ndarray,
+    batch_size: int = 8192,
+    device: str = "cpu",
+) -> dict[str, Any]:
+    """Precompute boolean hidden-layer activation masks for ``x_eval``."""
+    model = model.to(device)
+    model.eval()
+
+    x_t = torch.from_numpy(x_eval).float().to(device)
+    hidden_masks_per_layer: list[list[torch.Tensor]] = [
+        [] for _ in range(len(model.hidden_layers))
+    ]
+
+    with torch.no_grad():
+        for start in range(0, x_t.shape[0], batch_size):
+            h = x_t[start : start + batch_size]
+            for layer_idx, layer in enumerate(model.hidden_layers):
+                pre_act = layer(h)
+                hidden_masks_per_layer[layer_idx].append((pre_act > 0).detach().cpu())
+                h = torch.relu(pre_act)
+
+    activation_masks = [torch.cat(parts, dim=0).numpy() for parts in hidden_masks_per_layer]
+    layer_widths = [layer.out_features for layer in model.hidden_layers]
+    layer_offsets = np.cumsum([0, *layer_widths[:-1]]).tolist()
+    total_hidden_neurons = int(sum(layer_widths))
+
+    return {
+        "activation_masks": activation_masks,
+        "layer_widths": layer_widths,
+        "layer_offsets": layer_offsets,
+        "total_hidden_neurons": total_hidden_neurons,
+    }
+
+
+def active_point_mask_for_neuron(
+    *,
+    model: ReLUMLP,
+    x_eval: np.ndarray,
+    neuron_id: int | tuple[int, int],
+    batch_size: int = 8192,
+    device: str = "cpu",
+    precomputed: dict[str, Any] | None = None,
+) -> np.ndarray:
+    """Return boolean mask of points in ``x_eval`` that activate a hidden neuron.
+
+    Args:
+        model: Checkpoint-loaded ReLU model.
+        x_eval: Evaluation inputs of shape ``(n, d)``.
+        neuron_id: Either global hidden neuron id (0..total_hidden-1) or tuple
+            ``(layer_idx, local_neuron_idx)``.
+        precomputed: Optional cache from ``_precompute_hidden_activation_masks``
+            for repeated queries.
+
+    Returns:
+        Boolean array of shape ``(n,)``; ``True`` means the input activates that neuron.
+    """
+    if precomputed is None:
+        precomputed = _precompute_hidden_activation_masks(
+            model=model,
+            x_eval=x_eval,
+            batch_size=batch_size,
+            device=device,
+        )
+
+    layer_idx, local_idx, _ = _resolve_hidden_neuron_id(
+        neuron_id,
+        layer_widths=precomputed["layer_widths"],
+        layer_offsets=precomputed["layer_offsets"],
+        total_hidden_neurons=precomputed["total_hidden_neurons"],
+    )
+    return precomputed["activation_masks"][layer_idx][:, local_idx].astype(bool)
+
+
 def count_active_points_for_neuron_leaf(
     *,
     model: ReLUMLP,
