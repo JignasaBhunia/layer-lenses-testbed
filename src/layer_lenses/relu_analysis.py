@@ -6,7 +6,6 @@ interpretation while preserving the reusable mechanics in importable code.
 
 from __future__ import annotations
 
-import copy
 from typing import Any
 
 import matplotlib.pyplot as plt
@@ -14,10 +13,15 @@ import numpy as np
 import pandas as pd
 import torch
 
-from first_experiment.odt import COBODTTree, generate_cob_odt_data
-from first_experiment.relu_mlp import ReLUMLP
-from first_experiment.relu_training import ReLUTrainConfig, evaluate_relu_mlp, train_relu_mlp
-from first_experiment.training import set_seed
+from layer_lenses.odt import COBODTTree, generate_cob_odt_data, odt_leaf_ids_for_x
+from layer_lenses.relu_mlp import ReLUMLP
+from layer_lenses.relu_training import (
+    ReLUTrainConfig,
+    checkpoint_model_from_state,
+    evaluate_relu_mlp,
+    train_relu_mlp,
+)
+from layer_lenses.training import set_seed
 
 
 def quadratic_snapshot_epochs(total_epochs: int, n_points: int = 80) -> tuple[int, ...]:
@@ -106,10 +110,9 @@ def collect_start_end_metrics(seed_result: dict[str, Any]) -> list[dict[str, flo
     x_eval = seed_result["data"]["x_eval"]
     y_eval = seed_result["data"]["y_eval"]
 
-    model = copy.deepcopy(out["model"])
     rows: list[dict[str, float | int | str]] = []
     for label, ep in [("start", e0), ("end", eN)]:
-        model.load_state_dict(ckpts[ep])
+        model = checkpoint_model_from_state(out["model"], ckpts[ep])
         m_tr = evaluate_relu_mlp(model=model, x_eval=x_train, y_eval=y_train)
         m_te = evaluate_relu_mlp(model=model, x_eval=x_eval, y_eval=y_eval)
         rows.append(
@@ -121,16 +124,6 @@ def collect_start_end_metrics(seed_result: dict[str, Any]) -> list[dict[str, flo
             }
         )
     return rows
-
-
-def checkpoint_model_from_state(
-    template_model: ReLUMLP,
-    state_dict: dict[str, torch.Tensor],
-) -> ReLUMLP:
-    """Return a copy of ``template_model`` loaded with one checkpoint state."""
-    model = copy.deepcopy(template_model)
-    model.load_state_dict(state_dict)
-    return model
 
 
 def first_layer_odt_alignment(
@@ -378,19 +371,6 @@ def plot_layered_relu_graph(
     print(f"Visible edges: {len(visible_edges)} / {w1.numel() + w2.numel() + wout.numel()}")
     print(f"First-layer aligned nodes: {int((max_abs_cos >= alignment_abs_threshold).sum())} / {w0.shape[0]}")
     return alignment, visible_edges, fig, ax
-
-
-def odt_leaf_ids_for_x(x: np.ndarray, tree: COBODTTree) -> np.ndarray:
-    """Return heap-style ODT leaf node ids reached by each row of ``x``."""
-    margins = x @ tree.w_list.T + tree.b_list
-    curr_node = np.zeros(x.shape[0], dtype=np.int64)
-
-    for _ in range(tree.depth):
-        decision = margins[np.arange(x.shape[0]), curr_node]
-        went_right = (decision > 0).astype(np.int64)
-        curr_node = (2 * curr_node) + 1 + went_right
-
-    return curr_node
 
 
 def masked_relu_logits(
@@ -686,35 +666,13 @@ def _precompute_hidden_activation_masks_and_leaf_ids(
     device: str = "cpu",
 ) -> dict[str, Any]:
     """Precompute hidden ReLU activation masks and ODT leaf ids for ``x_eval``."""
-    model = model.to(device)
-    model.eval()
-
-    x_t = torch.from_numpy(x_eval).float().to(device)
-    hidden_masks_per_layer: list[list[torch.Tensor]] = [
-        [] for _ in range(len(model.hidden_layers))
-    ]
-
-    with torch.no_grad():
-        for start in range(0, x_t.shape[0], batch_size):
-            h = x_t[start : start + batch_size]
-            for layer_idx, layer in enumerate(model.hidden_layers):
-                pre_act = layer(h)
-                hidden_masks_per_layer[layer_idx].append((pre_act > 0).detach().cpu())
-                h = torch.relu(pre_act)
-
-    activation_masks = [torch.cat(parts, dim=0).numpy() for parts in hidden_masks_per_layer]
-    leaf_ids = odt_leaf_ids_for_x(x_eval, tree)
-    layer_widths = [layer.out_features for layer in model.hidden_layers]
-    layer_offsets = np.cumsum([0, *layer_widths[:-1]]).tolist()
-    total_hidden_neurons = int(sum(layer_widths))
-
-    return {
-        "leaf_ids": leaf_ids,
-        "activation_masks": activation_masks,
-        "layer_widths": layer_widths,
-        "layer_offsets": layer_offsets,
-        "total_hidden_neurons": total_hidden_neurons,
-    }
+    precomputed = _precompute_hidden_activation_masks(
+        model=model,
+        x_eval=x_eval,
+        batch_size=batch_size,
+        device=device,
+    )
+    return {**precomputed, "leaf_ids": odt_leaf_ids_for_x(x_eval, tree)}
 
 
 def _resolve_hidden_neuron_id(

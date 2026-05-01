@@ -1,8 +1,8 @@
 import numpy as np
 import torch
 
-from first_experiment.relu_mlp import ReLUMLP
-from first_experiment.relu_training import (
+from layer_lenses.relu_mlp import ReLUMLP
+from layer_lenses.relu_training import (
     ReLUTrainConfig,
     evaluate_relu_mlp,
     train_relu_mlp,

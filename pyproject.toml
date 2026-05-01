@@ -1,5 +1,5 @@
 [project]
-name = "first-experiment"
+name = "layer-lenses"
 version = "0.1.0"
 description = "Clean reimplementation of DLGN / COB-ODT research (Paper 1: Discontinuities; Paper 2: Layers as Lenses)."
 readme = "README.md"
@@ -17,10 +17,8 @@ dependencies = [
     "tqdm>=4.67.3",
     "ipywidgets>=8.1.8",
     "ipympl>=0.10.0",
+    "itables>=2.7.3",
 ]
-
-[project.scripts]
-first-experiment = "first_experiment.cli:main"
 
 [build-system]
 requires = ["uv_build>=0.11.6,<0.12.0"]

@@ -1,9 +1,9 @@
 import numpy as np
 import torch
 
-from first_experiment.dlgn import DLGNSF
-from first_experiment.odt import generate_cob_odt_data
-from first_experiment.training import (
+from layer_lenses.dlgn import DLGNSF
+from layer_lenses.odt import generate_cob_odt_data
+from layer_lenses.training import (
     TrainConfig,
     effective_gating_weights_from_checkpoint,
     evaluate_dlgn_sf,

@@ -5,10 +5,10 @@ from __future__ import annotations
 from dataclasses import asdict
 from pathlib import Path
 
-from first_experiment.analysis import aggregate_descriptive_stats, compute_delta_vs_baseline
-from first_experiment.experiment_config import ExperimentConfig, SeedRunResult
-from first_experiment.experiment_runner import run_all_regimes_for_seed
-from first_experiment.io import ensure_run_root, write_run_manifest, write_seed_result, write_summary_rows
+from layer_lenses.analysis import aggregate_descriptive_stats, compute_delta_vs_baseline
+from layer_lenses.experiment_config import ExperimentConfig, SeedRunResult
+from layer_lenses.experiment_runner import run_all_regimes_for_seed
+from layer_lenses.io import ensure_run_root, write_run_manifest, write_seed_result, write_summary_rows
 
 
 def run_multiseed(

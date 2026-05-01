@@ -7,16 +7,16 @@ import copy
 import numpy as np
 import torch
 
-from first_experiment.dlgn import DLGNSF
-from first_experiment.experiment_config import (
+from layer_lenses.dlgn import DLGNSF
+from layer_lenses.experiment_config import (
     EvalMetrics,
     ExperimentConfig,
     PruningSummary,
     RegimeResult,
     SeedRunResult,
 )
-from first_experiment.odt import generate_cob_odt_data
-from first_experiment.training import evaluate_dlgn_sf, set_seed, train_dlgn_sf
+from layer_lenses.odt import generate_cob_odt_data
+from layer_lenses.training import evaluate_dlgn_sf, set_seed, train_dlgn_sf
 
 
 def _build_model(config: ExperimentConfig) -> DLGNSF:

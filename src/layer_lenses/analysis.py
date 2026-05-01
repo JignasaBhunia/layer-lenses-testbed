@@ -6,7 +6,7 @@ import math
 
 import pandas as pd
 
-from first_experiment.experiment_config import RegimeResult, SeedRunResult
+from layer_lenses.experiment_config import RegimeResult, SeedRunResult
 
 
 _METRIC_NAMES = ("log_loss", "zero_one_loss", "accuracy")

@@ -210,6 +210,69 @@ to 2-class logits `[-y, y]` for cross-entropy.
 ### Open questions
 - None.
 
+## 2026-05-01 10:38 IST — Rename package to layer-lenses
+
+### Goal
+Rename the project/package from the generic `first-experiment` / `first_experiment`
+name to `layer-lenses` / `layer_lenses`.
+
+### User prompts (verbatim)
+- "Is there an easy way we could rename the project? \"first-experiment\" is too generic and says nothing about the project. I started it to test out cursor and github and now it has grown quite a bit. 
+
+The project name is there in all python files as an import. Is it too much hassle to change everything? If not, abetter name would be \"layer-lenses\" which is the name of the repo in Github too."
+- "Please go ahead and do the rename."
+
+### Changes
+- Renamed source package directory from `src/first_experiment/` to `src/layer_lenses/`.
+- Updated imports across source files, tests, and active notebooks from
+  `first_experiment` to `layer_lenses`.
+- Updated project metadata in `pyproject.toml` and `uv.lock` from
+  `first-experiment` to `layer-lenses`.
+- Updated active documentation references in `README.md`,
+  `README_detailed.md`, `AGENTS.md`, and `notes/research_spec.md`.
+
+### Decisions
+- Use `layer-lenses` for the distribution/project name and `layer_lenses`
+  for the Python import package, since Python imports cannot contain hyphens.
+- Left older `first_experiment` references in historical `notes/session_log.md`
+  entries untouched except for this new entry.
+- Did not rename the local workspace directory (`.../first-experiment`) to avoid
+  disrupting the active Cursor workspace.
+
+### Current state / where to pick up
+- Tests pass after the rename: `24 passed`.
+- No non-historical occurrences of `first_experiment`, `first-experiment`, or
+  `First Experiment` remain outside `notes/session_log.md`.
+
+### Open questions
+- None.
+
+---
+
+## 2026-05-01 10:33 IST — Add repository README documentation
+
+### Goal
+Create project documentation explaining the repository organization, with a concise README and a detailed module/function map.
+
+### User prompts (verbatim)
+- "Can you create a a short text for README.md explaining how the files are organised in the repository etc?
+
+Maybe also, add a second more detailed README_detailed.md with even more detailes, e.g. Include a short description of all functions in all the python files etc."
+
+### Changes
+- Added root `README.md` with project purpose, repository layout, main code areas, quick start, and source-of-truth notes.
+- Added `README_detailed.md` with a detailed directory map and a module/function overview for all files under `src/first_experiment/`.
+
+### Decisions
+- Kept `README.md` short and navigational.
+- Put the comprehensive function/class inventory in `README_detailed.md` to avoid making the root README too long.
+
+### Current state / where to pick up
+- Documentation reflects the current source modules, notebooks, notes, tests, and intended `results/` output root.
+
+### Open questions
+- None.
+
 ---
 
 ## 2026-04-30 19:36 IST — Add neuron-to-leaf activity-vector helper
@@ -1285,6 +1348,198 @@ since Cursor markdown preview does not render LaTeX reliably in `.md` files.
 ### Current state / where to pick up
 - Use `notes/research_spec_math.ipynb` for rendered equations in Cursor.
 - Use `notes/research_spec.md` for text-first reference and search.
+
+### Open questions
+- None.
+
+---
+
+## 2026-05-01 11:16 IST — Fix layer-lenses rename fallout
+
+### Goal
+Find and fix errors caused by the project/package rename from
+`first-experiment` / `first_experiment` to `layer-lenses` /
+`layer_lenses`.
+
+### User prompts (verbatim)
+- "I did a project rename from "first-experiment" to "layer-lenses" and that has caused some errors. Can you find what they are and fix them?"
+
+### Changes
+- Added `src/layer_lenses/cli.py` so the `layer-lenses` console script
+  declared in `pyproject.toml` resolves to an importable entry point.
+- Added `tests/test_cli.py` covering CLI help and argument forwarding to
+  the existing multi-seed runner without launching a full experiment.
+- Updated `README.md` to document `uv run python -m pytest`, which works
+  in the current environment where `uv run pytest` does not find a
+  console executable.
+
+### Decisions
+- Kept the CLI minimal and API-backed: it builds an `ExperimentConfig`
+  from explicit command-line overrides and delegates to `run_multiseed`.
+- Left historical `first_experiment` references in older session-log
+  entries unchanged as narrative history.
+
+### Current state / where to pick up
+- `uv run python -m pytest` passes.
+- `uv run layer-lenses --help` works.
+- A tiny `uv run layer-lenses ...` smoke run works and prints summary
+  metrics.
+
+### Open questions
+- None.
+
+---
+
+## 2026-05-01 11:18 IST — Fix scratch notebook import path
+
+### Goal
+Fix `ModuleNotFoundError: No module named 'layer_lenses'` when running
+the first code cell in `notebooks/scratch.ipynb`.
+
+### User prompts (verbatim)
+- "I get ModuleNotFoundError: No module named 'layer_lenses' if I run scratch.ipynb first cell."
+
+### Changes
+- Updated the first code cell in `notebooks/scratch.ipynb` to locate the
+  repository root and prepend its `src/` directory to `sys.path` before
+  importing `layer_lenses`.
+
+### Decisions
+- Used an in-notebook path setup because notebook kernels are not
+  guaranteed to have the local `src/` package installed editably.
+
+### Current state / where to pick up
+- Import smoke test from the `notebooks/` working directory passes via
+  `uv run python`.
+
+### Open questions
+- None.
+
+---
+
+## 2026-05-01 11:22 IST — Use project kernel for scratch notebook
+
+### Goal
+Replace the ad hoc notebook `sys.path` workaround with an environment-level
+fix for importing `layer_lenses`.
+
+### User prompts (verbatim)
+- "Ok, but this seems adhoc. We didn't need this block of code when the project was named "first-experiment". Is there some python environment or path level fix to this instead of a code block in the notebook?"
+
+### Changes
+- Registered a user Jupyter kernelspec named `layer-lenses` with display
+  name `Python (layer-lenses)` pointing to this repo's `.venv` Python.
+- Removed the `sys.path` setup block from the first code cell in
+  `notebooks/scratch.ipynb`.
+- Updated `notebooks/scratch.ipynb` kernelspec metadata to request the
+  `layer-lenses` kernel.
+
+### Decisions
+- Treat notebook imports as an environment/kernel selection issue, not
+  notebook code responsibility.
+
+### Current state / where to pick up
+- Select `Python (layer-lenses)` as the notebook kernel if Cursor does not
+  switch automatically.
+- The registered kernel points at
+  `/Users/harishguruprasad/research-code/projects/layer-lenses/.venv/bin/python3`.
+
+### Open questions
+- None.
+
+---
+
+## 2026-05-01 11:36 IST — Repair renamed virtual environment
+
+### Goal
+Fix stale virtual-environment paths left behind by renaming the project
+directory/package from `first-experiment` to `layer-lenses`.
+
+### User prompts (verbatim)
+- "There are still some virtual environment settings linking to "first-experiment". Doing source .venv/bin/activate in anoutside terminal still gets me to an environment called "first-experiment" where "python" command is not found. More worryingly, even in a new terminal at the home directory with no virtual environment activated, "python" command is still not found? Something seems to have broken, it was not this way before the rename."
+
+### Changes
+- Updated ignored local `.venv` metadata and activation scripts from the
+  old absolute path `.../first-experiment/.venv` to
+  `.../layer-lenses/.venv`.
+- Updated generated `.venv/bin/*` console-script shebangs that still
+  pointed at the old venv path.
+- Removed the stale local `.venv/bin/first-experiment` console script.
+- Restored the README test command to `uv run pytest` now that the
+  console-script shebang is fixed.
+
+### Decisions
+- Treated the activated `python` failure as a local venv relocation issue:
+  the source package rename was correct, but generated venv files store
+  absolute paths and needed repair.
+- Did not change global shell startup files; outside any venv this machine
+  currently has `python3` on PATH, while `python` is not on PATH.
+
+### Current state / where to pick up
+- `source .venv/bin/activate` now sets `VIRTUAL_ENV` to the
+  `layer-lenses` project path and exposes `.venv/bin/python`.
+- `uv run pytest` passes.
+- `uv run jupyter kernelspec list` works and shows the project kernels.
+
+### Open questions
+- Whether to add a global `python` alias/symlink or conda PATH setup is a
+  separate shell preference decision.
+
+---
+
+## 2026-05-01 11:42 IST — Remove provisional CLI
+
+### Goal
+Remove the command-line entry point added during rename cleanup because it
+is not needed yet.
+
+### User prompts (verbatim)
+- "I don't care about a command line entry point yet. Please remove unnecessary files."
+
+### Changes
+- Removed `[project.scripts]` from `pyproject.toml`.
+- Deleted `src/layer_lenses/cli.py`.
+- Deleted `tests/test_cli.py`.
+- Refreshed `uv.lock`.
+
+### Decisions
+- Keep the package importable and notebook/test focused for now; add a CLI
+  later only when there is a concrete command-line workflow to support.
+
+### Current state / where to pick up
+- `uv run pytest` passes with 24 tests.
+
+### Open questions
+- None.
+
+---
+
+## 2026-05-01 12:06 IST — Rehome misplaced helpers
+
+### Goal
+Audit functions that were sitting in odd modules and move or remove
+misplaced/redundant helpers.
+
+### User prompts (verbatim)
+- "Some of the functions in the files are in odd locations. e.g. "odt_leaf_ids_for_x" is in ReLU analysis, when it has nothiing to do with ReLU. Are there any other similar functions, or redundant functions? If so put them in their right place or remove them. COrrect notebook and other code that refers to such functions."
+
+### Changes
+- Moved `odt_leaf_ids_for_x` from `relu_analysis.py` to `odt.py`.
+- Added an ODT regression test checking leaf IDs against
+  `samples_reaching_node` leaf masks.
+- Moved `checkpoint_model_from_state` from `relu_analysis.py` to
+  `relu_training.py`.
+- Updated `notebooks/scratch.ipynb` imports and `README_detailed.md`.
+- Removed duplicated hidden-activation precompute logic by making
+  `_precompute_hidden_activation_masks_and_leaf_ids` compose
+  `_precompute_hidden_activation_masks`.
+
+### Decisions
+- Kept ReLU/ODT interaction analyses in `relu_analysis.py` when they
+  genuinely combine ReLU activation behavior with ODT leaves.
+
+### Current state / where to pick up
+- `uv run pytest` passes with 25 tests.
 
 ### Open questions
 - None.

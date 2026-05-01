@@ -91,6 +91,20 @@ def _traverse_tree(margins: np.ndarray, depth: int) -> np.ndarray:
     return curr_index
 
 
+def odt_leaf_ids_for_x(x: np.ndarray, tree: COBODTTree) -> np.ndarray:
+    """Return heap-style ODT leaf node ids reached by each row of ``x``."""
+    if x.ndim != 2:
+        raise ValueError(f"x must be 2D with shape (n, d), got shape {x.shape}.")
+    if tree.w_list.shape[1] != x.shape[1]:
+        raise ValueError(
+            "x dimension does not match tree hyperplanes: "
+            f"x has d={x.shape[1]}, tree expects d={tree.w_list.shape[1]}."
+        )
+
+    margins = x @ tree.w_list.T + tree.b_list
+    return _traverse_tree(margins, depth=tree.depth)
+
+
 def _validate_tree(spec: COBODTSpec, tree: COBODTTree) -> None:
     expected_internal = spec.num_internal_nodes
     if tree.w_list.shape != (expected_internal, spec.dim):

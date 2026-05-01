@@ -1,6 +1,6 @@
-from first_experiment.analysis import compute_delta_vs_baseline
-from first_experiment.experiment_config import DataConfig, ExperimentConfig, ModelConfig
-from first_experiment.multiseed import run_multiseed
+from layer_lenses.analysis import compute_delta_vs_baseline
+from layer_lenses.experiment_config import DataConfig, ExperimentConfig, ModelConfig
+from layer_lenses.multiseed import run_multiseed
 
 
 def _tiny_config() -> ExperimentConfig:

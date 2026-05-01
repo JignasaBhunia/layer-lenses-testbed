@@ -43,7 +43,7 @@ Build a minimal clean implementation that can:
 
 ## Code organization principles
 
-- `src/first_experiment/` contains stable importable code.
+- `src/layer_lenses/` contains stable importable code.
 - `notebooks/` is for exploration and temporary analysis only.
 - `notes/` contains paper notes, experiment specs, and design decisions.
 - `configs/` contains experiment configs.

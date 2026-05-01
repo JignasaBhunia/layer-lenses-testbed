@@ -1,8 +1,8 @@
 from pathlib import Path
 
-from first_experiment.analysis import aggregate_descriptive_stats
-from first_experiment.experiment_config import DataConfig, ExperimentConfig, ModelConfig
-from first_experiment.multiseed import run_multiseed
+from layer_lenses.analysis import aggregate_descriptive_stats
+from layer_lenses.experiment_config import DataConfig, ExperimentConfig, ModelConfig
+from layer_lenses.multiseed import run_multiseed
 
 
 def _tiny_config() -> ExperimentConfig:

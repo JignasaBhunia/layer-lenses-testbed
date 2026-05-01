@@ -9,7 +9,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-from first_experiment.experiment_config import ExperimentConfig, SeedRunResult
+from layer_lenses.experiment_config import ExperimentConfig, SeedRunResult
 
 
 def ensure_run_root(

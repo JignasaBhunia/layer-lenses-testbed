@@ -1,8 +1,9 @@
 import numpy as np
 
-from first_experiment.odt import (
+from layer_lenses.odt import (
     build_default_cob_odt_tree,
     generate_cob_odt_data,
+    odt_leaf_ids_for_x,
     samples_reaching_node,
 )
 
@@ -81,6 +82,25 @@ def test_samples_reaching_leaf_partition_covers_all_points() -> None:
         assert np.all(~(union_mask & mask))
         union_mask |= mask
     assert np.all(union_mask)
+
+
+def test_odt_leaf_ids_for_x_matches_leaf_masks() -> None:
+    x, _, tree, meta = generate_cob_odt_data(
+        num_data=700, dim=12, depth=3, seed=20, threshold=0.0
+    )
+    leaf_ids = odt_leaf_ids_for_x(x, tree)
+    num_internal = int(meta["num_internal_nodes"])
+    num_leaf = int(meta["num_leaf_nodes"])
+
+    for leaf_offset in range(num_leaf):
+        leaf_node_id = num_internal + leaf_offset
+        _, mask = samples_reaching_node(
+            x=x,
+            tree=tree,
+            node_id=leaf_node_id,
+            return_mask=True,
+        )
+        assert np.array_equal(leaf_ids == leaf_node_id, mask)
 
 
 def test_samples_reaching_node_invalid_node_id_raises() -> None:

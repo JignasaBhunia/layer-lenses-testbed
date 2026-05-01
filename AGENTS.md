@@ -27,7 +27,7 @@ First build a faithful, minimal, reproducible baseline implementation.
 Only after that should the codebase be extended, generalized, or optimized.
 
 ## Repository structure policy
-- `src/first_experiment/` contains stable importable Python code.
+- `src/layer_lenses/` contains stable importable Python code.
 - `configs/` contains experiment configuration files.
 - `notes/` contains research specs, design notes, and experiment logs.
 - `results/` contains metrics, plots, tables, checkpoints, and generated artifacts.
@@ -55,7 +55,7 @@ When reading old notebooks:
 - identify duplicated or messy code,
 - propose clean module destinations for stable logic.
 
-Any logic required for reproducibility should be moved into `src/first_experiment/` or `configs/`.
+Any logic required for reproducibility should be moved into `src/layer_lenses/` or `configs/`.
 Do not leave essential experiment logic trapped in notebooks.
 
 ## Working style

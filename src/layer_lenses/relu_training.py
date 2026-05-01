@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import copy
 from dataclasses import dataclass
 
 import numpy as np
@@ -9,8 +10,8 @@ import torch
 from torch import nn
 from tqdm.auto import tqdm
 
-from first_experiment.relu_mlp import ReLUMLP
-from first_experiment.training import set_seed
+from layer_lenses.relu_mlp import ReLUMLP
+from layer_lenses.training import set_seed
 
 
 @dataclass(frozen=True)
@@ -61,6 +62,16 @@ def evaluate_relu_mlp(
         "accuracy": 1.0 - zero_one_loss,
         "num_samples": int(x_eval.shape[0]),
     }
+
+
+def checkpoint_model_from_state(
+    template_model: ReLUMLP,
+    state_dict: dict[str, torch.Tensor],
+) -> ReLUMLP:
+    """Return a copy of ``template_model`` loaded with one checkpoint state."""
+    model = copy.deepcopy(template_model)
+    model.load_state_dict(state_dict)
+    return model
 
 
 def train_relu_mlp(

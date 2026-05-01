@@ -10,7 +10,7 @@ import torch
 from torch import nn
 from tqdm.auto import tqdm
 
-from first_experiment.dlgn import DLGNSF
+from layer_lenses.dlgn import DLGNSF
 
 
 @dataclass(frozen=True)

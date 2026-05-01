@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass, replace
 from typing import Any
 
-from first_experiment.training import TrainConfig
+from layer_lenses.training import TrainConfig
 
 
 @dataclass(frozen=True)
