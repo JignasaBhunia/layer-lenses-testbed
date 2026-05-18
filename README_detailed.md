@@ -22,6 +22,12 @@ The central synthetic data setting is a complete orthogonal balanced oblique dec
 
 ## Python Package Overview
 
+### `src/first_experiment/__init__.py`
+
+Backward-compatibility shim for artifacts serialized before the package rename.
+It forwards old module paths like `first_experiment.relu_mlp` to `layer_lenses.relu_mlp`
+so legacy pickle files can still be loaded.
+
 ### `src/layer_lenses/odt.py`
 
 COB-ODT data generation and tree traversal utilities.
@@ -38,6 +44,7 @@ COB-ODT data generation and tree traversal utilities.
 - `_infer_depth_from_tree`: infers complete-tree depth from internal-node count.
 - `samples_reaching_node`: returns samples, and optionally a mask, that reach a given internal or leaf node.
 - `build_default_cob_odt_tree`: constructs a default paper-style COB-ODT tree.
+- `build_axis_aligned_cob_odt_tree`: constructs a COB-ODT tree whose internal hyperplanes are coordinate axes.
 - `generate_cob_odt_data`: generates sphere-uniform inputs, labels them with a COB-ODT, applies threshold pruning, and returns data/tree/metadata.
 
 ### `src/layer_lenses/dlgn.py`
@@ -63,14 +70,14 @@ Training and evaluation utilities for DLGN-SF models.
 
 Standard ReLU MLP model definition.
 
-- `ReLUMLP`: fully connected ReLU network for binary classification with scalar logits.
+- `ReLUMLP`: fully connected ReLU network for binary classification with scalar logits and Gaussian initialization matching PyTorch linear-default variance.
 - `ReLUMLP.forward`: applies hidden linear layers with ReLU and a final linear output layer.
 
 ### `src/layer_lenses/relu_training.py`
 
 Training and evaluation utilities for ReLU MLPs.
 
-- `ReLUTrainConfig`: dataclass for single-phase ReLU MLP training.
+- `ReLUTrainConfig`: dataclass for single-phase ReLU MLP training (`optimizer`: `"adamw"` default or `"sgd"` for plain SGD with `momentum=0`; optional `first_layer_grad_orthogonal_to` projection vector; optional 0/1 `parameter_update_mask` for freezing individual parameter entries).
 - `_labels_pm1_to_binary`: converts labels from `{−1,+1}` to `{0,1}`.
 - `evaluate_relu_mlp`: evaluates BCE-with-logits loss, zero-one loss, and accuracy.
 - `checkpoint_model_from_state`: copies a template ReLU MLP and loads one checkpoint state dict.
@@ -81,7 +88,8 @@ Training and evaluation utilities for ReLU MLPs.
 Reusable ReLU-on-ODT analysis helpers. This module keeps `notebooks/scratch.ipynb` focused on plotting choices and interpretation rather than reusable mechanics.
 
 - `quadratic_snapshot_epochs`: returns snapshot epochs dense near initialization and sparser later.
-- `run_single_relu_seed`: generates COB-ODT data, initializes a ReLU MLP, trains one seed, and returns notebook-friendly state.
+- `log_loss_gradients`: mean BCE-with-logits loss gradients w.r.t. all parameters for a given `(x, y)` batch (no optimizer step).
+- `run_single_relu_seed`: generates COB-ODT data, optionally with coordinate-axis ODT hyperplanes, initializes a ReLU MLP or uses a provided `model_init`, trains one seed, can thread a 0/1 `parameter_update_mask` into training, and can project first-layer gradients orthogonal to a selected ODT internal node via `project_first_layer_grad_orthogonal`.
 - `collect_start_end_metrics`: evaluates a ReLU run at first and last checkpoints.
 - `first_layer_odt_alignment`: computes first-layer weight norm/cosine alignment to ODT decision vectors.
 - `plot_first_layer_odt_alignment`: plots first-layer norm vs max ODT cosine, colored by ODT node level.
@@ -183,7 +191,10 @@ Currently empty package initializer.
 
 - `tests/test_odt.py`: COB-ODT generation and traversal behavior.
 - `tests/test_dlgn_training.py`: DLGN-SF training/evaluation behavior.
+- `tests/test_relu_mlp.py`: ReLU MLP model initialization behavior.
 - `tests/test_relu_training.py`: ReLU MLP training/evaluation behavior.
+- `tests/test_relu_analysis.py`: ReLU-on-ODT analysis helpers (activity summaries, activation tensors, gradients).
+- `tests/test_rename_compat.py`: compatibility for old `first_experiment.*` pickle module paths.
 - `tests/test_experiment_runner.py`: single-seed regime runner behavior.
 - `tests/test_multiseed_analysis.py`: aggregate multi-seed summaries.
 

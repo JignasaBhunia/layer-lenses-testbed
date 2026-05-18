@@ -6,14 +6,20 @@ interpretation while preserving the reusable mechanics in importable code.
 
 from __future__ import annotations
 
-from typing import Any
+import copy
+from typing import Any, Literal
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import torch
 
-from layer_lenses.odt import COBODTTree, generate_cob_odt_data, odt_leaf_ids_for_x
+from layer_lenses.odt import (
+    COBODTTree,
+    build_axis_aligned_cob_odt_tree,
+    generate_cob_odt_data,
+    odt_leaf_ids_for_x,
+)
 from layer_lenses.relu_mlp import ReLUMLP
 from layer_lenses.relu_training import (
     ReLUTrainConfig,
@@ -22,6 +28,58 @@ from layer_lenses.relu_training import (
     train_relu_mlp,
 )
 from layer_lenses.training import set_seed
+
+
+def log_loss_gradients(
+    *,
+    model: ReLUMLP,
+    x: np.ndarray,
+    y: np.ndarray,
+    device: str = "cpu",
+) -> dict[str, torch.Tensor]:
+    """Gradients of mean BCE-with-logits log loss w.r.t. all parameters, no weight updates.
+
+    Uses the same label convention as training: ``y`` in ``{-1, +1}``, mapped to
+    ``{0, 1}`` for ``binary_cross_entropy_with_logits``. The objective is the **mean**
+    loss over the ``n`` rows of ``x`` (so gradients scale like ``1/n`` vs a sum loss).
+
+    Returns a dictionary keyed like ``model.state_dict()``; each value is the gradient
+    tensor for that parameter, detached and copied to CPU float32. The model's
+    parameter tensors are not modified; gradients are cleared before returning.
+    """
+    if x.ndim != 2:
+        raise ValueError(f"x must be 2D (n, d), got shape {x.shape}.")
+    if y.ndim != 1 or y.shape[0] != x.shape[0]:
+        raise ValueError(
+            f"y must be 1D with length n={x.shape[0]}, got shape {y.shape}."
+        )
+    if not np.all((y == -1) | (y == 1)):
+        raise ValueError("y must contain only -1 and +1.")
+
+    dev = torch.device(device)
+    model = model.to(dev)
+    was_training = model.training
+    model.eval()
+
+    x_t = torch.from_numpy(x).float().to(dev)
+    y_pm1 = torch.from_numpy(y).float().to(dev)
+    y_bin = (y_pm1 + 1.0) / 2.0
+
+    model.zero_grad(set_to_none=True)
+    logits = model(x_t)
+    loss = torch.nn.functional.binary_cross_entropy_with_logits(logits, y_bin)
+    loss.backward()
+
+    grad_dict: dict[str, torch.Tensor] = {}
+    for name, param in model.named_parameters():
+        if param.grad is None:
+            raise RuntimeError(f"No gradient computed for parameter {name!r}.")
+        grad_dict[name] = param.grad.detach().cpu().clone()
+
+    model.zero_grad(set_to_none=True)
+    model.train(was_training)
+
+    return grad_dict
 
 
 def quadratic_snapshot_epochs(total_epochs: int, n_points: int = 80) -> tuple[int, ...]:
@@ -49,15 +107,37 @@ def run_single_relu_seed(
     weight_decay: float,
     snapshot_epochs,
     bias: bool = False,
+    model_init: ReLUMLP | None = None,
+    odt_hyperplanes: Literal["random_orthogonal", "coordinate_axes"] = "random_orthogonal",
+    parameter_update_mask: dict[str, np.ndarray | torch.Tensor] | None = None,
     threshold: float = 0.0,
     device: str = "cpu",
     show_progress: bool = True,
     lr_scheduler_eta_min_ratio: float = 0.05,
+    optimizer: str = "adamw",
+    project_first_layer_grad_orthogonal: int | None = None,
 ) -> dict[str, Any]:
-    """Generate COB-ODT data, train one ReLU MLP seed, and return notebook-friendly state."""
+    """Generate COB-ODT data, train one ReLU MLP seed, and return notebook-friendly state.
+
+    If ``model_init`` is provided, training starts from a copy of that model instead of
+    constructing a new model from ``master_seed + 1000``.
+
+    If ``project_first_layer_grad_orthogonal`` is an integer, first-layer weight
+    gradients are projected orthogonal to that ODT internal node's normal vector.
+    """
     data_seed = master_seed
     init_seed = master_seed + 1000
     train_seed = master_seed + 2000
+
+    if odt_hyperplanes == "random_orthogonal":
+        generation_tree = None
+    elif odt_hyperplanes == "coordinate_axes":
+        generation_tree = build_axis_aligned_cob_odt_tree(dim=dim, depth=depth)
+    else:
+        raise ValueError(
+            "odt_hyperplanes must be 'random_orthogonal' or 'coordinate_axes', "
+            f"got {odt_hyperplanes!r}."
+        )
 
     x, y, tree, meta = generate_cob_odt_data(
         num_data=2 * n_train,
@@ -65,12 +145,49 @@ def run_single_relu_seed(
         depth=depth,
         seed=data_seed,
         threshold=threshold,
+        tree=generation_tree,
     )
     x_train, y_train = x[:n_train], y[:n_train]
     x_eval, y_eval = x[n_train:], y[n_train:]
 
-    set_seed(init_seed)
-    model = ReLUMLP(input_dim=dim, hidden_dims=hidden_dims, bias=bias)
+    if project_first_layer_grad_orthogonal is None:
+        first_layer_projection_vector = None
+    elif isinstance(project_first_layer_grad_orthogonal, bool) or not isinstance(
+        project_first_layer_grad_orthogonal,
+        int,
+    ):
+        raise TypeError(
+            "project_first_layer_grad_orthogonal must be an ODT internal node id "
+            f"integer or None, got {project_first_layer_grad_orthogonal!r}."
+        )
+    elif not 0 <= project_first_layer_grad_orthogonal < tree.w_list.shape[0]:
+        raise ValueError(
+            "project_first_layer_grad_orthogonal must reference an ODT internal node. "
+            f"Expected an integer in [0, {tree.w_list.shape[0] - 1}], "
+            f"got {project_first_layer_grad_orthogonal}."
+        )
+    else:
+        first_layer_projection_vector = tree.w_list[project_first_layer_grad_orthogonal]
+
+    if model_init is None:
+        set_seed(init_seed)
+        model = ReLUMLP(input_dim=dim, hidden_dims=hidden_dims, bias=bias)
+    else:
+        if model_init.input_dim != dim:
+            raise ValueError(
+                f"model_init input_dim must match dim={dim}, got {model_init.input_dim}."
+            )
+        if list(model_init.hidden_dims) != list(hidden_dims):
+            raise ValueError(
+                "model_init hidden_dims must match hidden_dims. "
+                f"Expected {hidden_dims}, got {model_init.hidden_dims}."
+            )
+        model_has_bias = model_init.output_layer.bias is not None
+        if model_has_bias != bias:
+            raise ValueError(
+                f"model_init bias setting must match bias={bias}, got {model_has_bias}."
+            )
+        model = copy.deepcopy(model_init)
     out = train_relu_mlp(
         model=model,
         x_train=x_train,
@@ -85,6 +202,9 @@ def run_single_relu_seed(
             device=device,
             show_progress=show_progress,
             lr_scheduler_eta_min_ratio=lr_scheduler_eta_min_ratio,
+            optimizer=optimizer,
+            first_layer_grad_orthogonal_to=first_layer_projection_vector,
+            parameter_update_mask=parameter_update_mask,
         ),
     )
 
@@ -171,9 +291,11 @@ def plot_first_layer_odt_alignment(
     """Plot first-layer norm vs max absolute cosine to ODT decision vectors."""
     alignment = first_layer_odt_alignment(state_dict=state_dict, tree=tree)
     if ax is None:
-        _, ax = plt.subplots(figsize=(7, 5))
+        fig, ax = plt.subplots(figsize=(7, 5))
+    else:
+        fig = ax.figure
 
-    level_names = {i: f"level {i}" for i in range(depth)}
+    level_names = {i: f"{i}" for i in range(depth)}
     cmap = plt.get_cmap("viridis", depth)
     sc = ax.scatter(
         alignment["row_norms"].numpy(),
@@ -185,15 +307,18 @@ def plot_first_layer_odt_alignment(
         vmin=-0.5,
         vmax=depth - 0.5,
     )
-    cbar = plt.colorbar(sc, ax=ax, ticks=range(depth))
+    cax = ax.inset_axes([0.86, 0.12, 0.035, 0.36])
+    cbar = fig.colorbar(sc, cax=cax, ticks=range(depth))
     cbar.ax.set_yticklabels([level_names[i] for i in range(depth)])
     cbar.set_label("ODT level of argmax |cosine|")
+    cbar.ax.tick_params(labelsize=8)
     ax.set_xlabel("First-layer ReLU neuron weight norm")
     ax.set_ylabel("Max |cosine| similarity to ODT vectors")
     seed_text = f"Seed={seed}, " if seed is not None else ""
     ax.set_title(f"{seed_text}Epoch={epoch}: alignment by ODT level")
     ax.grid(alpha=0.2)
-    return alignment, ax
+    fig.tight_layout()
+    return alignment, fig, ax
 
 
 def _layer_y_positions(width: int) -> np.ndarray:
@@ -789,6 +914,40 @@ def active_point_mask_for_neuron(
     return precomputed["activation_masks"][layer_idx][:, local_idx].astype(bool)
 
 
+def activation_tensor_by_layer_neuron_data(
+    *,
+    model: ReLUMLP,
+    x_eval: np.ndarray,
+    batch_size: int = 8192,
+    device: str = "cpu",
+    precomputed: dict[str, Any] | None = None,
+) -> np.ndarray:
+    """Return hidden activation tensor shaped ``(layers, neurons, num_data)``.
+
+    The neuron axis uses the maximum hidden width across layers. For layers with
+    fewer neurons, trailing entries are padded with ``False``.
+    """
+    if precomputed is None:
+        precomputed = _precompute_hidden_activation_masks(
+            model=model,
+            x_eval=x_eval,
+            batch_size=batch_size,
+            device=device,
+        )
+
+    activation_masks: list[np.ndarray] = precomputed["activation_masks"]
+    layer_widths: list[int] = precomputed["layer_widths"]
+    num_layers = len(layer_widths)
+    num_data = int(x_eval.shape[0])
+    max_width = max(layer_widths) if layer_widths else 0
+
+    tensor = np.zeros((num_layers, max_width, num_data), dtype=bool)
+    for layer_idx, (width, mask) in enumerate(zip(layer_widths, activation_masks)):
+        # mask shape: (num_data, width) -> tensor slice shape: (width, num_data)
+        tensor[layer_idx, :width, :] = mask.T.astype(bool)
+    return tensor
+
+
 def count_active_points_for_neuron_leaf(
     *,
     model: ReLUMLP,
@@ -868,22 +1027,41 @@ def summarize_neuron_leaf_activity(
         batch_size=batch_size,
         device=device,
     )
-    unique_leaf_ids = np.unique(precomputed["leaf_ids"]).tolist()
+    leaf_ids = precomputed["leaf_ids"].astype(np.int64)
+    unique_leaf_ids, leaf_inverse, leaf_totals = np.unique(
+        leaf_ids, return_inverse=True, return_counts=True
+    )
+    layer_widths: list[int] = precomputed["layer_widths"]
+    layer_offsets: list[int] = precomputed["layer_offsets"]
+    activation_masks: list[np.ndarray] = precomputed["activation_masks"]
+
     rows: list[dict[str, int | float]] = []
-    for global_neuron_id in range(precomputed["total_hidden_neurons"]):
-        for leaf_node_id in unique_leaf_ids:
-            rows.append(
-                count_active_points_for_neuron_leaf(
-                    model=model,
-                    neuron_id=global_neuron_id,
-                    leaf_node_id=int(leaf_node_id),
-                    x_eval=x_eval,
-                    tree=tree,
-                    batch_size=batch_size,
-                    device=device,
-                    precomputed=precomputed,
+    for layer_idx, (width, layer_mask) in enumerate(zip(layer_widths, activation_masks)):
+        # Aggregate per-sample hidden activations into per-leaf neuron counts in one pass.
+        # Result shape: (num_leaves, width)
+        active_counts = np.zeros((len(unique_leaf_ids), width), dtype=np.int64)
+        np.add.at(active_counts, leaf_inverse, layer_mask.astype(np.int64))
+
+        for local_idx in range(width):
+            global_idx = layer_offsets[layer_idx] + local_idx
+            for leaf_pos, leaf_node_id in enumerate(unique_leaf_ids):
+                total_leaf_points = int(leaf_totals[leaf_pos])
+                active_points = int(active_counts[leaf_pos, local_idx])
+                active_fraction = (
+                    float(active_points / total_leaf_points) if total_leaf_points > 0 else 0.0
                 )
-            )
+                rows.append(
+                    {
+                        "leaf_node_id": int(leaf_node_id),
+                        "layer": int(layer_idx),
+                        "local_neuron_id": int(local_idx),
+                        "global_neuron_id": int(global_idx),
+                        "total_points_in_leaf": total_leaf_points,
+                        "active_points_in_leaf": active_points,
+                        "active_fraction_in_leaf": active_fraction,
+                    }
+                )
+
     return pd.DataFrame(rows).sort_values(
         ["layer", "local_neuron_id", "leaf_node_id"],
         ignore_index=True,

@@ -13,6 +13,8 @@ from tqdm.auto import tqdm
 from layer_lenses.relu_mlp import ReLUMLP
 from layer_lenses.training import set_seed
 
+ParameterUpdateMask = dict[str, np.ndarray | torch.Tensor]
+
 
 @dataclass(frozen=True)
 class ReLUTrainConfig:
@@ -27,6 +29,10 @@ class ReLUTrainConfig:
     weight_decay: float = 0.0
     lr_scheduler_eta_min_ratio: float = 0.2
     show_progress: bool = False
+    # "adamw" (default) or "sgd" (plain SGD, momentum=0; mini-batch if batch_size < n).
+    optimizer: str = "adamw"
+    first_layer_grad_orthogonal_to: tuple[float, ...] | np.ndarray | None = None
+    parameter_update_mask: ParameterUpdateMask | None = None
 
 
 def _labels_pm1_to_binary(y: torch.Tensor) -> torch.Tensor:
@@ -74,6 +80,129 @@ def checkpoint_model_from_state(
     return model
 
 
+def _first_layer_projection_vector(
+    *,
+    model: ReLUMLP,
+    config: ReLUTrainConfig,
+    device: torch.device,
+) -> torch.Tensor | None:
+    """Return normalized vector for first-layer gradient projection, if configured."""
+    if config.first_layer_grad_orthogonal_to is None:
+        return None
+
+    u = torch.as_tensor(config.first_layer_grad_orthogonal_to, dtype=torch.float32, device=device)
+    if u.ndim != 1:
+        raise ValueError(
+            "first_layer_grad_orthogonal_to must be a 1D vector, "
+            f"got shape {tuple(u.shape)}."
+        )
+    input_dim = model.hidden_layers[0].weight.shape[1]
+    if u.shape[0] != input_dim:
+        raise ValueError(
+            "first_layer_grad_orthogonal_to dimension must match model input_dim. "
+            f"Expected {input_dim}, got {u.shape[0]}."
+        )
+    norm = u.norm()
+    if float(norm.detach().cpu()) == 0.0:
+        raise ValueError("first_layer_grad_orthogonal_to must be nonzero.")
+    return u / norm.clamp_min(1e-12)
+
+
+def _project_first_layer_weight_gradient(model: ReLUMLP, unit_vector: torch.Tensor | None) -> None:
+    """Project first-layer weight gradients row-wise onto unit_vector's orthogonal complement."""
+    if unit_vector is None:
+        return
+
+    grad = model.hidden_layers[0].weight.grad
+    if grad is None:
+        return
+
+    grad.sub_((grad @ unit_vector).unsqueeze(1) * unit_vector.unsqueeze(0))
+
+
+def _parameter_update_masks(
+    *,
+    model: ReLUMLP,
+    config: ReLUTrainConfig,
+    device: torch.device,
+) -> dict[str, torch.Tensor]:
+    """Return validated 0/1 masks keyed by model parameter name."""
+    if config.parameter_update_mask is None:
+        return {}
+
+    named_params = dict(model.named_parameters())
+    mask_names = set(config.parameter_update_mask.keys())
+    param_names = set(named_params.keys())
+    if mask_names != param_names:
+        missing = sorted(param_names.difference(mask_names))
+        unknown = sorted(mask_names.difference(param_names))
+        details = []
+        if missing:
+            details.append(f"missing masks for {missing}")
+        if unknown:
+            details.append(f"unknown parameters {unknown}")
+        raise ValueError("parameter_update_mask must match model parameter names: " + "; ".join(details))
+
+    masks: dict[str, torch.Tensor] = {}
+    for name, param in named_params.items():
+        mask = torch.as_tensor(
+            config.parameter_update_mask[name],
+            dtype=param.dtype,
+            device=device,
+        )
+        if mask.shape != param.shape:
+            raise ValueError(
+                f"parameter_update_mask[{name!r}] has shape {tuple(mask.shape)}, "
+                f"expected {tuple(param.shape)}."
+            )
+        if not torch.all((mask == 0) | (mask == 1)):
+            raise ValueError(f"parameter_update_mask[{name!r}] must contain only 0 and 1.")
+        masks[name] = mask
+    return masks
+
+
+def _apply_parameter_update_mask_gradients(
+    model: ReLUMLP,
+    parameter_update_masks: dict[str, torch.Tensor],
+) -> None:
+    if not parameter_update_masks:
+        return
+
+    for name, param in model.named_parameters():
+        if param.grad is not None:
+            param.grad.mul_(parameter_update_masks[name])
+
+
+def _snapshot_frozen_parameter_values(
+    model: ReLUMLP,
+    parameter_update_masks: dict[str, torch.Tensor],
+) -> dict[str, torch.Tensor]:
+    if not parameter_update_masks:
+        return {}
+
+    return {
+        name: param.detach().clone()
+        for name, param in model.named_parameters()
+        if not bool(torch.all(parameter_update_masks[name]).detach().cpu())
+    }
+
+
+def _restore_frozen_parameter_values(
+    model: ReLUMLP,
+    parameter_update_masks: dict[str, torch.Tensor],
+    frozen_parameter_values: dict[str, torch.Tensor],
+) -> None:
+    if not parameter_update_masks:
+        return
+
+    with torch.no_grad():
+        for name, param in model.named_parameters():
+            if name not in frozen_parameter_values:
+                continue
+            mask = parameter_update_masks[name]
+            param.copy_(param * mask + frozen_parameter_values[name] * (1 - mask))
+
+
 def train_relu_mlp(
     *,
     model: ReLUMLP,
@@ -81,19 +210,44 @@ def train_relu_mlp(
     y_train: np.ndarray,
     config: ReLUTrainConfig,
 ) -> dict[str, object]:
-    """Train ReLU MLP with Adam + BCE-with-logits and cosine annealing LR."""
+    """Train ReLU MLP with BCE-with-logits, cosine LR annealing, and optional masks."""
     set_seed(config.seed)
     device = torch.device(config.device)
     model = model.to(device)
+    first_layer_projection_vector = _first_layer_projection_vector(
+        model=model,
+        config=config,
+        device=device,
+    )
+    parameter_update_masks = _parameter_update_masks(
+        model=model,
+        config=config,
+        device=device,
+    )
 
     x = torch.from_numpy(x_train).float().to(device)
     y_pm1 = torch.from_numpy(y_train).float().to(device)
     y_bin = _labels_pm1_to_binary(y_pm1)
 
     criterion = nn.BCEWithLogitsLoss()
-    optimizer = torch.optim.AdamW(
-        model.parameters(), lr=config.lr, weight_decay=config.weight_decay
-    )
+    opt_name = config.optimizer.strip().lower()
+    if opt_name in {"adamw", "adam"}:
+        optimizer = torch.optim.AdamW(
+            model.parameters(), lr=config.lr, weight_decay=config.weight_decay
+        )
+    elif opt_name in {"sgd", "gd"}:
+        optimizer = torch.optim.SGD(
+            model.parameters(),
+            lr=config.lr,
+            momentum=0.0,
+            weight_decay=config.weight_decay,
+            nesterov=False,
+        )
+    else:
+        raise ValueError(
+            'optimizer must be "adamw" or "sgd" (plain gradient descent with momentum=0), '
+            f"got {config.optimizer!r}"
+        )
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
         optimizer=optimizer,
         T_max=max(1, config.epochs),
@@ -129,7 +283,18 @@ def train_relu_mlp(
             logits = model(x[idx])
             loss = criterion(logits, y_bin[idx])
             loss.backward()
+            _project_first_layer_weight_gradient(model, first_layer_projection_vector)
+            _apply_parameter_update_mask_gradients(model, parameter_update_masks)
+            frozen_parameter_values = _snapshot_frozen_parameter_values(
+                model,
+                parameter_update_masks,
+            )
             optimizer.step()
+            _restore_frozen_parameter_values(
+                model,
+                parameter_update_masks,
+                frozen_parameter_values,
+            )
 
             batch_n = end - start
             running_loss += float(loss.detach().cpu()) * batch_n

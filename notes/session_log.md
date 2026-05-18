@@ -210,6 +210,169 @@ to 2-class logits `[-y, y]` for cross-entropy.
 ### Open questions
 - None.
 
+---
+
+## 2026-05-07 13:30 IST — DLGN scatter paper fonts
+
+### Goal
+Make DLGN checkpoint scatter plots more readable in paper artifacts.
+
+### User prompts (verbatim)
+- "In the DLGN scatter plots, can you increase the font size of the x and y ticks and the axis titles? You can reduce the number of ticks to just 2 or 3."
+
+### Changes
+- Updated `plot_scatter_for_checkpoint(...)` in
+  `notebooks/DLGN_multiseed_multipath_runner.ipynb`.
+- Increased x/y axis label font sizes and tick-label sizes.
+- Limited x/y major ticks using `MaxNLocator(nbins=3)`.
+- Set an explicit title font size.
+
+### Decisions
+- Kept the inset viridis ODT-level colorbar and figure-return behavior unchanged.
+
+### Current state / where to pick up
+- Notebook edited only; JSON parsing was validated.
+
+### Open questions
+- None.
+
+---
+
+## 2026-05-07 11:57 IST — DLGN scatter colors by ODT level
+
+### Goal
+Make DLGN checkpoint scatter plots use ODT node level for color, reducing the
+palette from one color per internal node to one color per tree level.
+
+### User prompts (verbatim)
+- "In the DLGN scatter plot can you make it so that instead of coloring a node based on the node index, we just color based on the ODT node level? That way we need only 5 colors and not 31. Make changes to the plot_scatter_for_checkpoint function."
+
+### Changes
+- Updated `plot_scatter_for_checkpoint(...)` in
+  `notebooks/DLGN_multiseed_multipath_runner.ipynb`.
+- Converted closest ODT node ids to tree levels via
+  `floor(log2(closest + 1))`.
+- Switched the scatter color scale to a discrete level-based colormap and
+  changed the colorbar label to "Closest ODT node level".
+
+### Decisions
+- Derive the number of levels from `odt_normals.shape[0]` rather than hardcoding
+  5, while preserving the intended 5-color behavior for depth-5 ODTs.
+
+### Current state / where to pick up
+- Notebook edited only; JSON parsing was validated.
+
+### Open questions
+- None.
+
+---
+
+## 2026-05-07 12:02 IST — DLGN scatter viridis levels
+
+### Goal
+Use a viridis color scale for DLGN scatter plot ODT levels, with root level in
+purple and deepest level in yellow.
+
+### User prompts (verbatim)
+- "Can you make the colormap be viridis purple for 0 and yelllow for 4?"
+
+### Changes
+- Updated `plot_scatter_for_checkpoint(...)` in
+  `notebooks/DLGN_multiseed_multipath_runner.ipynb` to use
+  `plt.get_cmap("viridis", num_levels)`.
+
+### Decisions
+- Keep the discrete level normalization so level `0` maps to the low end of
+  viridis and level `num_levels - 1` maps to the high end.
+
+### Current state / where to pick up
+- Notebook edited only; JSON parsing was validated.
+
+### Open questions
+- None.
+
+---
+
+## 2026-05-07 12:47 IST — DLGN scatter inset colorbar
+
+### Goal
+Move the DLGN scatter plot colorbar inside the axes to save horizontal space.
+
+### User prompts (verbatim)
+- "Can you bring the colorbar inside the plot to save space?"
+
+### Changes
+- Updated `plot_scatter_for_checkpoint(...)` in
+  `notebooks/DLGN_multiseed_multipath_runner.ipynb` to use explicit `fig, ax`.
+- Replaced the external `plt.colorbar(...)` with an inset axes colorbar using
+  `ax.inset_axes(...)`.
+
+### Decisions
+- Keep the same discrete viridis ODT-level color scale and ticks.
+
+### Current state / where to pick up
+- Notebook edited only; JSON parsing was validated.
+
+### Open questions
+- None.
+
+---
+
+## 2026-05-07 12:51 IST — DLGN scatter return figure
+
+### Goal
+Make DLGN checkpoint scatter plots easy to save as paper artifacts.
+
+### User prompts (verbatim)
+- "Can you have the plot_scatter_for_checkpoint return a fig object so that I can save them as pdf artifacts for a paper?"
+
+### Changes
+- Updated `plot_scatter_for_checkpoint(...)` in
+  `notebooks/DLGN_multiseed_multipath_runner.ipynb` to return the Matplotlib
+  `fig` after displaying it.
+
+### Decisions
+- Preserve existing notebook display behavior with `plt.show()` while also
+  returning the figure for `fig.savefig(...)`.
+
+### Current state / where to pick up
+- Notebook edited only; JSON parsing was validated.
+
+### Open questions
+- None.
+
+---
+
+## 2026-05-07 13:10 IST — ReLU scatter figure export
+
+### Goal
+Make ReLU first-layer ODT alignment scatter plots space-efficient and easy to
+save as PDF artifacts.
+
+### User prompts (verbatim)
+- "In ReLU analysis and runner can you do the same? Move the colorbar for the scatterplot inside, and make it return a fig for saving pdf artifacts."
+
+### Changes
+- Updated `plot_first_layer_odt_alignment(...)` in
+  `src/layer_lenses/relu_analysis.py`.
+- Replaced the external colorbar with an inset axes colorbar.
+- Changed the return value to `(alignment, fig, ax)`.
+- Updated `notebooks/ReLU_runner.ipynb` and `notebooks/scratch.ipynb` call sites
+  to unpack `fig`.
+
+### Decisions
+- Preserve notebook display behavior by leaving `plt.show()` in the notebooks.
+- Update all repository call sites found for the changed return shape.
+
+### Current state / where to pick up
+- `src/layer_lenses/relu_analysis.py` has no linter errors.
+- Edited notebooks parse as valid JSON.
+
+### Open questions
+- None.
+
+---
+
 ## 2026-05-01 10:38 IST — Rename package to layer-lenses
 
 ### Goal
@@ -1540,6 +1703,719 @@ misplaced/redundant helpers.
 
 ### Current state / where to pick up
 - `uv run pytest` passes with 25 tests.
+
+### Open questions
+- None.
+
+---
+
+## 2026-05-01 15:13 IST — Speed up neuron-leaf activity counting
+
+### Goal
+Reduce redundant computation in the notebook section after
+"Neuron activity breakdown" where active points are counted for every
+neuron/leaf pair.
+
+### User prompts (verbatim)
+- "Can you make the counting active points for every neuron more efficient?  the cell after "Neuron activity breakdown" in @notebooks/scratch.ipynb ? I can see that there is significant redundant computation happening there."
+
+### Changes
+- Rewrote `summarize_neuron_leaf_activity` in `src/layer_lenses/relu_analysis.py`
+  to use vectorized aggregation (`np.add.at`) per layer instead of nested
+  `(neuron, leaf)` calls to `count_active_points_for_neuron_leaf`.
+- Updated `notebooks/scratch.ipynb`:
+  - the post-heading cell now calls `summarize_neuron_leaf_activity(...)`
+    directly;
+  - the next cell now uses `neuron_leaf_activity_dict(...)` instead of a
+    manual dataframe filtering loop.
+- Added `tests/test_relu_analysis.py` to validate the vectorized summary
+  against scalar `count_active_points_for_neuron_leaf` spot checks.
+
+### Decisions
+- Kept `count_active_points_for_neuron_leaf` as a simple scalar utility for
+  targeted inspection, while making bulk counting use the vectorized path.
+
+### Current state / where to pick up
+- `uv run pytest` passes with 26 tests.
+- Notebook cells now route bulk activity counting through reusable,
+  optimized library functions.
+
+### Open questions
+- None.
+
+---
+
+## 2026-05-01 18:21 IST — Add activation tensor helper
+
+### Goal
+Add a reusable helper that returns hidden-neuron activity as a boolean
+array indexed by layer, neuron, and data point.
+
+### User prompts (verbatim)
+- "Can you add a function in @src/layer_lenses/relu_analysis.py that takes in a model check point and x_eval and returns a boolean numpy array of shape (layers, neurons, num_data)? The output array corresponds to which data points are active for the corresponding neuron."
+
+### Changes
+- Added `activation_tensor_by_layer_neuron_data(...)` to
+  `src/layer_lenses/relu_analysis.py`.
+- The function returns a boolean tensor with shape
+  `(num_hidden_layers, max_hidden_width, num_data)`.
+- For layers narrower than `max_hidden_width`, trailing neuron slots are
+  padded with `False`.
+- Added tests in `tests/test_relu_analysis.py` checking shape, dtype,
+  padding semantics, and consistency with
+  `active_point_mask_for_neuron(...)`.
+
+### Decisions
+- Used max-width padding so the return value is always a dense 3D NumPy
+  array even when hidden-layer widths differ.
+
+### Current state / where to pick up
+- `uv run pytest` passes with 27 tests.
+
+### Open questions
+- None.
+
+---
+
+## 2026-05-01 18:23 IST — Add notebook activation-tensor demo cell
+
+### Goal
+Add a notebook cell after "Neuron activity breakdown" that demonstrates the
+new activation-tensor helper and prints quick layer-wise summaries.
+
+### User prompts (verbatim)
+- "Yes, please do so after the "Neuron activity breakdown" markdown cell."
+
+### Changes
+- Inserted a new code cell immediately after the
+  "Neuron activity breakdown" markdown cell in `notebooks/scratch.ipynb`.
+- The cell computes `activation_tensor` via
+  `activation_tensor_by_layer_neuron_data(...)`, prints its shape, and
+  reports per-layer active-fraction summary stats.
+
+### Decisions
+- Kept output concise and added an optional commented snippet for inspecting
+  one neuron's boolean mask over evaluation points.
+
+### Current state / where to pick up
+- Notebook section order now is:
+  markdown heading -> activation tensor demo cell -> bulk summary cell.
+
+### Open questions
+- None.
+
+---
+
+## 2026-05-01 23:06 IST — Add checkpoint inner-product plot cell
+
+### Goal
+Add a notebook cell after the first-layer norm vs `|cosine|` scatter plot
+to track checkpoint-wise inner products for a selected first-layer neuron
+and ODT internal node.
+
+### User prompts (verbatim)
+- "Can you add a cell just after the scatter plot of neuron norms vs |cosine| with another plotting cell? It should take in a first layer neuron id, and an internal ODT node and plot the inner product of the the corresponding incoming weight vector with the ODT node vector corresponding to the internal node. x-axis is the checkpoint epochs. Use the previously generated seed_result object."
+
+### Changes
+- Inserted a new code cell in `notebooks/scratch.ipynb` immediately after
+  the scatter plot section.
+- The cell:
+  - takes `FIRST_LAYER_NEURON_ID` and `ODT_INTERNAL_NODE_ID`,
+  - validates both indices,
+  - computes `dot(hidden_layers.0.weight[neuron], tree.w_list[node])` for
+    each checkpoint epoch,
+  - plots inner product vs checkpoint epoch.
+
+### Decisions
+- Kept the cell independent and explicit so users can quickly tune neuron
+  and node ids without modifying library code.
+
+### Current state / where to pick up
+- Notebook section order is now:
+  scatter plot cell -> inner-product-over-epochs cell -> graph visualisation.
+
+### Open questions
+- None.
+
+---
+
+## 2026-05-01 23:10 IST — ReLU training: SGD option
+
+### Goal
+Allow ReLU training to use plain (no-momentum) SGD instead of AdamW when requested.
+
+### User prompts (verbatim)
+- "Can you write an option in the ReLU training setup to just do simple gradient descent (without momentum) instead of Adam?"
+
+### Changes
+- Extended `ReLUTrainConfig` with `optimizer: str = "adamw"` (`"adamw"` / `"adam"` or `"sgd"` / `"gd"`).
+- `train_relu_mlp` uses `torch.optim.SGD(..., momentum=0.0)` for the SGD path; cosine LR schedule unchanged.
+- Threaded `optimizer` through `run_single_relu_seed` in `relu_analysis.py`.
+- Added `test_train_relu_mlp_sgd_smoke` in `tests/test_relu_training.py`.
+- Noted the option in `README_detailed.md`.
+
+### Decisions
+- SGD is implemented as `torch.optim.SGD` with `momentum=0` (vanilla mini-batch updates when `batch_size` < n).
+
+### Current state / where to pick up
+- `uv run pytest` passes with 28 tests.
+
+### Open questions
+- None.
+
+---
+
+## 2026-05-01 23:15 IST — Log-loss parameter gradients helper
+
+### Goal
+Expose a reusable helper that computes gradients of the training log loss with
+respect to all model parameters on a given `(x, y)` batch without optimizer updates.
+
+### User prompts (verbatim)
+- "Write a function in @src/layer_lenses/relu_analysis.py that takes in a model, and a train/eval set x,y, and computes the gradient for all parameters on this set for the log loss. It makes no updates. It retrurns the gradients as an appropriate dictionary."
+
+### Changes
+- Added `log_loss_gradients(...)` to `src/layer_lenses/relu_analysis.py`.
+- Loss matches training: mean `binary_cross_entropy_with_logits` with
+  `y` in `{-1,+1}` mapped to `{0,1}`.
+- Returns `dict[str, torch.Tensor]` aligned with `model.state_dict()` keys;
+  values are CPU detached clones; model gradients cleared afterward.
+- Added `test_log_loss_gradients_keys_and_shapes` in
+  `tests/test_relu_analysis.py`.
+- Documented in `README_detailed.md`.
+
+### Decisions
+- Use **mean** loss over the provided set so gradient magnitude matches a
+  single full-batch training step with default mean reduction.
+
+### Current state / where to pick up
+- `uv run pytest` passes with 29 tests.
+
+### Open questions
+- None.
+
+---
+
+## 2026-05-03 09:51 IST — Project first-layer ReLU gradients
+
+### Goal
+Add an experimental training restriction for ReLU MLPs: project first-layer
+incoming-weight gradients to the orthogonal complement of a chosen vector
+before optimizer updates.
+
+### User prompts (verbatim)
+- "Can you write a modification to the training procedure in the relu_training.py file, where gradients for the first layer neurons are projected to the orthogonal complement of the root node ODT vector u_0 before being used? I want to see if training still succeeds despite this extra restriction."
+
+### Changes
+- Added `first_layer_grad_orthogonal_to` to `ReLUTrainConfig`.
+- Added gradient projection in `train_relu_mlp` after `loss.backward()` and
+  before `optimizer.step()`, applied row-wise to `hidden_layers.0.weight.grad`.
+- Added `project_first_layer_grad_orthogonal_to_root` to
+  `run_single_relu_seed`, which passes `tree.w_list[0]` as the projection vector.
+- Added a regression test verifying the one-step SGD first-layer update has
+  zero component along the projection vector.
+- Updated `README_detailed.md`.
+
+### Decisions
+- Keep the training primitive generic: `relu_training.py` accepts any
+  projection vector, while `relu_analysis.py` provides the ODT-root
+  convenience flag.
+- Only first-layer weights are projected; first-layer biases, if present,
+  are unchanged because the restriction is on incoming weight vectors.
+
+### Current state / where to pick up
+- `uv run pytest` passes with 30 tests.
+
+### Open questions
+- Whether AdamW's coordinate-wise adaptive scaling is desirable for this
+  experiment; SGD preserves the projected update direction most directly.
+
+---
+
+## 2026-05-06 07:47 IST — Allow provided ReLU initialization
+
+### Goal
+Let `run_single_relu_seed` train from a caller-provided ReLU MLP initialization
+instead of always constructing one from `master_seed + 1000`.
+
+### User prompts (verbatim)
+- "Can you modify run_single_relu_seed so that it can optionally take a model init as as anrgument instead of always choosing init based on a random seed?"
+
+### Changes
+- Added optional `model_init` to `run_single_relu_seed`.
+- Validates that provided initial models match `dim`, `hidden_dims`, and `bias`.
+- Deep-copies provided initial models before training so the source init remains reusable.
+- Added a regression test in `tests/test_relu_analysis.py`.
+- Updated `README_detailed.md`.
+
+### Decisions
+- Preserve existing seed-based initialization when `model_init` is omitted.
+- Keep `init_seed` in the returned seed metadata for backward compatibility, even when
+  the provided model path does not use it.
+
+### Current state / where to pick up
+- `uv run pytest tests/test_relu_analysis.py tests/test_relu_training.py` passes with 8 tests.
+
+### Open questions
+- None.
+
+---
+
+## 2026-05-06 07:51 IST — Coordinate-axis ReLU ODT option
+
+### Goal
+Allow `run_single_relu_seed` to generate COB-ODT data from coordinate-axis
+hyperplanes instead of a random orthogonal basis.
+
+### User prompts (verbatim)
+- "Also, add an option in the ReLU single seed training function so that the generating ODT hyperplaes corespond to the co-ordinate axis instead of a random orthogonal set."
+
+### Changes
+- Added `build_axis_aligned_cob_odt_tree` in `src/layer_lenses/odt.py`.
+- Added `odt_hyperplanes` to `run_single_relu_seed`, with options
+  `"random_orthogonal"` and `"coordinate_axes"`.
+- Added a regression test checking that the coordinate-axis path uses the first
+  standard basis vectors as ODT normals.
+- Updated `README_detailed.md`.
+
+### Decisions
+- Kept `"random_orthogonal"` as the default to preserve existing behavior.
+- Built the coordinate-axis case as an explicit tree passed through
+  `generate_cob_odt_data(tree=...)`, so existing data validation remains active.
+
+### Current state / where to pick up
+- `uv run pytest tests/test_relu_analysis.py tests/test_relu_training.py` passes with 9 tests.
+
+### Open questions
+- None.
+
+---
+
+## 2026-05-06 08:33 IST — ReLU parameter update masks
+
+### Goal
+Let ReLU training freeze individual scalar parameter entries via a 0/1 update mask.
+
+### User prompts (verbatim)
+- "Have the relu training take an extra configuration option. It should take a 0/1 parameter mask that tells whether each individual parameter is to be updated or kept frozen during training. ReLU single seed should also take this mask as argument while creating the config."
+
+### Changes
+- Added `parameter_update_mask` to `ReLUTrainConfig`.
+- Validates mask keys, shapes, and binary 0/1 values against model parameter names.
+- Applies masks to gradients and restores frozen entries after each optimizer step,
+  including against AdamW weight decay.
+- Threaded `parameter_update_mask` through `run_single_relu_seed`.
+- Added regression tests for low-level training and single-seed wrapper behavior.
+- Updated `README_detailed.md`.
+
+### Decisions
+- Use a dictionary keyed by `model.named_parameters()` names, with arrays/tensors of
+  the same shape as each parameter.
+- Require complete masks when provided so missing parameter-freeze behavior is not
+  ambiguous.
+
+### Current state / where to pick up
+- `uv run pytest tests/test_relu_analysis.py tests/test_relu_training.py` passes with 11 tests.
+
+### Open questions
+- None.
+
+---
+
+## 2026-05-06 08:43 IST — Gaussian ReLU initialization
+
+### Goal
+Remove the axis-aligned box artifact from ReLU MLP initialization while keeping
+the same per-parameter variance as PyTorch's default linear uniform init.
+
+### User prompts (verbatim)
+- "Right now the parameters of the ReLU net are initialised using a uniform distribution, and when the ODT hyperplanes are axis parallel it creates an unusual correlation pattern between ODT hyperplanes and parameters. Can you change that behaviour ? (maybe replace uniform with Gaussian so that they still have same variance?)"
+
+### Changes
+- Added explicit Gaussian initialization to `ReLUMLP.reset_parameters`.
+- Hidden and output linear weights, and biases when present, now use
+  `Normal(0, 1 / (3 * fan_in))`.
+- Added `tests/test_relu_mlp.py` to check variance scale and that weights are
+  not constrained to the old default uniform interval.
+- Updated `README_detailed.md`.
+
+### Decisions
+- Match the variance of PyTorch's default `nn.Linear` uniform initialization:
+  `Uniform(-1/sqrt(fan_in), 1/sqrt(fan_in))` has variance `1 / (3 * fan_in)`.
+
+### Current state / where to pick up
+- `uv run pytest tests/test_relu_mlp.py tests/test_relu_analysis.py tests/test_relu_training.py` passes with 12 tests.
+
+### Open questions
+- None.
+
+---
+
+## 2026-05-06 23:53 IST — Legacy pickle import compatibility
+
+### Goal
+Explain and fix failures when loading pickle files created before the project
+rename from `first_experiment` to `layer_lenses`.
+
+### User prompts (verbatim)
+- "I had previously generated a pickle file when the project name was "first-experiment", now when I try to load that file I get an error "No module named 'first_experiment'" . The project was thoroughly renamed to "layer-lenses", why is this happening? Can it be fixed?"
+
+### Changes
+- Added `src/first_experiment/__init__.py` as a backward-compatibility shim
+  that forwards old `first_experiment.*` module paths to `layer_lenses.*`.
+- Added `tests/test_rename_compat.py` to verify old pickle global paths resolve.
+- Updated `README_detailed.md`.
+
+### Decisions
+- Keep source code and new imports under `layer_lenses`; use `first_experiment`
+  only as a compatibility alias for legacy serialized artifacts.
+
+### Current state / where to pick up
+- `uv run pytest` passes with 36 tests.
+
+### Open questions
+- None.
+
+---
+
+## 2026-05-07 07:09 IST — DLGN first ODT alignment hits
+
+### Goal
+Add notebook analysis code to find the first checkpoint epoch where DLGN gating
+neurons align strongly with each ODT internal node.
+
+### User prompts (verbatim)
+- "I am doing some analysis on the DLGN training in @notebooks/DLGN_multiseed_multipath_runner.ipynb . Can you write code which takes the "all_results" object, and for each seed and each ODT inernal node finds the first epoch where some neuron hits a cosine similarity greater than 0.8?"
+
+### Changes
+- Added a notebook helper `first_odt_alignment_hit_epochs(...)`.
+- The helper scans `all_results` across master seeds, run modes, ODT internal
+  nodes, and checkpoint epochs.
+- It returns a tidy dataframe with first hit epoch, winning global neuron,
+  layer/local neuron id, signed cosine, and absolute cosine.
+- Added a notebook execution cell that builds `odt_alignment_hit_epochs`.
+
+### Decisions
+- Default thresholding uses `abs(cosine) > 0.8`, matching existing scatter
+  plots based on `max |cosine|`; pass `use_abs=False` for signed positive
+  cosine only.
+
+### Current state / where to pick up
+- Notebook edited only; no tests were run.
+
+### Open questions
+- None.
+
+---
+
+## 2026-05-07 08:09 IST — DLGN ODT hit-epoch tree plots
+
+### Goal
+Visualize first-hit epochs on the ODT internal-node tree for the
+`two_phase_phase1` DLGN run mode.
+
+### User prompts (verbatim)
+- "Take the ODT_alignment_hit_epochs object for just the "two_phase_phase1" run mode, and for each seed can you create a tree visualisation that gives the hit epoch for each ODT node?"
+
+### Changes
+- Added notebook helper `_complete_binary_internal_node_positions(...)`.
+- Added `plot_phase1_odt_hit_epoch_trees(...)` to
+  `notebooks/DLGN_multiseed_multipath_runner.ipynb`.
+- The helper filters hit-epoch rows by run mode, creates one subplot per seed,
+  draws internal ODT tree edges, colors nodes by first hit epoch, and labels
+  nodes with `node_id` and hit epoch (`NA` if none).
+
+### Decisions
+- Use a shared color scale across all seed subplots for easier comparison.
+- Keep the default run mode as `"two_phase_phase1"`, while allowing override.
+
+### Current state / where to pick up
+- Notebook edited only; no tests were run.
+
+### Open questions
+- None.
+
+---
+
+## 2026-05-07 08:14 IST — DLGN alignment norm threshold
+
+### Goal
+Require DLGN ODT alignment hits to pass both a cosine threshold and a gating-vector
+norm threshold.
+
+### User prompts (verbatim)
+- "Can you modify the alignment hit epoch computation to also take a norm threshold in addition to a abs cosine threshold?"
+
+### Changes
+- Updated `first_odt_alignment_hit_epochs(...)` in
+  `notebooks/DLGN_multiseed_multipath_runner.ipynb` with a `norm_threshold`
+  argument.
+- A hit now requires the selected neuron's gating-vector norm to exceed
+  `norm_threshold` and the configured cosine score to exceed `threshold`.
+- The returned dataframe now records `gating_norm`, `cosine_threshold`, and
+  `norm_threshold`.
+- Updated the notebook example call to pass `norm_threshold=0.0` explicitly.
+
+### Decisions
+- Preserve the existing default behavior by setting `norm_threshold=0.0`.
+- Keep the cosine threshold parameter name as `threshold` for compatibility, but
+  label it as `cosine_threshold` in output rows.
+
+### Current state / where to pick up
+- Notebook edited only; no tests were run.
+
+### Open questions
+- None.
+
+---
+
+## 2026-05-07 08:37 IST — DLGN hit-tree epoch labels
+
+### Goal
+Make the ODT hit-epoch tree labels cleaner by showing only the epoch inside each
+node, with stronger typography.
+
+### User prompts (verbatim)
+- "In the tree visualisation can you remove the node id, and make the epoch inside the node boger or bold?"
+
+### Changes
+- Updated `plot_phase1_odt_hit_epoch_trees(...)` in
+  `notebooks/DLGN_multiseed_multipath_runner.ipynb`.
+- Node labels now show only the hit epoch (`NA` if no hit), not the ODT node id.
+- Increased the label font size and set `fontweight="bold"`.
+
+### Decisions
+- Kept node positions, colors, and tree edges unchanged.
+
+### Current state / where to pick up
+- Notebook edited only; no tests were run.
+
+### Open questions
+- None.
+
+---
+
+## 2026-05-07 11:11 IST — ReLU gradient projection node selector
+
+### Goal
+Allow ReLU single-seed runs to project first-layer gradients orthogonal to any
+chosen ODT internal node, instead of only the root node.
+
+### User prompts (verbatim)
+- "Change the relu single seed running option where project_first_layer_grad_orthogonal is an integer or None. If it is an integer corresponding to an ODT internal node it projects the gradients orthogonal to that node. Right now it always projects orthogonal to the root."
+
+### Changes
+- Replaced `run_single_relu_seed(...)`'s
+  `project_first_layer_grad_orthogonal_to_root` boolean with
+  `project_first_layer_grad_orthogonal: int | None`.
+- Added validation that the projection selector is either `None` or a valid ODT
+  internal node id.
+- Passed the selected `tree.w_list[node_id]` into the existing
+  `ReLUTrainConfig.first_layer_grad_orthogonal_to` projection vector.
+- Updated `notebooks/ReLU_runner.ipynb` and `notebooks/scratch.ipynb` calls.
+- Updated `README_detailed.md`.
+- Added regression tests for selected-node projection and invalid node ids.
+
+### Decisions
+- Keep the lower-level training config unchanged because it already supports an
+  arbitrary projection vector.
+- Treat `None` as no projection and reject booleans explicitly, since bools are
+  integers in Python but are ambiguous for this API.
+
+### Current state / where to pick up
+- `uv run pytest tests/test_relu_analysis.py` passes with 8 tests.
+- Edited notebooks parse as valid JSON.
+
+### Open questions
+- None.
+
+---
+
+## 2026-05-07 11:22 IST — ReLU ODT capture epochs
+
+### Goal
+Add notebook analysis code to find when first-layer ReLU neurons first capture
+ODT internal nodes by absolute cosine alignment.
+
+### User prompts (verbatim)
+- "Can you write a piece of code for the ReLU_runner.ipynb notebook that take ckpts and gives the first epoch where any ODT node is "captured" by some first layer neuron? Define captured via an abs cosine threshold."
+
+### Changes
+- Added a "First ODT capture epochs" section to `notebooks/ReLU_runner.ipynb`.
+- Added `first_odt_capture_epochs(...)`, which scans checkpoint snapshots and
+  returns one row per ODT internal node.
+- The returned dataframe records first capture epoch, capturing first-layer
+  neuron id, signed cosine, absolute cosine, and threshold.
+- Added an example call producing `odt_capture_epochs` and displaying it with
+  `itables.show`.
+
+### Decisions
+- Define capture as `abs(cosine) > threshold`, with default `threshold=0.8`.
+- Keep this as notebook-local analysis code for now.
+
+### Current state / where to pick up
+- Notebook edited only; JSON parsing was validated.
+
+### Open questions
+- None.
+
+---
+
+## 2026-05-07 11:32 IST — ReLU ODT capture tree
+
+### Goal
+Visualize the hierarchical order in which first-layer ReLU neurons capture ODT
+internal nodes.
+
+### User prompts (verbatim)
+- "Can you create similar tree like figures as was done for DLGN as well? To illustrate the hierarchical capturing order."
+
+### Changes
+- Added an "ODT capture-epoch tree" section to `notebooks/ReLU_runner.ipynb`.
+- Added `_complete_binary_internal_node_positions(...)`.
+- Added `plot_odt_capture_epoch_tree(...)`, which colors ODT internal nodes by
+  first capture epoch and labels each node with the epoch (`NA` if uncaptured).
+- Added an example call plotting `odt_capture_epochs`.
+
+### Decisions
+- Reused the same complete-binary-tree layout and bold epoch-only labels used
+  in the DLGN visualization.
+- Kept the ReLU plot single-panel because `ReLU_runner.ipynb` is a single-seed
+  runner.
+
+### Current state / where to pick up
+- Notebook edited only; JSON parsing was validated.
+
+### Open questions
+- None.
+
+---
+
+## 2026-05-07 (IST) — DLGN hit-epoch tree label contrast
+
+### Goal
+Make epoch numbers easier to read on dark viridis-colored ODT hit-epoch tree nodes.
+
+### User prompts (verbatim)
+- "IN the @notebooks/DLGN_multiseed_multipath_runner.ipynb notebook, can you make some changes to the ODT-node alignment hit-epoch figures? The dark colors make it hard to read the epoch number inside it."
+
+### Changes
+- `notebooks/DLGN_multiseed_multipath_runner.ipynb`: in `plot_phase1_odt_hit_epoch_trees`, added `_epoch_tree_label_style` using sRGB luminance to pick white vs black label fill and `matplotlib.patheffects.withStroke` for a contrasting outline on each background.
+
+### Decisions
+- Use luminance threshold 0.5; dark viridis gets white text with dark stroke, light/NA gets black text with white stroke.
+
+### Current state / where to pick up
+- Notebook-only change; re-run the cell to refresh figures.
+
+### Open questions
+- None.
+
+---
+
+## 2026-05-07 (IST) — ReLU ODT capture tree matches DLGN style
+
+### Goal
+Align the ReLU ODT capture-epoch tree figure with the DLGN hit-epoch tree styling.
+
+### User prompts (verbatim)
+- "In the @notebooks/ReLU_runner.ipynb notebook there is a similar figure for ODT capture epochs. Can you make it also in the same style as the DLGN figures?"
+
+### Changes
+- `notebooks/ReLU_runner.ipynb`: added `_epoch_tree_label_style` (same as DLGN), marker size `s=780`, epoch labels `fontsize=9` with luminance-based fill and stroke; `fig.suptitle` + `ax.set_title(f\"Seed {SEED}\")` at `fontsize=14`; removed standalone `fig.colorbar` to match DLGN trees.
+
+### Decisions
+- No colorbar on the tree (same as `plot_phase1_odt_hit_epoch_trees`); epoch numbers remain the numeric legend.
+
+### Current state / where to pick up
+- Notebook-only; re-run the plotting cell.
+
+### Open questions
+- None.
+
+---
+
+## 2026-05-07 (IST) — ReLU ODT capture tree geometry matches DLGN
+
+### Goal
+Match edge length/angle perception in the ReLU capture-epoch tree to DLGN hit-epoch trees for side-by-side figures.
+
+### User prompts (verbatim)
+- "The edges between the nodes seem longer and at different angle than the DLGN figures. Can you make it match exactly so that they can be not jarring when put side-to-side."
+
+### Changes
+- `notebooks/ReLU_runner.ipynb`: `plot_odt_capture_epoch_tree` now defaults to `figsize_per_panel=(6.0, 3.8)` (same as DLGN) and, when `use_dlgn_panel_geometry` is True, builds a `(2 * w) × h` figure with `Figure.add_gridspec(1, 2)` and only `add_subplot(gs[0, 0])`, so the axes box matches one column of DLGN’s two-column layout (not a full-width 6×3.8 panel). Added `use_dlgn_panel_geometry=False` to recover a single full-panel figure if desired.
+
+### Decisions
+- Mismatch was from axes aspect: one full-width subplot vs half-width in a 2-col grid, plus the old 8×4.8 default size.
+
+### Current state / where to pick up
+- Notebook-only; re-run the cell. Exported PDFs are now 12 in wide unless `use_dlgn_panel_geometry=False` (crop or use the left half for layouts).
+
+### Open questions
+- None.
+
+---
+
+## 2026-05-07 (IST) — Generic complete-binary tree plot utility
+
+### Goal
+Provide importable functions to lay out and plot numeric labels on the COB-ODT-style complete binary tree (e.g. 31 internal nodes), matching notebook DLGN tree styling.
+
+### User prompts (verbatim)
+- "Can you create a generic plot function which takes 31 numbers and puts those numbers in a tree similar to the plot_phase1_odt_hit_epoch_trees function in@notebooks/DLGN_multiseed_multipath_runner.ipynb  and returns the figure and axis? Put such a function in a separate utilitles.py file."
+
+### Changes
+- Added `src/layer_lenses/utilities.py` with `complete_binary_internal_node_positions`, `epoch_tree_label_style`, and `plot_complete_binary_tree_values` (viridis normalization, gray edges, markers/labels as in notebooks; optional `use_dlgn_panel_geometry`).
+- Added `tests/test_utilities.py`.
+
+### Decisions
+- Support any valid complete-binary internal count (`2**d-1`), not only 31; use `float('nan')` for missing.
+- Figure layout: `layout="constrained"` instead of `tight_layout` to avoid GridSpec warnings.
+
+### Current state / where to pick up
+- Notebooks still duplicate helpers; optional follow-up is to import from `layer_lenses.utilities`.
+
+### Open questions
+- None.
+
+---
+
+## 2026-05-07 (IST) — DLGN notebook cell for utility tree plot
+
+### Goal
+Demonstrate `plot_complete_binary_tree_values` using `odt_alignment_hit_epochs` in the DLGN notebook.
+
+### User prompts (verbatim)
+- "Can you give a small cell that uses the odt_alignment_hit_epochs object from the DLGN notebook and uses the newly created utility plotting function to make the tree figure?"
+
+### Changes
+- `notebooks/DLGN_multiseed_multipath_runner.ipynb`: new code cell after `odt_alignment_hit_epochs` is built; filters by run mode + first sorted seed, `reindex` of `first_epoch`, calls `plot_complete_binary_tree_values`.
+
+### Decisions
+- Example seed is `sorted(unique(master_seed))[0]`; override `_seed_utility` / `_run_mode_utility` in the cell as needed.
+
+### Current state / where to pick up
+- Re-run notebook through the new cell.
+
+### Open questions
+- None.
+
+---
+
+## 2026-05-07 (IST) — ReLU notebook: utility capture-epoch tree cell
+
+### Goal
+Add a cell using `plot_complete_binary_tree_values` with `odt_capture_epochs` after the ODT capture-epoch tree section.
+
+### User prompts (verbatim)
+- "Can you use the same function and the odt_capture_epochs object in the @notebooks/ReLU_runner.ipynb notebook to create a similar tree plot? Insert a cell aftre the \"ODT capture-epoch tree\" cell."
+
+### Changes
+- `notebooks/ReLU_runner.ipynb`: new code cell (index 10) after the capture-epoch tree implementation; builds a reindexed `first_epoch` vector and calls `plot_complete_binary_tree_values` with `use_dlgn_panel_geometry=True`.
+
+### Current state / where to pick up
+- Re-run from training / capture epochs through the new cell.
 
 ### Open questions
 - None.

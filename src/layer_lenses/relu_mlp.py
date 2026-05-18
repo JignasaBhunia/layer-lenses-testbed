@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import math
+
 import torch
 from torch import nn
 
@@ -29,6 +31,16 @@ class ReLUMLP(nn.Module):
             self.hidden_layers.append(nn.Linear(prev, width, bias=bias))
             prev = width
         self.output_layer = nn.Linear(prev, 1, bias=bias)
+        self.reset_parameters()
+
+    def reset_parameters(self) -> None:
+        """Initialize linear layers with Gaussian variance matching PyTorch's default."""
+        for layer in [*self.hidden_layers, self.output_layer]:
+            fan_in = layer.weight.shape[1]
+            std = 1.0 / math.sqrt(3.0 * fan_in)
+            nn.init.normal_(layer.weight, mean=0.0, std=std)
+            if layer.bias is not None:
+                nn.init.normal_(layer.bias, mean=0.0, std=std)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         h = x

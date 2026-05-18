@@ -68,7 +68,6 @@ def _sample_orthonormal_vectors(
             f"Got num_vectors={num_vectors}, dim={dim}."
         )
     gaussian = rng.standard_normal((dim, dim))
-    # gaussian = np.identity(dim)  # for testing purposes setting ODT normals to identity
     q, _ = np.linalg.qr(gaussian)
     return q[:, :num_vectors].T
 
@@ -204,6 +203,23 @@ def build_default_cob_odt_tree(
 
     num_internal_nodes = (2**depth) - 1
     w_list = _sample_orthonormal_vectors(rng, num_vectors=num_internal_nodes, dim=dim)
+    b_list = np.zeros(num_internal_nodes, dtype=np.float64)
+    leaf_labels = _default_leaf_labels(depth=depth, global_sign=global_leaf_sign)
+    return COBODTTree(w_list=w_list, b_list=b_list, leaf_labels=leaf_labels)
+
+
+def build_axis_aligned_cob_odt_tree(
+    *, dim: int, depth: int, global_leaf_sign: int = 1
+) -> COBODTTree:
+    """Create COB-ODT parameters whose internal hyperplanes are coordinate axes."""
+
+    num_internal_nodes = (2**depth) - 1
+    if num_internal_nodes > dim:
+        raise ValueError(
+            "Cannot build axis-aligned COB-ODT when num_internal_nodes > dim. "
+            f"Got num_internal_nodes={num_internal_nodes}, dim={dim}."
+        )
+    w_list = np.eye(dim, dtype=np.float64)[:num_internal_nodes]
     b_list = np.zeros(num_internal_nodes, dtype=np.float64)
     leaf_labels = _default_leaf_labels(depth=depth, global_sign=global_leaf_sign)
     return COBODTTree(w_list=w_list, b_list=b_list, leaf_labels=leaf_labels)
