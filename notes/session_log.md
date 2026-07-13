@@ -177,6 +177,40 @@ termination.
 
 ---
 
+## 2026-07-13 (IST) - Layers as Lenses learning guide
+
+### Goal
+Create one comprehensive Markdown orientation document from the PDFs in
+`Relevant Documents` and the current repository implementation.
+
+### User prompts (verbatim)
+- "i want to dive into this project, prof has given me to understand this throughly
+analyze files and pdfs present in Relevent Documents
+give me a full markdown file that i can use as one stop document to learn every nuance of it"
+
+### Changes
+- Added `notes/layers_as_lenses_learning_guide.md`: a paper-first learning
+  guide covering the COB-ODT setting, DLGN, Lens-Blinder-Residue factorization,
+  theorems, experiments, ReLU extension, implementation map, current gaps,
+  study plan, and source-confidence ledger.
+
+### Decisions
+- Treated `Relevant Documents/Layers_as_Lenses_preprint.pdf` as the
+  authoritative scientific source and the June 2026 slides as explanatory/WIP
+  context. Existing mismatch and reproducibility notes remain the authority for
+  repository-specific interpretation and settings.
+
+### Current state / where to pick up
+- The guide is ready for a first read. The next practical learning step is a
+  small reproducible DLGN run with saved alignment/capture diagnostics; stable
+  config and CLI work are still not committed.
+
+### Open questions
+- Which published/preprint observation should become the first exact baseline
+  target for the repository remains a user/project decision.
+
+---
+
 ## 2026-04-22 (IST) — Fix legacy notebook log loss
 
 ### Goal

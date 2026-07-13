@@ -51,3 +51,25 @@ For research details and decisions, prefer:
 If paper details, old notebooks, and current code disagree, follow the documented source-of-truth policy in `AGENTS.md`: paper first, explicit experiment details second, notebook behavior third.
 
 For a deeper module and function map, see `README_detailed.md`.
+
+## Math examples in this README
+
+This README contains LaTeX-style math examples. To see rendered math locally, open the file in VS Code and use an extension that supports KaTeX/MathJax (for example, "Markdown Preview Enhanced"). Note: GitHub's repository README rendering does not execute scripts, so `$...$` math may appear raw on github.com.
+
+- Inline example: $e^{i\pi} + 1 = 0$
+- Display example:
+
+$$
+\int_0^1 x^2 \, dx = \frac{1}{3}
+$$
+
+Quick local steps:
+
+```bash
+# install the VS Code extension (optional, or install from Extensions view)
+code --install-extension shd101wyy.markdown-preview-enhanced
+
+# then open preview: Command Palette → Markdown Preview Enhanced: Open Preview
+```
+
+There's also a companion example file with more equations and notes: see [math-demo.md](math-demo.md).
