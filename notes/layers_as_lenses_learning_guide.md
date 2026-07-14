@@ -101,9 +101,9 @@ last decision level is called “leaf nodes.” Terminal label nodes are numbere
 
 The target can be expressed as a sum over root-to-label paths `gamma`:
 
-```text
-y*(x) = sum_gamma y*(gamma) product_{p=1}^D 1[tau_p u_{gamma_p}^T x > 0].
-```
+$$
+y^*(x)=\sum_{\gamma} y^*(\gamma)\prod_{p=1}^{D}\mathbf{1}\!\left[\tau_p\,u_{\gamma_p}^{\top}x>0\right].
+$$
 
 Exactly one path indicator is nonzero for each `x`.
 
